@@ -11,11 +11,31 @@ export interface Client {
   updatedAt?: string
 }
 
+// Interface para parâmetros de busca
+export interface ClientSearchParams {
+  search?: string
+  page?: number
+  limit?: number
+  sort?: string
+  status?: string
+}
+
 // Serviço de API para clientes
 export const clientsService = {
-  // Listar todos os clientes
-  listClients: async (): Promise<Client[]> => {
-    return fetchWithAuth("/api/clients")
+  // Listar todos os clientes com suporte a paginação e filtros
+  listClients: async (params?: ClientSearchParams): Promise<{data: Client[], total: number, page: number, totalPages: number}> => {
+    const queryParams = new URLSearchParams();
+    
+    if (params?.search) queryParams.append('search', params.search);
+    if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.sort) queryParams.append('sort', params.sort);
+    if (params?.status) queryParams.append('status', params.status);
+    
+    const queryString = queryParams.toString();
+    const url = `/api/clients${queryString ? `?${queryString}` : ''}`;
+    
+    return fetchWithAuth(url);
   },
 
   // Obter um cliente específico
@@ -47,21 +67,5 @@ export const clientsService = {
     return fetchWithAuth(`/api/clients/${id}`, {
       method: "DELETE",
     })
-  },
-
-  searchClients: async (searchTerm: string): Promise<Client[]> => {
-    try {
-      const data = await fetchWithAuth(`/api/clients/search?q=${encodeURIComponent(searchTerm)}`);
-      
-      if (!Array.isArray(data)) {
-        console.error("Dados recebidos não são um array:", data);
-        return [];
-      }
-      
-      return data;
-    } catch (error) {
-      console.error("Erro ao buscar clientes:", error);
-      return [];
-    }
   },
 }
