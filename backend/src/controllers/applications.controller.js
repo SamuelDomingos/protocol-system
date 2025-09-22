@@ -112,3 +112,72 @@ exports.completeApplication = async (req, res) => {
     res.status(500).json({ message: 'Internal server error' });
   }
 };
+
+exports.getAllApplications = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    
+    const filterOptions = {
+      searchFields: [],
+      filterFields: ['status', 'userId', 'stageId'],
+      includes: [
+        {
+          model: User,
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: Stage,
+          attributes: ['id', 'title', 'description'],
+          include: [{
+            model: Protocol,
+            attributes: ['id', 'title']
+          }]
+        }
+      ],
+      defaultSort: [['createdAt', 'DESC']]
+    };
+
+    const { where, order, limit: queryLimit, offset, include } = buildAdvancedFilters(
+      req.query, 
+      filterOptions
+    );
+
+    // Busca adicional em User e Stage se houver search
+    if (req.query.search) {
+      include.forEach(inc => {
+        if (inc.model === User) {
+          inc.where = {
+            [Op.or]: [
+              { name: { [Op.like]: `%${req.query.search}%` } },
+              { email: { [Op.like]: `%${req.query.search}%` } }
+            ]
+          };
+          inc.required = false;
+        }
+        if (inc.model === Stage) {
+          inc.where = {
+            [Op.or]: [
+              { title: { [Op.like]: `%${req.query.search}%` } },
+              { description: { [Op.like]: `%${req.query.search}%` } }
+            ]
+          };
+          inc.required = false;
+        }
+      });
+    }
+
+    const result = await Application.findAndCountAll({
+      where,
+      include,
+      order,
+      limit: queryLimit,
+      offset
+    });
+
+    const response = formatPaginatedResponse(result, page, limit, 'applications');
+    res.status(200).json(response);
+  } catch (err) {
+    console.error('❌ Error fetching applications:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};

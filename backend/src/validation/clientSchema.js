@@ -1,4 +1,4 @@
-// validation/clientSchema.js
+
 const Joi = require('joi');
 
 const clientSchema = Joi.object({

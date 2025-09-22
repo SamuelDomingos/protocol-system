@@ -1,4 +1,5 @@
 const { Message, User } = require('../models');
+const { buildAdvancedFilters, formatPaginatedResponse } = require('../utils/queryBuilder');
 
 exports.sendMessage = async (req, res) => {
   try {
@@ -23,13 +24,37 @@ exports.sendMessage = async (req, res) => {
 
 exports.getInbox = async (req, res) => {
   try {
-    const inbox = await Message.findAll({
-      where: { receiverId: req.user.id },
-      include: [{ model: User, as: 'sender', attributes: ['id', 'name', 'role'] }],
-      order: [['createdAt', 'DESC']]
+    const { page = 1, limit = 10 } = req.query;
+    
+    const filterOptions = {
+      searchFields: ['subject', 'message'],
+      filterFields: ['isRead'],
+      includes: [{ 
+        model: User, 
+        as: 'sender', 
+        attributes: ['id', 'name', 'role'] 
+      }],
+      defaultSort: [['createdAt', 'DESC']]
+    };
+
+    const { where, order, limit: queryLimit, offset, include } = buildAdvancedFilters(
+      { ...req.query, receiverId: req.user.id }, 
+      filterOptions
+    );
+
+    // Adicionar filtro obrigatório do receiverId
+    where.receiverId = req.user.id;
+
+    const result = await Message.findAndCountAll({
+      where,
+      include,
+      order,
+      limit: queryLimit,
+      offset
     });
 
-    res.status(200).json(inbox);
+    const response = formatPaginatedResponse(result, page, limit, 'messages');
+    res.status(200).json(response);
   } catch (err) {
     console.error('❌ Erro ao buscar mensagens:', err);
     res.status(500).json({ message: 'Erro interno ao buscar mensagens' });
@@ -58,6 +83,42 @@ exports.markAsRead = async (req, res) => {
   } catch (err) {
     console.error('❌ Erro ao marcar mensagem como lida:', err);
     res.status(500).json({ message: 'Erro interno' });
+  }
+};
+
+// Novo método para listar todas as mensagens (enviadas e recebidas) com filtros avançados
+exports.getAllMessages = async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    
+    const filterOptions = {
+      searchFields: ['subject', 'message'],
+      filterFields: ['isRead', 'senderId', 'receiverId'],
+      includes: [
+        { model: User, as: 'sender', attributes: ['id', 'name', 'role'] },
+        { model: User, as: 'receiver', attributes: ['id', 'name', 'role'] }
+      ],
+      defaultSort: [['createdAt', 'DESC']]
+    };
+
+    const { where, order, limit: queryLimit, offset, include } = buildAdvancedFilters(
+      req.query, 
+      filterOptions
+    );
+
+    const result = await Message.findAndCountAll({
+      where,
+      include,
+      order,
+      limit: queryLimit,
+      offset
+    });
+
+    const response = formatPaginatedResponse(result, page, limit, 'messages');
+    res.status(200).json(response);
+  } catch (err) {
+    console.error('❌ Erro ao buscar todas as mensagens:', err);
+    res.status(500).json({ message: 'Erro interno ao buscar mensagens' });
   }
 };
 

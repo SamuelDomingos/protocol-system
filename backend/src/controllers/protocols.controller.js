@@ -1,6 +1,7 @@
 const { Protocol, Stage, Client, User } = require('../models');
 const protocolSchema = require('../validation/protocolSchema');
 const sequelize = require('../config/database');
+const { buildAdvancedFilters, formatPaginatedResponse } = require('../utils/queryBuilder');
 
 exports.createProtocol = async (req, res) => {
   const { error, value } = protocolSchema.validate(req.body);
@@ -117,8 +118,12 @@ exports.deleteProtocol = async (req, res) => {
 
 exports.getAllProtocols = async (req, res) => {
   try {
-    const protocols = await Protocol.findAll({
-      include: [
+    const { page = 1, limit = 10 } = req.query;
+    
+    const filterOptions = {
+      searchFields: ['title'],
+      filterFields: ['status', 'isTemplate', 'createdBy', 'clientId'],
+      includes: [
         {
           model: Stage,
           as: 'stages',
@@ -126,12 +131,47 @@ exports.getAllProtocols = async (req, res) => {
         },
         {
           model: Client,
-          attributes: ['id', 'name', 'cpf']
+          attributes: ['id', 'name', 'cpf'],
+          required: false
+        },
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'name']
         }
-      ]
+      ],
+      defaultSort: [['createdAt', 'DESC']]
+    };
+
+    const { where, order, limit: queryLimit, offset, include } = buildAdvancedFilters(
+      req.query, 
+      filterOptions
+    );
+
+    // Busca adicional em Client se houver search
+    if (req.query.search) {
+      include.forEach(inc => {
+        if (inc.model === Client) {
+          inc.where = {
+            [Op.or]: [
+              { name: { [Op.like]: `%${req.query.search}%` } },
+              { cpf: { [Op.like]: `%${req.query.search}%` } }
+            ]
+          };
+        }
+      });
+    }
+
+    const result = await Protocol.findAndCountAll({
+      where,
+      include,
+      order,
+      limit: queryLimit,
+      offset
     });
 
-    res.status(200).json(protocols);
+    const response = formatPaginatedResponse(result, page, limit, 'protocols');
+    res.status(200).json(response);
   } catch (err) {
     console.error('❌ Error fetching protocols:', err);
     res.status(500).json({ message: 'Internal server error' });

@@ -1,12 +1,14 @@
 require('dotenv').config();
 const express = require('express');
-const {initDB } = require('./models'); // já inclui o sequelize aqui
+const { initDB } = require('./models');
 const cors = require('cors');
 
 const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 
 const os = require('os');
+const stockLocationsRoutes = require('./routes/stockLocations.route');
+const stockMovementsRoutes = require('./routes/stockMovements.route');
 
 const authRoutes = require('./routes/authRoutes.route');
 const clientsRoutes = require('./routes/clients.route');
@@ -31,27 +33,37 @@ function getLocalIp() {
   return 'localhost';
 }
 
-// Inicializa banco e sincroniza modelos
-initDB()
-  .then(() => console.log('✅ DB connected and models synced'))
-  .catch(err => console.error('❌ DB init failed:', err));
+const startServer = async () => {
+  try {
+    await initDB();
+    
+    // Rotas
+    app.get('/', (req, res) => {
+      res.send('Treatment Protocol System API 🧪');
+    });
+    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    app.use('/api/auth', authRoutes);
+    app.use('/api/clients', clientsRoutes);
+    app.use('/api/protocols', protocolsRoutes);
+    app.use('/api/applications', applicationsRoutes);
+    app.use('/api/permissions', permissionsRoutes);
+    app.use('/api/messages', messagesRoutes);
+    app.use('/api/stock-locations', stockLocationsRoutes);
+    app.use('/api/stock-movements', stockMovementsRoutes);
 
-// Rotas
-app.get('/', (req, res) => {
-  res.send('Treatment Protocol System API 🧪');
-});
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-app.use('/api/auth', authRoutes);
-app.use('/api/clients', clientsRoutes);
-app.use('/api/protocols', protocolsRoutes);
-app.use('/api/applications', applicationsRoutes);
-app.use('/api/permissions', permissionsRoutes);
-app.use('/api/messages', messagesRoutes);
+    // Inicia servidor
+    const PORT = process.env.PORT || 5000;
 
-// Inicia servidor
-const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      const localIp = getLocalIp();
+      console.log(`🚀 HTTP server running on http://${localIp}:${PORT}`);
+    });
+    
+  } catch (error) {
+    console.error('❌ Falha ao iniciar servidor:', error);
+    process.exit(1);
+  }
+};
 
-app.listen(PORT, () => {
-  const localIp = getLocalIp();
-  console.log(`🚀 HTTP server running on http://${localIp}:${PORT}`);
-});
+// Inicia o servidor
+startServer();

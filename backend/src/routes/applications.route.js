@@ -3,7 +3,7 @@ const router = express.Router();
 const multer = require('multer');
 const upload = multer(); // para clientPhoto
 
-const auth = require('../middlewares/authMiddleware');
+const {authenticate} = require('../middlewares/authMiddleware');
 const role = require('../middlewares/roleMiddleware');
 const checkPermission = require('../middlewares/checkPermission');
 
@@ -56,7 +56,7 @@ const applicationsController = require('../controllers/applications.controller')
  */
 router.post(
   '/',
-  auth,
+  authenticate,
   role(),
   checkPermission('applications', 'create'),
   upload.single('clientPhoto'),
@@ -101,7 +101,7 @@ router.post(
  *       500:
  *         description: Erro interno
  */
-router.put('/:id', auth, role(), checkPermission('applications', 'update'), applicationsController.updateApplication);
+router.put('/:id', authenticate, role(), checkPermission('applications', 'update'), applicationsController.updateApplication);
 
 /**
  * @swagger
@@ -125,7 +125,7 @@ router.put('/:id', auth, role(), checkPermission('applications', 'update'), appl
  *       500:
  *         description: Erro interno
  */
-router.delete('/:id', auth, role(), checkPermission('applications', 'delete'), applicationsController.deleteApplication);
+router.delete('/:id', authenticate, role(), checkPermission('applications', 'delete'), applicationsController.deleteApplication);
 
 /**
  * @swagger
@@ -150,7 +150,7 @@ router.delete('/:id', auth, role(), checkPermission('applications', 'delete'), a
  *       500:
  *         description: Erro interno
  */
-router.get('/stage/:stageId', auth, role(), checkPermission('applications', 'read'), applicationsController.getApplicationsByStage);
+router.get('/stage/:stageId', authenticate, role(), checkPermission('applications', 'read'), applicationsController.getApplicationsByStage);
 
 /**
  * @swagger
@@ -186,10 +186,69 @@ router.get('/stage/:stageId', auth, role(), checkPermission('applications', 'rea
  *         description: Erro interno do servidor
  */
 router.post('/:userId/force-complete', 
-  auth, 
+  authenticate, 
   role(), 
   checkPermission('permissions', 'update'),
   applicationsController.completeApplication
 );
 
+/**
+ * @swagger
+ * /applications:
+ *   get:
+ *     summary: Lista todas as aplicações com paginação e filtros
+ *     tags: [Applications]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         description: Número da página
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Itens por página
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *           enum: [applied, completed, pending]
+ *         description: Filtrar por status
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Buscar por nome do enfermeiro ou estágio
+ *     responses:
+ *       200:
+ *         description: Lista de aplicações com paginação
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 applications:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     totalItems:
+ *                       type: integer
+ *                     itemsPerPage:
+ *                       type: integer
+ *       500:
+ *         description: Erro interno no servidor
+ */
+router.get('/', authenticate, role(), checkPermission('applications', 'read'), applicationsController.getAllApplications);
 module.exports = router;

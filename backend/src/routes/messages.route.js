@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const auth = require('../middlewares/authMiddleware');
+const {authenticate} = require('../middlewares/authMiddleware');
 const role = require('../middlewares/roleMiddleware');
 const messagesController = require('../controllers/messages.controller');
 
@@ -32,7 +32,7 @@ const messagesController = require('../controllers/messages.controller');
  *       201:
  *         description: Mensagem enviada com sucesso
  */
-router.post('/', auth, role(), messagesController.sendMessage);
+router.post('/', authenticate, role(), messagesController.sendMessage);
 
 /**
  * @swagger
@@ -46,7 +46,7 @@ router.post('/', auth, role(), messagesController.sendMessage);
  *       200:
  *         description: Lista de mensagens recebidas
  */
-router.get('/inbox', auth, role(), messagesController.getInbox);
+router.get('/inbox', authenticate, role(), messagesController.getInbox);
 
 /**
  * @swagger
@@ -71,6 +71,6 @@ router.get('/inbox', auth, role(), messagesController.getInbox);
  *       500:
  *         description: Erro interno
  */
-router.patch('/:id/read', auth, role(), messagesController.markAsRead);
+router.patch('/:id/read', authenticate, role(), messagesController.markAsRead);
 
 module.exports = router;

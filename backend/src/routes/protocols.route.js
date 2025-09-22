@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const auth = require('../middlewares/authMiddleware');
+const {authenticate} = require('../middlewares/authMiddleware');
 const role = require('../middlewares/roleMiddleware');
 const checkPermission = require('../middlewares/checkPermission');
 const protocolsController = require('../controllers/protocols.controller');
@@ -54,7 +54,7 @@ const protocolsController = require('../controllers/protocols.controller');
  *       500:
  *         description: Erro interno
  */
-router.post('/', auth, role(), checkPermission('protocols', 'create'), protocolsController.createProtocol);
+router.post('/', authenticate, role(), checkPermission('protocols', 'create'), protocolsController.createProtocol);
 
 /**
  * @swagger
@@ -107,7 +107,7 @@ router.post('/', auth, role(), checkPermission('protocols', 'create'), protocols
  *       500:
  *         description: Erro interno
  */
-router.put('/:id', auth, role(), checkPermission('protocols', 'update'), protocolsController.updateProtocol);
+router.put('/:id', authenticate, role(), checkPermission('protocols', 'update'), protocolsController.updateProtocol);
 
 /**
  * @swagger
@@ -131,30 +131,66 @@ router.put('/:id', auth, role(), checkPermission('protocols', 'update'), protoco
  *       500:
  *         description: Erro interno
  */
-router.delete('/:id', auth, role(), checkPermission('protocols', 'delete'), protocolsController.deleteProtocol);
+router.delete('/:id', authenticate, role(), checkPermission('protocols', 'delete'), protocolsController.deleteProtocol);
 
 /**
  * @swagger
  * /protocols:
  *   get:
- *     summary: Lista todos os protocolos com seus estágios
+ *     summary: Lista todos os protocolos com paginação e filtros
  *     tags: [Protocols]
  *     security:
  *       - bearerAuth: []
  *     parameters:
- *       - name: template
- *         in: query
- *         description: Se true, retorna apenas os modelos (isTemplate=true)
- *         required: false
+ *       - in: query
+ *         name: page
  *         schema:
- *           type: boolean
+ *           type: integer
+ *           default: 1
+ *         description: Número da página
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         description: Itens por página
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filtrar por status
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         description: Buscar por título ou nome do cliente
  *     responses:
  *       200:
- *         description: Lista de protocolos
+ *         description: Lista de protocolos com paginação
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 protocols:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                 pagination:
+ *                   type: object
+ *                   properties:
+ *                     currentPage:
+ *                       type: integer
+ *                     totalPages:
+ *                       type: integer
+ *                     totalItems:
+ *                       type: integer
+ *                     itemsPerPage:
+ *                       type: integer
  *       500:
- *         description: Erro interno
+ *         description: Erro interno no servidor
  */
-router.get('/', auth, role(), checkPermission('protocols', 'read'), protocolsController.getAllProtocols);
+router.get('/', authenticate, role(), checkPermission('protocols', 'read'), protocolsController.getAllProtocols);
 
 /**
  * @swagger
@@ -179,6 +215,6 @@ router.get('/', auth, role(), checkPermission('protocols', 'read'), protocolsCon
  *       500:
  *         description: Erro interno
  */
-router.get('/:id', auth, role(), checkPermission('protocols', 'read'), protocolsController.getProtocolById);
+router.get('/:id', authenticate, role(), checkPermission('protocols', 'read'), protocolsController.getProtocolById);
 
 module.exports = router;

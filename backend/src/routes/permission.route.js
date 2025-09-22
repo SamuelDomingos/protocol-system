@@ -3,7 +3,7 @@ const router = express.Router();
 const permissionController = require('../controllers/permission.controller');
 const checkPermission = require('../middlewares/checkPermission');
 const role = require('../middlewares/roleMiddleware');
-const auth = require('../middlewares/authMiddleware');
+const {authenticate} = require('../middlewares/authMiddleware');
 
 /**
  * @swagger
@@ -53,7 +53,7 @@ const auth = require('../middlewares/authMiddleware');
  *       500:
  *         description: Erro interno do servidor
  */
-router.get('/:userId', auth, permissionController.listPermissions);
+router.get('/:userId', authenticate, permissionController.listPermissions);
 
 /**
  * @swagger
@@ -106,7 +106,7 @@ router.get('/:userId', auth, permissionController.listPermissions);
  *       500:
  *         description: Erro interno do servidor
  */
-router.put('/:userId', auth, role(), checkPermission('permissions', 'update'), permissionController.updatePermissions);
+router.put('/:userId', authenticate, role(), checkPermission('permissions', 'update'), permissionController.updatePermissions);
 
 /**
  * @swagger
@@ -139,7 +139,7 @@ router.put('/:userId', auth, role(), checkPermission('permissions', 'update'), p
  *       500:
  *         description: Erro interno do servidor
  */
-router.delete('/:userId/:module', auth, role(), checkPermission('permissions', 'delete'), permissionController.removePermission);
+router.delete('/:userId/:module', authenticate, role(), checkPermission('permissions', 'delete'), permissionController.removePermission);
 
 
 module.exports = router; 

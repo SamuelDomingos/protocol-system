@@ -1,24 +1,44 @@
-// models/Client.js
-const { DataTypes } = require('sequelize');
-const sequelize = require('../config/database');
+const { DataTypes } = require("sequelize");
+const sequelize = require("../config/database");
 
-const Client = sequelize.define('Client', {
-  name: {
-    type: DataTypes.STRING,
-    allowNull: false
+const Client = sequelize.define(
+  "Client",
+  {
+    id: {
+      type: DataTypes.UUID,
+      defaultValue: DataTypes.UUIDV4,
+      primaryKey: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    observation: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    phone: {
+      type: DataTypes.STRING,
+      allowNull: true,
+    },
+    cpf: {
+      type: DataTypes.STRING,
+      allowNull: true,
+      // Sem unique aqui - deixa o Joi validar
+    },
   },
-  phone: {
-    type: DataTypes.STRING,
-    allowNull: false
-  },
-  observation: {
-    type: DataTypes.TEXT,
-    allowNull: true
-  },
-  cpf: {
-    type: DataTypes.STRING,
-    allowNull: false
+  {
+    timestamps: true,
+    tableName: "clients",
+    // Remove os indexes problemáticos
   }
-});
+);
+
+Client.associate = (models) => {
+  Client.hasMany(models.Protocol, {
+    foreignKey: "clientId",
+    as: "protocols",
+  });
+};
 
 module.exports = Client;

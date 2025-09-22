@@ -1,8 +1,22 @@
-// models/User.js
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const User = sequelize.define('User', {
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: DataTypes.UUIDV4, 
+        primaryKey: true,
+        allowNull: false,
+        unique: true
+    },
+    email: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        unique: true,
+        validate: {
+            notEmpty: true
+        }
+    },
     name: {
         type: DataTypes.STRING,
         allowNull: false,
@@ -29,12 +43,11 @@ const User = sequelize.define('User', {
     indexes: [
         {
             unique: true,
-            fields: ['name']
+            fields: ['email']
         }
     ]
 });
 
-// Relacionamento com permissões
 User.associate = (models) => {
     User.hasMany(models.Permission, {
         foreignKey: 'userId',
