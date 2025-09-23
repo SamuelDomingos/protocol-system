@@ -1,4 +1,4 @@
-'use client';
+"use client";
 
 import {
   Table,
@@ -7,18 +7,18 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/src/components/ui/table';
-import { Button } from '@/src/components/ui/button';
-import { 
+} from "@/src/components/ui/table";
+import { Button } from "@/src/components/ui/button";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/src/components/ui/dropdown-menu';
-import { MoreHorizontal, Edit, Trash2, Eye } from 'lucide-react';
-import { DataTableWrapper } from '@/src/components/ui/data-table-wrapper';
-import { useClients } from '../hooks/useClients';
-import type { Client } from '@/src/lib/api/types';
+} from "@/src/components/ui/dropdown-menu";
+import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
+import { DataTableWrapper } from "@/src/components/ui/data-table-wrapper";
+import { useClients } from "../hooks/useClients";
+import type { Client } from "@/src/lib/api/types";
 import { formatPhoneNumber, formatCPF } from "@/src/lib/utils";
 
 interface ClientsTableProps {
@@ -27,7 +27,11 @@ interface ClientsTableProps {
   onDeleteClient?: (client: Client) => void;
 }
 
-export function ClientsTable({ onEditClient, onViewClient, onDeleteClient }: ClientsTableProps) {
+export function ClientsTable({
+  onEditClient,
+  onViewClient,
+  onDeleteClient,
+}: ClientsTableProps) {
   const { clients, isLoading, error } = useClients();
 
   return (
@@ -59,17 +63,16 @@ export function ClientsTable({ onEditClient, onViewClient, onDeleteClient }: Cli
                 <TableCell>
                   {client.observation ? (
                     <span className="text-sm text-muted-foreground">
-                      {client.observation.length > 50 
-                        ? `${client.observation.substring(0, 50)}...` 
-                        : client.observation
-                      }
+                      {client.observation.length > 50
+                        ? `${client.observation.substring(0, 50)}...`
+                        : client.observation}
                     </span>
                   ) : (
                     <span className="text-muted-foreground">-</span>
                   )}
                 </TableCell>
                 <TableCell>
-                  {new Date(client.createdAt).toLocaleDateString('pt-BR')}
+                  {new Date(client.createdAt).toLocaleDateString("pt-BR")}
                 </TableCell>
                 <TableCell>
                   <DropdownMenu>
@@ -92,7 +95,7 @@ export function ClientsTable({ onEditClient, onViewClient, onDeleteClient }: Cli
                         </DropdownMenuItem>
                       )}
                       {onDeleteClient && (
-                        <DropdownMenuItem 
+                        <DropdownMenuItem
                           onClick={() => onDeleteClient(client)}
                           className="text-destructive"
                         >

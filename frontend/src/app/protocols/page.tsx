@@ -23,7 +23,7 @@ import { type Protocol, type ProtocolStage, protocolsService } from "@/services/
 import { type Client, clientsService } from "@/services/clients-api"
 import { Badge } from "@/src/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
-import { usePagination } from "@/src/hooks/use-pagination"
+import { usePagination } from "@/src/global/pagination/hooks/use-pagination"
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,

@@ -1,8 +1,12 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
-import { getClients, searchClients, deleteClient } from '@/src/lib/api';
-import type { Client, ClientSearchParams } from '@/src/lib/api/types';
+import { useState, useEffect } from "react";
+import { useUrlParams } from "@/src/hooks/useUrlParams";
+import { useDebounce } from "@/src/hooks/use-debounce";
+import { ClientsService } from "../services/clientsService";
+import type { Client } from "@/src/lib/api/types";
+import { usePagination } from "@/src/global/pagination";
+import { useSearch } from "@/src/global/search/hooks/use-search";
 
 interface UseClientsReturn {
   clients: Client[];
@@ -11,66 +15,68 @@ interface UseClientsReturn {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   refreshClients: () => Promise<void>;
+  isSearchMode: boolean;
+  pagination: ReturnType<typeof usePagination>;
 }
 
 export const useClients = (): UseClientsReturn => {
   const [clients, setClients] = useState<Client[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [searchTerm, setSearchTerm] = useState('');
+  const [searchTerm, setSearchTerm] = useState("");
 
-  const fetchClients = async (params?: ClientSearchParams) => {
+  const { params, setSearch: setUrlSearch } = useUrlParams();
+
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+
+  const pagination = usePagination({
+    initialItemsPerPage: 10,
+    syncWithUrl: true,
+  });
+
+  const isSearchMode = ClientsService.shouldUseSearch(searchTerm);
+
+  const fetchClients = async () => {
     try {
       setIsLoading(true);
       setError(null);
-      
-      const data = await getClients(params);
-      setClients(data);
+
+      const params = pagination.getRequestParams();
+      if (debouncedSearchTerm) {
+        params.search = debouncedSearchTerm;
+      }
+
+      const response = await ClientsService.fetchClients(params);
+
+      setClients(response.clients);
+
+      pagination.updateFromResponse(response);
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao carregar clientes');
+      setError(
+        err instanceof Error ? err.message : "Erro ao carregar clientes"
+      );
+      setClients([]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSearch = async (term: string) => {
-    if (!term.trim()) {
-      await fetchClients();
-      return;
+  useEffect(() => {
+    if (debouncedSearchTerm !== undefined) {
+      fetchClients();
+      if (debouncedSearchTerm) {
+        setUrlSearch(debouncedSearchTerm);
+      }
     }
-
-    try {
-      setIsLoading(true);
-      setError(null);
-      
-      const data = await searchClients(term);
-      setClients(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Erro ao buscar clientes');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  const refreshClients = async () => {
-    if (searchTerm) {
-      await handleSearch(searchTerm);
-    } else {
-      await fetchClients();
-    }
-  };
+  }, [debouncedSearchTerm]);
 
   useEffect(() => {
     fetchClients();
-  }, []);
+  }, [pagination.currentPage, pagination.itemsPerPage]);
 
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      handleSearch(searchTerm);
-    }, 300);
-
-    return () => clearTimeout(timeoutId);
-  }, [searchTerm]);
+  const refreshClients = async () => {
+    await fetchClients();
+  };
 
   return {
     clients,
@@ -79,5 +85,7 @@ export const useClients = (): UseClientsReturn => {
     searchTerm,
     setSearchTerm,
     refreshClients,
+    isSearchMode,
+    pagination,
   };
 };

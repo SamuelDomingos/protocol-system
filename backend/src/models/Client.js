@@ -24,7 +24,6 @@ const Client = sequelize.define(
     cpf: {
       type: DataTypes.STRING,
       allowNull: true,
-      // Sem unique aqui - deixa o Joi validar
     },
   },
   {

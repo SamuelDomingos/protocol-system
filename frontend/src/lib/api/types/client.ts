@@ -22,3 +22,16 @@ export interface ClientSearchParams {
   page?: number;
   limit?: number;
 }
+
+// Novo tipo para a resposta paginada baseado na estrutura do servidor
+export interface ClientsPaginatedResponse {
+  clients: Client[];
+  pagination: {
+    currentPage: number;
+    hasNextPage: boolean;
+    hasPrevPage: boolean;
+    itemsPerPage: number;
+    totalItems: number;
+    totalPages: number;
+  };
+}

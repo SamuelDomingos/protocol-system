@@ -1,7 +1,7 @@
 import { apiRequest } from '@/src/utils/http';
-import type { Client, CreateClientRequest, UpdateClientRequest, ClientSearchParams } from '../types';
+import type { Client, CreateClientRequest, UpdateClientRequest, ClientSearchParams, ClientsPaginatedResponse } from '../types';
 
-export const getClients = async (params?: ClientSearchParams): Promise<Client[]> => {
+export const getClients = async (params?: ClientSearchParams): Promise<ClientsPaginatedResponse> => {
   const searchParams = new URLSearchParams();
   
   if (params?.search) searchParams.append('search', params.search);
@@ -9,35 +9,36 @@ export const getClients = async (params?: ClientSearchParams): Promise<Client[]>
   if (params?.limit) searchParams.append('limit', params.limit.toString());
   
   const queryString = searchParams.toString();
-  const endpoint = queryString ? `clients?${queryString}` : 'clients';
   
-  return apiRequest<Client[]>(endpoint);
+  const endpoint = queryString ? `api/clients?${queryString}` : 'api/clients';
+  
+  return apiRequest<ClientsPaginatedResponse>(endpoint);
 };
 
 export const getClientById = async (id: number): Promise<Client> => {
-  return apiRequest<Client>(`clients/${id}`);
+  return apiRequest<Client>(`api/clients/${id}`);
 };
 
 export const createClient = async (data: CreateClientRequest): Promise<Client> => {
-  return apiRequest<Client>('clients', {
+  return apiRequest<Client>('api/clients', {  
     method: 'POST',
     body: data,
   });
 };
 
 export const updateClient = async (id: number, data: UpdateClientRequest): Promise<Client> => {
-  return apiRequest<Client>(`clients/${id}`, {
+  return apiRequest<Client>(`api/clients/${id}`, {
     method: 'PUT',
     body: data,
   });
 };
 
 export const deleteClient = async (id: number): Promise<void> => {
-  return apiRequest<void>(`clients/${id}`, {
+  return apiRequest<void>(`api/clients/${id}`, {
     method: 'DELETE',
   });
 };
 
 export const searchClients = async (search: string): Promise<Client[]> => {
-  return apiRequest<Client[]>(`clients/search?search=${encodeURIComponent(search)}`);
+  return apiRequest<Client[]>(`api/clients/search?search=${encodeURIComponent(search)}`);
 };

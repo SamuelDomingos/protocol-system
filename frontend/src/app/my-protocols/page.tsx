@@ -22,7 +22,7 @@ import { protocolsService, type Protocol } from "@/services/protocols-api";
 import { applicationsService } from "@/services/applications-api";
 import { useToast } from "@/src/components/ui/use-toast";
 import { Badge } from "@/src/components/ui/badge";
-import { usePagination } from "@/src/hooks/use-pagination";
+import { usePagination } from "@/src/global/pagination/hooks/use-pagination";
 import { PaginationControls } from "@/src/components/ui/data-table";
 import { useAuth } from "@/src/contexts/auth-context";
 
