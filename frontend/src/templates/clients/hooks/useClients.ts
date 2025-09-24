@@ -4,20 +4,8 @@ import { useState, useEffect } from "react";
 import { useUrlParams } from "@/src/hooks/useUrlParams";
 import { useDebounce } from "@/src/hooks/use-debounce";
 import { ClientsService } from "../services/clientsService";
-import type { Client } from "@/src/lib/api/types";
+import type { Client, UseClientsReturn } from "../types";
 import { usePagination } from "@/src/global/pagination";
-import { useSearch } from "@/src/global/search/hooks/use-search";
-
-interface UseClientsReturn {
-  clients: Client[];
-  isLoading: boolean;
-  error: string | null;
-  searchTerm: string;
-  setSearchTerm: (term: string) => void;
-  refreshClients: () => Promise<void>;
-  isSearchMode: boolean;
-  pagination: ReturnType<typeof usePagination>;
-}
 
 export const useClients = (): UseClientsReturn => {
   const [clients, setClients] = useState<Client[]>([]);
@@ -27,7 +15,7 @@ export const useClients = (): UseClientsReturn => {
 
   const { params, setSearch: setUrlSearch } = useUrlParams();
 
-  const debouncedSearchTerm = useDebounce(searchTerm, 300);
+  const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   const pagination = usePagination({
     initialItemsPerPage: 10,
@@ -47,7 +35,7 @@ export const useClients = (): UseClientsReturn => {
       }
 
       const response = await ClientsService.fetchClients(params);
-
+      
       setClients(response.clients);
 
       pagination.updateFromResponse(response);

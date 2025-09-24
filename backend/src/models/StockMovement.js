@@ -48,27 +48,21 @@ const StockMovement = sequelize.define(
     id: {
       type: DataTypes.UUID,
       defaultValue: DataTypes.UUIDV4,
-      primaryKey: true
+      primaryKey: true,
+      allowNull: false
     },
-    // IDs de relacionamento - CORRIGIDOS
     productId: {
-      type: DataTypes.STRING, // Mudado para STRING (sem referência)
+      type: DataTypes.STRING,
       allowNull: false
     },
     supplierId: {
-      type: DataTypes.STRING, // Mudado para STRING (sem referência)
+      type: DataTypes.STRING,
       allowNull: true
     },
     userId: {
-      type: DataTypes.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'users',
-        key: 'id'
-      }
+      type: DataTypes.UUID,
+      allowNull: false
     },
-    
-    // Campos de negócio
     type: {
       type: DataTypes.ENUM(...TIPOS_ENTRADA, ...TIPOS_SAIDA, TIPO_TRANSFER),
       allowNull: false
@@ -95,40 +89,23 @@ const StockMovement = sequelize.define(
     },
     movementDate: {
       type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
+      allowNull: false
     },
-    
-    // Campos de localização com referências corretas
     locationId: {
       type: DataTypes.UUID,
       allowNull: true,
-      comment: 'Primary location for simple movements (entries/exits)',
-      references: {
-        model: 'stock_locations',
-        key: 'id'
-      }
+      comment: 'Primary location for simple movements (entries/exits)'
     },
     fromLocationId: {
       type: DataTypes.UUID,
       allowNull: true,
-      comment: 'Origin location (transfers only)',
-      references: {
-        model: 'stock_locations',
-        key: 'id'
-      }
+      comment: 'Origin location (transfers only)'
     },
     toLocationId: {
       type: DataTypes.UUID,
       allowNull: true,
-      comment: 'Destination location (transfers only)',
-      references: {
-        model: 'stock_locations',
-        key: 'id'
-      }
+      comment: 'Destination location (transfers only)'
     },
-    
-    // Campos financeiros
     unitCost: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true
@@ -137,8 +114,6 @@ const StockMovement = sequelize.define(
       type: DataTypes.DECIMAL(10, 2),
       allowNull: true
     },
-    
-    // Campos de lote/validade
     batchNumber: {
       type: DataTypes.STRING,
       allowNull: true
@@ -151,76 +126,10 @@ const StockMovement = sequelize.define(
   {
     tableName: 'stock_movements',
     timestamps: true,
-    paranoid: true, // Soft delete
-    indexes: [
-      { fields: ['productId'] },
-      { fields: ['userId'] },
-      { fields: ['supplierId'] },
-      { fields: ['type'] },
-      { fields: ['movementCategory'] },
-      { fields: ['movementDate'] },
-      { fields: ['locationId'] },
-      { fields: ['fromLocationId', 'toLocationId'] },
-      { fields: ['batchNumber'] },
-      { fields: ['expiryDate'] }
-    ],
-    validate: {
-      destinationRequiredForEntries() {
-        if (TIPOS_ENTRADA.includes(this.type) && !this.destination) {
-          throw new Error('Destination is required for entry movements');
-        }
-      },
-      consistentCategory() {
-        if (TIPOS_ENTRADA.includes(this.type) && this.movementCategory !== 'entrada') {
-          throw new Error('Category must be "entrada" for entry types');
-        }
-        if (TIPOS_SAIDA.includes(this.type) && this.movementCategory !== 'saida') {
-          throw new Error('Category must be "saida" for exit types');
-        }
-        if (this.type === TIPO_TRANSFER && this.movementCategory !== 'transfer') {
-          throw new Error('Category must be "transfer" for transfer movements');
-        }
-      },
-      positiveQuantity() {
-        if (this.quantity <= 0) {
-          throw new Error('Quantity must be greater than zero');
-        }
-      },
-      consistentExpiry() {
-        if (this.expiryDate && this.expiryDate <= this.movementDate) {
-          throw new Error('Expiry date must be after movement date');
-        }
-      },
-      consistentLocation() {
-        if (this.type === TIPO_TRANSFER) {
-          if (!this.fromLocationId || !this.toLocationId) {
-            throw new Error('Transfers require both origin and destination locations');
-          }
-          if (this.fromLocationId === this.toLocationId) {
-            throw new Error('Origin location must be different from destination in transfers');
-          }
-          if (this.locationId) {
-            throw new Error('For transfers, use only fromLocationId and toLocationId');
-          }
-        } else {
-          if (this.fromLocationId || this.toLocationId) {
-            throw new Error('fromLocationId and toLocationId are exclusive to transfers');
-          }
-        }
-      },
-      consistentCosts() {
-        if (this.unitCost && this.unitCost < 0) {
-          throw new Error('Unit cost cannot be negative');
-        }
-        if (this.totalCost && this.totalCost < 0) {
-          throw new Error('Total cost cannot be negative');
-        }
-      }
-    }
+    paranoid: true
   }
 );
 
-// Hooks
 StockMovement.beforeSave((movement) => {
   if (movement.unitCost && movement.quantity) {
     movement.totalCost = (movement.unitCost * movement.quantity).toFixed(2);
@@ -231,7 +140,6 @@ StockMovement.beforeSave((movement) => {
   }
 });
 
-// Métodos estáticos
 StockMovement.getTiposEntrada = () =>
   TIPOS_ENTRADA.map((t) => ({ 
     value: t, 
@@ -250,7 +158,6 @@ StockMovement.getAllTypes = () => [
   { value: TIPO_TRANSFER, label: 'Transferência' }
 ];
 
-// Escopos
 StockMovement.addScope('entradas', { where: { movementCategory: 'entrada' } });
 StockMovement.addScope('saidas', { where: { movementCategory: 'saida' } });
 StockMovement.addScope('transferencias', { where: { movementCategory: 'transfer' } });
@@ -271,9 +178,7 @@ StockMovement.addScope('proximosVencimento', (dias = 30) => ({
   }
 }));
 
-// Associações CORRIGIDAS - removendo referências a modelos inexistentes
 StockMovement.associate = (models) => {
-  // Apenas associações com modelos que existem
   StockMovement.belongsTo(models.User, { foreignKey: 'userId', as: 'user' });
   StockMovement.belongsTo(models.StockLocation, { foreignKey: 'fromLocationId', as: 'fromLocation' });
   StockMovement.belongsTo(models.StockLocation, { foreignKey: 'toLocationId', as: 'toLocation' });

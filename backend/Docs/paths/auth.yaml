@@ -1,0 +1,131 @@
+# Endpoints de Autenticação
+/auth/signup:
+  post:
+    tags:
+      - Autenticação
+    summary: Cadastrar novo usuário
+    description: Cria uma nova conta de usuário no sistema
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/auth.yaml#/SignupRequest'
+          examples:
+            admin:
+              summary: Cadastro de administrador
+              value:
+                name: "Admin Sistema"
+                email: "admin@sistema.com"
+                password: "admin123"
+                role: "admin"
+            user:
+              summary: Cadastro de usuário comum
+              value:
+                name: "João Silva"
+                email: "joao@exemplo.com"
+                password: "senha123"
+                role: "user"
+    responses:
+      '201':
+        description: Usuário criado com sucesso
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/auth.yaml#/UserResponse'
+      '400':
+        description: Dados inválidos ou usuário já existe
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+
+/auth/login:
+  post:
+    tags:
+      - Autenticação
+    summary: Fazer login
+    description: Autentica um usuário e retorna um token JWT
+    security: []
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/auth.yaml#/LoginRequest'
+          example:
+            email: "joao@exemplo.com"
+            password: "senha123"
+    responses:
+      '200':
+        description: Login realizado com sucesso
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/auth.yaml#/AuthResponse'
+      '401':
+        description: Credenciais inválidas
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+            examples:
+              user_not_found:
+                summary: Usuário não encontrado
+                value:
+                  message: "User not found"
+              invalid_password:
+                summary: Senha incorreta
+                value:
+                  message: "Incorrect password"
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+
+/auth/update:
+  put:
+    tags:
+      - Autenticação
+    summary: Atualizar dados do usuário
+    description: Atualiza os dados do usuário autenticado
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/auth.yaml#/UpdateUserRequest'
+    responses:
+      '200':
+        description: Dados atualizados com sucesso
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/auth.yaml#/UserResponse'
+      '400':
+        description: Dados inválidos
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'

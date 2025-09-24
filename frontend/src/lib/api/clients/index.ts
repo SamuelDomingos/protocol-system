@@ -11,7 +11,6 @@ export const getClients = async (params?: ClientSearchParams): Promise<ClientsPa
   const queryString = searchParams.toString();
   
   const endpoint = queryString ? `api/clients?${queryString}` : 'api/clients';
-  
   return apiRequest<ClientsPaginatedResponse>(endpoint);
 };
 

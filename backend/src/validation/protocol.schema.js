@@ -9,8 +9,8 @@ const stageSchema = Joi.object({
 const protocolSchema = Joi.object({
   clientId: Joi.when('isTemplate', {
     is: true,
-    then: Joi.allow(null), // se for template, permite null
-    otherwise: Joi.number().integer().required() // se não for template, é obrigatório ser número
+    then: Joi.allow(null),
+    otherwise: Joi.number().integer().required()
   }),
   title: Joi.string().required(),
   isTemplate: Joi.boolean().required(),

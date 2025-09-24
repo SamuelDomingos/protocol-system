@@ -1,32 +1,50 @@
+const BaseController = require('./base.controller');
+const clientService = require('../services/clients.service');
 const asyncHandler = require('../utils/asyncHandler');
-const clientService = require('../services/clientsServices');
-const { formatPaginatedResponse } = require('../utils/queryBuilder');
 
-exports.createClient = asyncHandler(async (req, res) => {
-  const newClient = await clientService.create(req.validatedBody);
-  res.status(201).json(newClient);
-});
+class ClientController extends BaseController {
+  constructor() {
+    super(clientService, 'clients');
+  }
 
-exports.getAllClients = asyncHandler(async (req, res) => {
-  const { page = 1, limit = 10 } = req.query;
-  const result = await clientService.findAllPaginated(req.query);
-  const response = formatPaginatedResponse(result, page, limit, 'clients');
-  res.json(response);
-});
+  getAll = asyncHandler(async (req, res) => {
+    const result = await this.service.findAllPaginated(req.query);
+    
+    const { page = 1, limit = 10 } = req.query;
+    const pageNum = parseInt(page);
+    const limitNum = parseInt(limit);
+    
+    const response = {
+      clients: result.rows,
+      pagination: {
+        currentPage: pageNum,
+        totalPages: Math.ceil(result.count / limitNum),
+        totalItems: result.count,
+        itemsPerPage: limitNum,
+        hasNextPage: pageNum < Math.ceil(result.count / limitNum),
+        hasPreviousPage: pageNum > 1
+      }
+    };
+    
+    res.json(response);
+  });
 
-exports.updateClient = asyncHandler(async (req, res) => {
-  const updated = await clientService.update(req.params.id, req.validatedBody);
-  if (!updated) return res.status(404).json({ message: 'Client not found' });
-  res.json(updated);
-});
+  create = asyncHandler(async (req, res) => {
+    const additionalData = req.user ? { createdBy: req.user.id } : {};
+    const result = await this.service.create(req.validatedBody, additionalData);
+    res.status(201).json(result);
+  });
 
-exports.deleteClient = asyncHandler(async (req, res) => {
-  const ok = await clientService.delete(req.params.id);
-  if (!ok) return res.status(404).json({ message: 'Client not found' });
-  res.json({ message: 'Client deleted successfully' });
-});
+  update = asyncHandler(async (req, res) => {
+    const updated = await this.service.update(req.params.id, req.validatedBody);
+    res.json(updated);
+  });
+}
 
-exports.searchClients = asyncHandler(async (req, res) => {
-  const clients = await clientService.search(req.query.q);
-  res.json(clients);
-});
+const clientController = new ClientController();
+
+exports.createClient = clientController.create;
+exports.getAllClients = clientController.getAll;
+exports.updateClient = clientController.update;
+exports.deleteClient = clientController.delete;
+exports.getClientById = clientController.getById;

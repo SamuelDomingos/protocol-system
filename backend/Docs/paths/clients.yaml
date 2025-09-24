@@ -1,0 +1,232 @@
+# Endpoints de Clientes
+/clients:
+  post:
+    tags:
+      - Clientes
+    summary: Criar novo cliente
+    description: Cadastra um novo cliente no sistema
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/client.yaml#/ClientRequest'
+          example:
+            name: "Maria Santos"
+            phone: "(11) 99999-9999"
+            cpf: "123.456.789-00"
+    responses:
+      '201':
+        description: Cliente criado com sucesso
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/client.yaml#/Client'
+      '400':
+        description: Dados inválidos ou CPF já cadastrado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+
+  get:
+    tags:
+      - Clientes
+    summary: Listar clientes
+    description: Retorna uma lista paginada de clientes
+    parameters:
+      - name: page
+        in: query
+        description: Número da página
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        description: Número de itens por página
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+      - name: search
+        in: query
+        description: Termo de busca (nome ou CPF)
+        schema:
+          type: string
+    responses:
+      '200':
+        description: Lista de clientes
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../openapi.yaml#/components/schemas/PaginatedResponse'
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '../schemas/client.yaml#/Client'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+
+/clients/{id}:
+  put:
+    tags:
+      - Clientes
+    summary: Atualizar cliente
+    description: Atualiza os dados de um cliente específico
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID do cliente
+        schema:
+          type: string
+          format: uuid
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/client.yaml#/ClientRequest'
+    responses:
+      '200':
+        description: Cliente atualizado com sucesso
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/client.yaml#/Client'
+      '400':
+        description: Dados inválidos
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '404':
+        description: Cliente não encontrado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+
+  delete:
+    tags:
+      - Clientes
+    summary: Excluir cliente
+    description: Remove um cliente do sistema
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID do cliente
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: Cliente excluído com sucesso
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Client deleted successfully"
+      '404':
+        description: Cliente não encontrado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+
+/clients/search:
+  get:
+    tags:
+      - Clientes
+    summary: Buscar clientes
+    description: Busca clientes por nome ou CPF
+    parameters:
+      - name: q
+        in: query
+        required: true
+        description: Termo de busca
+        schema:
+          type: string
+          minLength: 2
+    responses:
+      '200':
+        description: Resultados da busca
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '../schemas/client.yaml#/Client'
+      '400':
+        description: Parâmetro de busca inválido
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'

@@ -1,0 +1,257 @@
+# Endpoints de Protocolos
+/protocols:
+  post:
+    tags:
+      - Protocolos
+    summary: Criar novo protocolo
+    description: Cria um novo protocolo de tratamento
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/protocol.yaml#/ProtocolRequest'
+          examples:
+            protocol_with_client:
+              summary: Protocolo para cliente específico
+              value:
+                title: "Protocolo de Fisioterapia - Maria Santos"
+                clientId: "123e4567-e89b-12d3-a456-426614174000"
+                isTemplate: false
+                stages:
+                  - title: "Avaliação inicial"
+                    description: "Primeira consulta com avaliação completa do paciente"
+                  - title: "Sessões de fisioterapia"
+                    description: "10 sessões de fisioterapia motora"
+                  - title: "Reavaliação"
+                    description: "Avaliação dos resultados obtidos"
+            template:
+              summary: Template de protocolo
+              value:
+                title: "Template - Protocolo Padrão de Fisioterapia"
+                isTemplate: true
+                stages:
+                  - title: "Avaliação inicial"
+                    description: "Primeira consulta com avaliação completa"
+                  - title: "Tratamento"
+                    description: "Sessões de tratamento conforme necessidade"
+                  - title: "Reavaliação final"
+                    description: "Avaliação dos resultados"
+    responses:
+      '201':
+        description: Protocolo criado com sucesso
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/protocol.yaml#/Protocol'
+      '400':
+        description: Dados inválidos ou cliente não encontrado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+
+  get:
+    tags:
+      - Protocolos
+    summary: Listar protocolos
+    description: Retorna uma lista paginada de protocolos
+    parameters:
+      - name: page
+        in: query
+        description: Número da página
+        schema:
+          type: integer
+          minimum: 1
+          default: 1
+      - name: limit
+        in: query
+        description: Número de itens por página
+        schema:
+          type: integer
+          minimum: 1
+          maximum: 100
+          default: 10
+      - name: isTemplate
+        in: query
+        description: Filtrar por templates
+        schema:
+          type: boolean
+      - name: clientId
+        in: query
+        description: Filtrar por cliente
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: Lista de protocolos
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: '../openapi.yaml#/components/schemas/PaginatedResponse'
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '../schemas/protocol.yaml#/Protocol'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+
+/protocols/{id}:
+  get:
+    tags:
+      - Protocolos
+    summary: Obter protocolo por ID
+    description: Retorna um protocolo específico com suas etapas
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID do protocolo
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: Protocolo encontrado
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/protocol.yaml#/Protocol'
+      '404':
+        description: Protocolo não encontrado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+
+  put:
+    tags:
+      - Protocolos
+    summary: Atualizar protocolo
+    description: Atualiza um protocolo existente
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID do protocolo
+        schema:
+          type: string
+          format: uuid
+    requestBody:
+      required: true
+      content:
+        application/json:
+          schema:
+            $ref: '../schemas/protocol.yaml#/ProtocolRequest'
+    responses:
+      '200':
+        description: Protocolo atualizado com sucesso
+        content:
+          application/json:
+            schema:
+              $ref: '../schemas/protocol.yaml#/Protocol'
+      '400':
+        description: Dados inválidos
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '404':
+        description: Protocolo não encontrado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+
+  delete:
+    tags:
+      - Protocolos
+    summary: Excluir protocolo
+    description: Remove um protocolo do sistema
+    parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID do protocolo
+        schema:
+          type: string
+          format: uuid
+    responses:
+      '200':
+        description: Protocolo excluído com sucesso
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Protocol deleted successfully"
+      '404':
+        description: Protocolo não encontrado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'
+      '500':
+        description: Erro interno do servidor
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'

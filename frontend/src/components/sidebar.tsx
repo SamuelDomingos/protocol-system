@@ -29,8 +29,8 @@ export function Sidebar({ isOpen, onToggle, isMobile }: SidebarProps) {
       icon: Home,
     },
     {
-      href: "/appointments",
-      label: "Clientes",
+      href: "/pascients",
+      label: "Pascientes",
       icon: Users,
     },
     {

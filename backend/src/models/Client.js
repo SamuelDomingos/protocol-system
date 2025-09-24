@@ -13,10 +13,7 @@ const Client = sequelize.define(
       type: DataTypes.STRING,
       allowNull: false,
     },
-    observation: {
-      type: DataTypes.STRING,
-      allowNull: true,
-    },
+    
     phone: {
       type: DataTypes.STRING,
       allowNull: true,

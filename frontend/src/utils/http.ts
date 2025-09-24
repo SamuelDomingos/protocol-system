@@ -5,6 +5,7 @@ interface RequestOptions {
   method?: ApiMethod;
   body?: any;
   requiresAuth?: boolean;
+  params?: Record<string, any>;
 }
 
 class ApiError extends Error {
@@ -19,7 +20,7 @@ class ApiError extends Error {
 }
 
 const getAuthHeaders = (): Record<string, string> => {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('auth_token');
   return token ? { 'Authorization': `Bearer ${token}` } : {};
 };
 
@@ -53,21 +54,34 @@ const handleResponse = async <T>(response: Response): Promise<T> => {
   return response.text() as unknown as T;
 };
 
-const buildUrl = (endpoint: string): string => {
+const buildUrl = (endpoint: string, params?: Record<string, any>): string => {
   if (endpoint.startsWith('http')) {
     return endpoint;
   }
 
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-
-  return `${API_CONFIG.BASE_URL}/${cleanEndpoint}`;
+  const baseUrl = `${API_CONFIG.BASE_URL}/${cleanEndpoint}`;
+  
+  if (!params) {
+    return baseUrl;
+  }
+  
+  const searchParams = new URLSearchParams();
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null) {
+      searchParams.append(key, String(value));
+    }
+  });
+  
+  const queryString = searchParams.toString();
+  return queryString ? `${baseUrl}?${queryString}` : baseUrl;
 };
 
 export const apiRequest = async <T>(
   endpoint: string,
   options: RequestOptions = {}
 ): Promise<T> => {
-  const { method = 'GET', body, requiresAuth = true } = options;
+  const { method = 'GET', body, requiresAuth = true, params } = options;
 
   const headers: Record<string, string> = {
     ...API_CONFIG.DEFAULT_HEADERS,
@@ -78,7 +92,7 @@ export const apiRequest = async <T>(
   }
 
   try {
-    const url = buildUrl(endpoint);
+    const url = buildUrl(endpoint, params);
     
     const response = await fetch(url, {
       method,

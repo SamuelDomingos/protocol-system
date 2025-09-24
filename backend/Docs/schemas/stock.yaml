@@ -1,0 +1,279 @@
+# Esquemas de Estoque
+StockLocation:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: "123e4567-e89b-12d3-a456-426614174000"
+    productId:
+      type: string
+      example: "PROD001"
+      description: "Código identificador do produto"
+    location:
+      type: string
+      example: "Almoxarifado Central"
+      description: "Nome da localização"
+    quantity:
+      type: integer
+      minimum: 0
+      example: 100
+      description: "Quantidade atual em estoque"
+    price:
+      type: number
+      format: decimal
+      nullable: true
+      example: 25.50
+      description: "Preço unitário do produto"
+    sku:
+      type: string
+      nullable: true
+      example: "SKU001"
+      description: "Código SKU do produto"
+    expiryDate:
+      type: string
+      format: date
+      nullable: true
+      example: "2025-12-31"
+      description: "Data de validade do produto"
+    createdAt:
+      type: string
+      format: date-time
+    updatedAt:
+      type: string
+      format: date-time
+
+StockLocationRequest:
+  type: object
+  required:
+    - productId
+    - location
+    - quantity
+  properties:
+    productId:
+      type: string
+      example: "PROD001"
+    location:
+      type: string
+      example: "Almoxarifado Central"
+    quantity:
+      type: integer
+      minimum: 0
+      example: 100
+    price:
+      type: number
+      format: decimal
+      example: 25.50
+    sku:
+      type: string
+      example: "SKU001"
+    expiryDate:
+      type: string
+      format: date
+      example: "2025-12-31"
+
+StockMovementRequest:
+  type: object
+  required:
+    - productId
+    - type
+    - movementCategory
+    - quantity
+    - observation
+    - origin
+    - movementDate
+  properties:
+    productId:
+      type: string
+      example: "PROD001"
+      description: "Código do produto"
+    supplierId:
+      type: string
+      nullable: true
+      example: "FORN001"
+      description: "Código do fornecedor (para entradas)"
+    type:
+      type: string
+      enum: 
+        # Tipos de entrada
+        - compra_nota_fiscal
+        - devolucao_avulsa_paciente
+        - devolucao_avulsa_setor
+        - pedido_compra
+        # Tipos de saída
+        - consumo_funcionario
+        - consumo_paciente
+        - consumo_setor
+        - devolucao_emprestimo
+        - doacao
+        - emprestimo
+        - perda_dano
+        - vencido
+        - saida_kit
+        # Transferência
+        - transfer
+      example: "compra_nota_fiscal"
+      description: "Tipo específico da movimentação"
+    movementCategory:
+      type: string
+      enum: [entrada, saida, transfer]
+      example: "entrada"
+      description: "Categoria geral da movimentação"
+    quantity:
+      type: integer
+      minimum: 1
+      example: 50
+      description: "Quantidade movimentada"
+    observation:
+      type: string
+      example: "Compra de material para estoque"
+      description: "Observações sobre a movimentação"
+    origin:
+      type: string
+      example: "Fornecedor ABC"
+      description: "Origem da movimentação"
+    destination:
+      type: string
+      nullable: true
+      example: "Almoxarifado Central"
+      description: "Destino da movimentação"
+    movementDate:
+      type: string
+      format: date-time
+      example: "2024-01-15T10:30:00Z"
+      description: "Data e hora da movimentação"
+    locationId:
+      type: string
+      format: uuid
+      nullable: true
+      example: "123e4567-e89b-12d3-a456-426614174000"
+      description: "ID da localização (para entradas/saídas simples)"
+    fromLocationId:
+      type: string
+      format: uuid
+      nullable: true
+      example: "123e4567-e89b-12d3-a456-426614174000"
+      description: "ID da localização de origem (apenas transferências)"
+    toLocationId:
+      type: string
+      format: uuid
+      nullable: true
+      example: "456e7890-e89b-12d3-a456-426614174000"
+      description: "ID da localização de destino (apenas transferências)"
+    unitCost:
+      type: number
+      format: decimal
+      nullable: true
+      example: 25.50
+      description: "Custo unitário do produto"
+    batchNumber:
+      type: string
+      nullable: true
+      example: "LOTE001"
+      description: "Número do lote"
+    expiryDate:
+      type: string
+      format: date
+      nullable: true
+      example: "2025-12-31"
+      description: "Data de validade"
+
+StockMovement:
+  allOf:
+    - $ref: '#/StockMovementRequest'
+    - type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+        userId:
+          type: string
+          format: uuid
+          example: "123e4567-e89b-12d3-a456-426614174000"
+          description: "ID do usuário que registrou a movimentação"
+        totalCost:
+          type: number
+          format: decimal
+          nullable: true
+          example: 1275.00
+          description: "Custo total (calculado automaticamente)"
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deletedAt:
+          type: string
+          format: date-time
+          nullable: true
+          description: "Data de exclusão (soft delete)"
+        user:
+          $ref: '../schemas/auth.yaml#/UserResponse'
+          description: "Dados do usuário (quando incluído)"
+        location:
+          $ref: '#/StockLocation'
+          description: "Localização principal (quando incluída)"
+        fromLocation:
+          $ref: '#/StockLocation'
+          description: "Localização de origem (quando incluída)"
+        toLocation:
+          $ref: '#/StockLocation'
+          description: "Localização de destino (quando incluída)"
+
+# Enums e constantes para documentação
+MovementTypes:
+  type: object
+  properties:
+    entrada:
+      type: object
+      properties:
+        compra_nota_fiscal:
+          type: string
+          example: "Compra (Nota Fiscal)"
+        devolucao_avulsa_paciente:
+          type: string
+          example: "Devolução Avulsa - Paciente"
+        devolucao_avulsa_setor:
+          type: string
+          example: "Devolução Avulsa - Setor"
+        pedido_compra:
+          type: string
+          example: "Pedido de Compra"
+    saida:
+      type: object
+      properties:
+        consumo_funcionario:
+          type: string
+          example: "Consumo do Funcionário"
+        consumo_paciente:
+          type: string
+          example: "Consumo do Paciente"
+        consumo_setor:
+          type: string
+          example: "Consumo do Setor"
+        devolucao_emprestimo:
+          type: string
+          example: "Devolução do Empréstimo"
+        doacao:
+          type: string
+          example: "Doação"
+        emprestimo:
+          type: string
+          example: "Empréstimo"
+        perda_dano:
+          type: string
+          example: "Perda/Dano"
+        vencido:
+          type: string
+          example: "Vencido"
+        saida_kit:
+          type: string
+          example: "Saída de Kit"
+    transfer:
+      type: object
+      properties:
+        transfer:
+          type: string
+          example: "Transferência entre Locais"

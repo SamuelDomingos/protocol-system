@@ -1,0 +1,145 @@
+openapi: 3.0.0
+info:
+  title: Treatment Protocol System API
+  version: 1.0.0
+  description: |
+    Documentação oficial da API do sistema de protocolos de tratamento.
+    
+    Esta API permite gerenciar:
+    - Autenticação de usuários
+    - Clientes e seus dados
+    - Protocolos de tratamento
+    - Aplicações de protocolos
+    - Permissões de usuários
+    - Mensagens do sistema
+    - Localizações de estoque
+    - Movimentações de estoque
+  contact:
+    name: Suporte da API
+    email: suporte@protocolsystem.com
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+servers:
+  - url: http://localhost:5000/api
+    description: Servidor local de desenvolvimento
+  - url: https://api.protocolsystem.com/api
+    description: Servidor de produção
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtido através do endpoint de login
+
+  schemas:
+    # Esquemas comuns
+    PaginatedResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items: {}
+        pagination:
+          type: object
+          properties:
+            currentPage:
+              type: integer
+              example: 1
+            totalPages:
+              type: integer
+              example: 5
+            totalItems:
+              type: integer
+              example: 50
+            itemsPerPage:
+              type: integer
+              example: 10
+            hasNextPage:
+              type: boolean
+              example: true
+            hasPrevPage:
+              type: boolean
+              example: false
+
+    ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Erro na validação dos dados"
+        error:
+          type: string
+          example: "Detalhes específicos do erro"
+
+    ValidationError:
+      type: object
+      properties:
+        message:
+          type: string
+          example: "Dados de entrada inválidos"
+        details:
+          type: array
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+                example: "email"
+              message:
+                type: string
+                example: "Email deve ter um formato válido"
+
+security:
+  - bearerAuth: []
+
+paths:
+  # Mude de múltiplos "$ref: './paths/...' " para uma lista:
+  - $ref: './paths/auth.yaml'
+  - $ref: './paths/clients.yaml'
+  - $ref: './paths/protocols.yaml'
+  - $ref: './paths/stock-locations.yaml'
+  - $ref: './paths/stock-movements.yaml'
+  - $ref: './paths/applications.yaml'
+  - $ref: './paths/permissions.yaml'
+  - $ref: './paths/messages.yaml'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: Token JWT obtido através do endpoint de login
+
+  schemas:
+    # Mude de múltiplos "$ref: './schemas/...' " para uma lista:
+    - $ref: './schemas/auth.yaml'
+    - $ref: './schemas/client.yaml'
+    - $ref: './schemas/protocol.yaml'
+    - $ref: './schemas/stock.yaml'
+
+tags:
+  - name: Autenticação
+    description: Endpoints para autenticação e gerenciamento de usuários
+  - name: Clientes
+    description: Gerenciamento de clientes do sistema
+  - name: Protocolos
+    description: Criação e gerenciamento de protocolos de tratamento
+  - name: Estoque - Localizações
+    description: Gerenciamento de localizações de produtos no estoque
+  - name: Estoque - Movimentações
+    description: Controle de movimentações de entrada, saída e transferência de estoque
+  - name: Aplicações
+    description: Aplicações de protocolos de tratamento
+  - name: Permissões
+    description: Gerenciamento de permissões do sistema
+  - name: Mensagens
+    description: Sistema de mensagens e notificações
+
+externalDocs:
+  description: Documentação adicional do sistema
+  url: https://docs.protocolsystem.com

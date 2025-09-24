@@ -1,0 +1,48 @@
+# Esquemas de Cliente
+ClientRequest:
+  type: object
+  required:
+    - name
+  properties:
+    name:
+      type: string
+      minLength: 2
+      maxLength: 100
+      example: "Maria Santos"
+    phone:
+      type: string
+      example: "(11) 99999-9999"
+    cpf:
+      type: string
+      pattern: '^\d{3}\.\d{3}\.\d{3}-\d{2}$'
+      example: "123.456.789-00"
+
+Client:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: "123e4567-e89b-12d3-a456-426614174000"
+    name:
+      type: string
+      example: "Maria Santos"
+    phone:
+      type: string
+      example: "(11) 99999-9999"
+    cpf:
+      type: string
+      example: "123.456.789-00"
+    createdAt:
+      type: string
+      format: date-time
+      example: "2024-01-15T10:30:00Z"
+    updatedAt:
+      type: string
+      format: date-time
+      example: "2024-01-15T10:30:00Z"
+    protocols:
+      type: array
+      items:
+        $ref: '../schemas/protocol.yaml#/Protocol'
+      description: "Protocolos associados ao cliente (quando incluído)"

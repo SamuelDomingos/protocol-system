@@ -2,12 +2,18 @@ const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
 const Application = sequelize.define('Application', {
+  id: {
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
+    primaryKey: true,
+    allowNull: false
+  },
   stageId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false
   },
   nurseId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false
   },
   appliedAt: {
@@ -15,7 +21,7 @@ const Application = sequelize.define('Application', {
     allowNull: false
   },
   clientPhoto: {
-    type: DataTypes.TEXT('long'), // Base64 string ou path
+    type: DataTypes.TEXT('long'), 
     allowNull: false
   },
   clientSignature: {
@@ -30,6 +36,9 @@ const Application = sequelize.define('Application', {
     type: DataTypes.ENUM('pending', 'applied'),
     defaultValue: 'applied'
   }
+}, {
+  tableName: 'applications',
+  timestamps: true
 });
 
 module.exports = Application;

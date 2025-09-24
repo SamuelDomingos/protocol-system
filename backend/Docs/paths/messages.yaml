@@ -1,0 +1,31 @@
+# Endpoints de Mensagens (placeholder - baseado na estrutura encontrada)
+/messages:
+  get:
+    tags:
+      - Mensagens
+    summary: Listar mensagens
+    description: Retorna uma lista de mensagens do sistema
+    parameters:
+      - name: page
+        in: query
+        schema:
+          type: integer
+          default: 1
+      - name: limit
+        in: query
+        schema:
+          type: integer
+          default: 10
+    responses:
+      '200':
+        description: Lista de mensagens
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/PaginatedResponse'
+      '401':
+        description: Token inválido ou expirado
+        content:
+          application/json:
+            schema:
+              $ref: '../openapi.yaml#/components/schemas/ErrorResponse'

@@ -3,12 +3,13 @@ const sequelize = require('../config/database');
 
 const Permission = sequelize.define('Permission', {
   id: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
+    defaultValue: DataTypes.UUIDV4,
     primaryKey: true,
-    autoIncrement: true
+    allowNull: false
   },
   userId: {
-    type: DataTypes.INTEGER,
+    type: DataTypes.UUID,
     allowNull: false,
     references: {
       model: 'users',
@@ -52,4 +53,4 @@ const Permission = sequelize.define('Permission', {
   ]
 });
 
-module.exports = Permission; 
+module.exports = Permission;

@@ -1,11 +1,5 @@
 const { Op } = require('sequelize');
 
-/**
- * Constrói filtros avançados para queries Sequelize
- * @param {Object} queryParams - Parâmetros da query string
- * @param {Object} options - Opções de configuração
- * @returns {Object} Objeto com where, order, limit, offset e includes
- */
 const buildAdvancedFilters = (queryParams, options = {}) => {
   const {
     page = 1,
@@ -72,14 +66,6 @@ const buildAdvancedFilters = (queryParams, options = {}) => {
   };
 };
 
-/**
- * Formata a resposta com paginação
- * @param {Object} result - Resultado do findAndCountAll
- * @param {number} page - Página atual
- * @param {number} limit - Itens por página
- * @param {string} dataKey - Nome da chave dos dados na resposta
- * @returns {Object} Resposta formatada
- */
 const formatPaginatedResponse = (result, page, limit, dataKey = 'data') => {
   const { count, rows } = result;
   

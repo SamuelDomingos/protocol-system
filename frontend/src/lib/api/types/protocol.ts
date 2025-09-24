@@ -1,17 +1,33 @@
 export interface Protocol {
   id: string;
-  title: string;
-  description: string;
+  name: string;
+  description?: string;
+  clientId: string;
+  clientName: string;
   status: 'draft' | 'active' | 'completed' | 'cancelled';
-  createdBy: string;
+  stages: ProtocolStage[];
+  totalValue: number;
   createdAt: string;
   updatedAt: string;
 }
 
-export interface CreateProtocolRequest {
-  title: string;
-  description: string;
-  status?: 'draft' | 'active';
+export interface ProtocolStage {
+  id: string;
+  name: string;
+  description?: string;
+  order: number;
+  completed: boolean;
+  value: number;
 }
 
-export interface UpdateProtocolRequest extends Partial<CreateProtocolRequest> {}
+export interface CreateProtocolRequest {
+  name: string;
+  description?: string;
+  clientId: string;
+  templateId?: string;
+  stages: Omit<ProtocolStage, 'id' | 'completed'>[];
+}
+
+export interface UpdateProtocolRequest extends Partial<CreateProtocolRequest> {
+  status?: Protocol['status'];
+}

@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -15,30 +16,35 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/src/components/ui/dropdown-menu";
-import { MoreHorizontal, Edit, Trash2, Eye } from "lucide-react";
+import { MoreHorizontal, Edit, Trash2} from "lucide-react";
 import { DataTableWrapper } from "@/src/components/ui/data-table-wrapper";
-import { useClients } from "../hooks/useClients";
-import type { Client } from "@/src/lib/api/types";
 import { formatPhoneNumber, formatCPF } from "@/src/lib/utils";
+import type { Client } from "../types";
 
 interface ClientsTableProps {
+  data: Client[];
+  isLoading: boolean;
+  error: string | null;
   onEditClient?: (client: Client) => void;
   onViewClient?: (client: Client) => void;
   onDeleteClient?: (client: Client) => void;
 }
 
 export function ClientsTable({
+  data,
+  isLoading,
+  error,
   onEditClient,
-  onViewClient,
   onDeleteClient,
 }: ClientsTableProps) {
-  const { clients, isLoading, error } = useClients();
 
+  console.log(data);
+  
   return (
     <DataTableWrapper
       isLoading={isLoading}
       error={error}
-      data={clients}
+      data={data}
       loadingMessage="Carregando clientes..."
       emptyMessage="Nenhum cliente encontrado"
     >
@@ -55,7 +61,7 @@ export function ClientsTable({
             </TableRow>
           </TableHeader>
           <TableBody>
-            {clients.map((client) => (
+            {data.map((client) => (
               <TableRow key={client.id}>
                 <TableCell className="font-medium">{client.name}</TableCell>
                 <TableCell>{formatPhoneNumber(client.phone)}</TableCell>
@@ -82,12 +88,6 @@ export function ClientsTable({
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                      {onViewClient && (
-                        <DropdownMenuItem onClick={() => onViewClient(client)}>
-                          <Eye className="mr-2 h-4 w-4" />
-                          Visualizar
-                        </DropdownMenuItem>
-                      )}
                       {onEditClient && (
                         <DropdownMenuItem onClick={() => onEditClient(client)}>
                           <Edit className="mr-2 h-4 w-4" />

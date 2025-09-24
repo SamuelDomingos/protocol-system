@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const authController = require('../controllers/authController');
+const authController = require('../controllers/auth.controller');
 const { checkUserExists, validateSignupFields, validateLoginFields, validateUpdateFields } = require('../middlewares/userValidationMiddleware');
 
 router.post('/signup', validateSignupFields, checkUserExists, authController.signup);

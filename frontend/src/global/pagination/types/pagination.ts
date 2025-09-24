@@ -21,7 +21,7 @@ export interface PaginationRequestParams {
   search?: string
   sortBy?: string
   sortOrder?: 'asc' | 'desc'
-  [key: string]: any // Para filtros adicionais
+  [key: string]: any
 }
 
 // Configurações do hook de paginação

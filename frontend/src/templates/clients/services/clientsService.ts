@@ -1,9 +1,11 @@
-import { getClients, searchClients } from "@/src/lib/api";
+import { getClients, searchClients, createClient, updateClient } from "@/src/lib/api";
 import type {
   Client,
   ClientSearchParams,
   ClientsPaginatedResponse,
-} from "@/src/lib/api/types";
+  CreateClientRequest,
+  UpdateClientRequest,
+} from "../types";
 
 export class ClientsService {
   static async fetchClients(
@@ -92,6 +94,30 @@ export class ClientsService {
 
   static shouldUseSearch(searchTerm: string): boolean {
     return searchTerm.trim().length > 0;
+  }
+
+  static async createClient(data: CreateClientRequest): Promise<Client> {
+    try {
+      const newClient = await createClient(data);
+      return newClient;
+    } catch (error) {
+      console.error("Erro ao criar cliente:", error);
+      throw new Error(
+        error instanceof Error ? error.message : "Erro ao criar cliente"
+      );
+    }
+  }
+
+  static async updateClient(id: number, data: UpdateClientRequest): Promise<Client> {
+    try {
+      const updatedClient = await updateClient(id, data);
+      return updatedClient;
+    } catch (error) {
+      console.error("Erro ao atualizar cliente:", error);
+      throw new Error(
+        error instanceof Error ? error.message : "Erro ao atualizar cliente"
+      );
+    }
   }
 
   static formatPaginationInfo(

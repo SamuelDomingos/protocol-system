@@ -1,8 +1,12 @@
 import { apiRequest } from '@/src/utils/http';
 import type { Protocol, CreateProtocolRequest, UpdateProtocolRequest } from '../types/protocol';
+import type { PaginationRequestParams } from '@/src/global/pagination/types/pagination';
 
-export const getProtocols = async (): Promise<Protocol[]> => {
-  return apiRequest<Protocol[]>('/api/protocols');
+export const getProtocols = async (params?: PaginationRequestParams): Promise<any> => {
+  return apiRequest<any>('/api/protocols', {
+    method: 'GET',
+    params
+  });
 };
 
 export const getProtocolById = async (id: string): Promise<Protocol> => {
@@ -25,6 +29,37 @@ export const updateProtocol = async (id: string, protocolData: UpdateProtocolReq
 
 export const deleteProtocol = async (id: string): Promise<void> => {
   return apiRequest<void>(`/api/protocols/${id}`, {
+    method: 'DELETE',
+  });
+};
+
+export const getTemplates = async (params?: PaginationRequestParams): Promise<any> => {
+  return apiRequest<any>('/api/templates', {
+    method: 'GET',
+    params
+  });
+};
+
+export const getTemplateById = async (id: string): Promise<Protocol> => {
+  return apiRequest<Protocol>(`/api/templates/${id}`);
+};
+
+export const createTemplate = async (templateData: Omit<CreateProtocolRequest, 'clientId'>): Promise<Protocol> => {
+  return apiRequest<Protocol>('/api/templates', {
+    method: 'POST',
+    body: { ...templateData, isTemplate: true },
+  });
+};
+
+export const updateTemplate = async (id: string, templateData: Omit<UpdateProtocolRequest, 'clientId'>): Promise<Protocol> => {
+  return apiRequest<Protocol>(`/api/templates/${id}`, {
+    method: 'PUT',
+    body: { ...templateData, isTemplate: true },
+  });
+};
+
+export const deleteTemplate = async (id: string): Promise<void> => {
+  return apiRequest<void>(`/api/templates/${id}`, {
     method: 'DELETE',
   });
 };
