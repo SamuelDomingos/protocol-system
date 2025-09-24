@@ -17,6 +17,7 @@ const applicationsRoutes = require('./routes/applications.route');
 const permissionsRoutes = require('./routes/permission.route');
 const messagesRoutes = require('./routes/messages.route');
 const templatesRoutes = require('./routes/templates.route');
+const stagesRoutes = require('./routes/stages.routes');
 
 const app = express();
 app.use(express.json());
@@ -46,6 +47,7 @@ const startServer = async () => {
     app.use('/api/auth', authRoutes);
     app.use('/api/clients', clientsRoutes);
     app.use('/api/protocols', protocolsRoutes);
+    app.use('/api/stages', stagesRoutes);
     app.use('/api/templates', templatesRoutes);
     app.use('/api/applications', applicationsRoutes);
     app.use('/api/permissions', permissionsRoutes);

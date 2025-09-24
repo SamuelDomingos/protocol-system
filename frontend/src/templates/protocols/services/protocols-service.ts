@@ -4,7 +4,7 @@ import {
   createProtocol,
   updateProtocol,
   deleteProtocol,
-} from "@/src/lib/api/protocols";
+} from "@/src/lib/api/protocols/protocols";
 import type {
   Protocol,
   CreateProtocolRequest,

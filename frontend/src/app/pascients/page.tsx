@@ -12,6 +12,7 @@ import { useClients } from "@/src/templates/clients/hooks/useClients";
 import { PaginationControls } from "@/src/global/pagination";
 import { SearchInput } from "@/src/global/search/components/search-input";
 import type { Client } from "@/src/templates/clients/types";
+import { useTemplates } from "@/src/templates/protocols/hooks/use-template-form";
 
 export default function PatientsPage() {
   const [isClientDialogOpen, setIsClientDialogOpen] = useState(false);

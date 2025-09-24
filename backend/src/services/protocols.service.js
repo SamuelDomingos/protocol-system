@@ -1,33 +1,15 @@
 const BaseService = require('./base.service');
-const { Protocol, Stage, Client, User } = require('../models');
+const { Protocol, Stage, Client } = require('../models');
 const { Op, Sequelize } = require('sequelize');
 const protocolSchema = require('../validation/protocol.schema');
 
 class ProtocolService extends BaseService {
   constructor() {
-    const defaultIncludes = [
-      {
-        model: Stage,
-        as: 'stages',
-        attributes: [[Sequelize.fn('COUNT', Sequelize.col('stages.id')), 'stageCount']],
-        required: false
-      },
-      {
-        model: Client,
-        as: 'client',
-        attributes: ['id', 'name', 'cpf'],
-        required: false
-      },
-      {
-        model: User,
-        as: 'creator',
-        attributes: ['id', 'name']
-      }
-    ];
-
-    super(Protocol, protocolSchema, defaultIncludes);
+    // Configuração básica sem includes desnecessários
+    super(Protocol, protocolSchema, []);
   }
 
+  // Método auxiliar para preparar stages com ordem
   _prepareStagesWithOrder(stages, protocolId) {
     return stages.map((stage, index) => ({
       ...stage,
@@ -36,25 +18,60 @@ class ProtocolService extends BaseService {
     }));
   }
 
-  _getDetailedIncludes() {
-    return [
-      {
-        model: Stage,
-        as: 'stages',
-        attributes: [[Sequelize.fn('COUNT', Sequelize.col('stages.id')), 'stageCount']],
-        required: false
+  // Método para obter configuração de consulta padrão
+  _getQueryConfig(includeClient = true) {
+    const config = {
+      attributes: {
+        include: [
+          [Sequelize.literal('(SELECT COUNT(*) FROM Stages WHERE Stages.protocolId = Protocol.id)'), 'stage']
+        ]
       },
-      {
+      include: []
+    };
+
+    if (includeClient) {
+      config.include.push({
         model: Client,
         as: 'client',
-        attributes: ['id', 'name', 'cpf', 'phone', 'observation']
-      },
-      {
-        model: User,
-        as: 'creator',
-        attributes: ['id', 'name', 'role']
+        attributes: ['id', 'name', 'cpf', 'phone'],
+        required: false
+      });
+    }
+
+    return config;
+  }
+
+  // Método para processar resultados e remover campos indesejados em templates
+  _processResults(results) {
+    if (!results) return results;
+    
+    // Se for um único objeto
+    if (!Array.isArray(results)) {
+      if (results.isTemplate) {
+        const plainResult = results.get ? results.get({ plain: true }) : results;
+        const { isTemplate, clientId, client, id, ...templateData } = plainResult;
+        return {
+          ...templateData,
+          title: plainResult.title
+        };
       }
-    ];
+      return results;
+    }
+    
+    // Se for um array
+    return results.map(item => {
+      const plainItem = item.get ? item.get({ plain: true }) : item;
+      
+      if (plainItem.isTemplate) {
+        const { isTemplate, clientId, client, id, ...templateData } = plainItem;
+        return {
+          ...templateData,
+          title: plainItem.title
+        };
+      }
+      
+      return plainItem;
+    });
   }
 
   async create(data, additionalData = {}) {
@@ -113,109 +130,72 @@ class ProtocolService extends BaseService {
     const filterOptions = {
       searchFields: ['title'],
       filterFields: ['status', 'isTemplate', 'createdBy', 'clientId'],
-      includes: this.defaultIncludes,
+      includes: [],
       defaultSort: [['createdAt', 'DESC']]
     };
 
-    const result = await super.findAllPaginated(query, filterOptions);
-
-    // Processar os resultados para remover campos indesejados em templates
-    if (result && result.rows) {
-      result.rows = result.rows.map(protocol => {
-        const plainProtocol = protocol.get({ plain: true });
-        
-        // Se for um template, remover campos específicos
-        if (plainProtocol.isTemplate) {
-          const { isTemplate, clientId, client, id, creator, creatorDy, ...templateData } = plainProtocol;
-          return {
-            ...templateData,
-            title: plainProtocol.title
-          };
-        }
-        
-        return plainProtocol;
-      });
-    }
-
+    // Usar queryBuilder para construir a consulta
+    const queryConfig = require('../utils/queryBuilder').buildAdvancedFilters(query, filterOptions);
+    const { where, order, limit, offset } = queryConfig;
+    
+    // Adicionar configuração de consulta padrão
+    const config = this._getQueryConfig(true);
+    
+    // Se houver pesquisa por cliente
     if (query.search) {
-      const { where, order, limit, offset } = require('../utils/queryBuilder').buildAdvancedFilters(query, filterOptions);
-      
-      const customIncludes = [...this.defaultIncludes];
-      const clientInclude = customIncludes.find(inc => inc.model === Client);
-      
-      if (clientInclude) {
-        clientInclude.where = {
+      config.include.push({
+        model: Client,
+        as: 'client',
+        required: false,
+        where: {
           [Op.or]: [
             { name: { [Op.like]: `%${query.search}%` } },
             { cpf: { [Op.like]: `%${query.search}%` } }
           ]
-        };
-        clientInclude.as = 'client';
-      }
-
-      const searchResult = await this.model.findAndCountAll({
-        where,
-        include: customIncludes,
-        order,
-        limit,
-        offset
+        }
       });
+    }
 
-      // Processar os resultados para remover campos indesejados em templates
-      if (searchResult && searchResult.rows) {
-        searchResult.rows = searchResult.rows.map(protocol => {
-          const plainProtocol = protocol.get({ plain: true });
-          
-          // Se for um template, remover campos específicos
-          if (plainProtocol.isTemplate) {
-            const { isTemplate, clientId, client, id, ...templateData } = plainProtocol;
-            return {
-              ...templateData,
-              title: plainProtocol.title
-            };
-          }
-          
-          return plainProtocol;
-        });
-      }
+    const result = await this.model.findAndCountAll({
+      ...config,
+      where,
+      order,
+      limit,
+      offset
+    });
 
-      return searchResult;
+    if (result && result.rows) {
+      result.rows = this._processResults(result.rows);
     }
 
     return result;
   }
 
-  async findById(id, includes = null) {
-    const protocol = await super.findById(id, includes || this._getDetailedIncludes());
+  async findById(id) {
+    const config = this._getQueryConfig(true);
+    const protocol = await this.model.findByPk(id, config);
     
-    if (protocol && protocol.isTemplate) {
-      const plainProtocol = protocol.get({ plain: true });
-      const { isTemplate, clientId, client, id, ...templateData } = plainProtocol;
-      return {
-        ...templateData,
-        title: plainProtocol.title
-      };
+    if (!protocol) {
+      throw new Error('Protocolo não encontrado');
     }
     
-    return protocol;
+    return this._processResults(protocol);
   }
 
   async search(term) {
     if (!term || term.trim() === '') return [];
 
+    const config = this._getQueryConfig(true);
+    
+    // Adicionar condições de pesquisa
     const protocols = await this.model.findAll({
+      ...config,
       where: {
         [Op.or]: [
           { title: { [Op.like]: `%${term}%` } }
         ]
       },
       include: [
-        {
-          model: Stage,
-          as: 'stages',
-          attributes: [[Sequelize.fn('COUNT', Sequelize.col('stages.id')), 'stageCount']],
-          required: false
-        },
         {
           model: Client,
           as: 'client',
@@ -227,32 +207,13 @@ class ProtocolService extends BaseService {
               { cpf: { [Op.like]: `%${term}%` } }
             ]
           }
-        },
-        {
-          model: User,
-          as: 'creator',
-          attributes: ['id', 'name']
         }
       ],
       limit: 10,
       order: [['title', 'ASC']]
     });
 
-    // Processar os resultados para remover campos indesejados em templates
-    return protocols.map(protocol => {
-      const plainProtocol = protocol.get({ plain: true });
-      
-      // Se for um template, remover campos específicos
-      if (plainProtocol.isTemplate) {
-        const { isTemplate, clientId, client, id, ...templateData } = plainProtocol;
-        return {
-          ...templateData,
-          title: plainProtocol.title
-        };
-      }
-      
-      return plainProtocol;
-    });
+    return this._processResults(protocols);
   }
 
   async validateClient(clientId, isTemplate) {

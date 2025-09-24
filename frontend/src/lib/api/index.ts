@@ -1,6 +1,6 @@
 import * as auth from './auth';
 import * as users from './users';
-import * as protocols from './protocols';
+import * as protocols from './protocols/protocols';
 import * as clients from './clients';
 
 export { auth, users, protocols, clients };
@@ -19,7 +19,7 @@ export {
   createProtocol, 
   updateProtocol, 
   deleteProtocol 
-} from './protocols';
+} from './protocols/protocols';
 export { 
   getClients, 
   getClientById, 

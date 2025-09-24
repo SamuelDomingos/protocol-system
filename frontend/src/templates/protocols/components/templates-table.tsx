@@ -29,7 +29,7 @@ export function TemplatesTable({ data, onUseTemplate, onEdit }: TemplatesTablePr
         {data.map((template) => (
           <TableRow key={template.id}>
             <TableCell className="font-medium">{template.title}</TableCell>
-            <TableCell>{template.stages.length}</TableCell>
+            <TableCell>{template.stage}</TableCell>
             <TableCell>{new Date(template.createdAt).toLocaleDateString()}</TableCell>
             <TableCell>
               <DropdownMenu>

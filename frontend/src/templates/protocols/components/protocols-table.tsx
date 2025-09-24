@@ -39,7 +39,7 @@ export function ProtocolsTable({ data, isLoading, error, onEdit, onDelete }: Pro
             <TableCell>{protocol.clientName}</TableCell>
             <TableCell>
             </TableCell>
-            <TableCell>{protocol.stages.length}</TableCell>
+            <TableCell>{protocol.stage}</TableCell>
             <TableCell>{formatCurrency(protocol.totalValue)}</TableCell>
             <TableCell>{new Date(protocol.createdAt).toLocaleDateString()}</TableCell>
             <TableCell>
