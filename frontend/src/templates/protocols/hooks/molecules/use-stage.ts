@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import type { TemplateStageFormData } from '../types';
+import type { TemplateStageFormData } from '@/src/templates/protocols/types';
 
 export function useStage(initialStages: TemplateStageFormData[] = []) {
   const [stages, setStages] = useState<TemplateStageFormData[]>(initialStages);
@@ -50,7 +50,10 @@ export function useStage(initialStages: TemplateStageFormData[] = []) {
   }, []);
 
   const getTotalValue = useCallback((): number => {
-    return stages.reduce((total, stage) => total + (stage.value || 0), 0);
+    return stages.reduce((total, stage) => {
+      const numericValue = parseFloat(String(stage.value)) || 0;
+      return total + numericValue;
+    }, 0);
   }, [stages]);
 
   const setStagesData = useCallback((newStages: TemplateStageFormData[] = []) => {

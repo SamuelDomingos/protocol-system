@@ -8,7 +8,7 @@ import { Input } from "@/src/components/ui/input";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Label } from "@/src/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
-import { TemplateStageFormData, Kit } from "@/src/templates/protocols/types/template-form";
+import { TemplateStageFormData, Kit } from "@/src/templates/protocols/types";
 
 interface SortableStageProps {
   stage: TemplateStageFormData;

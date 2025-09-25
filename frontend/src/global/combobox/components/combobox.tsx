@@ -61,6 +61,7 @@ export function Combobox({
     handleSearchChange,
     handleSelect,
     displayValue,
+    filteredOptions,
   } = useCombobox({
     value,
     onValueChange,
@@ -114,7 +115,7 @@ export function Combobox({
               )}
             </CommandEmpty>
             <CommandGroup>
-              {options.map((option) => (
+              {filteredOptions.map((option) => (
                 <CommandItem
                   key={option.value}
                   value={option.value}

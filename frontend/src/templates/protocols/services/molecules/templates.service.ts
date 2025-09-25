@@ -9,7 +9,7 @@ import type {
   ProtocolTemplate,
   CreateTemplateRequest,
   UpdateTemplateRequest,
-} from "../types";
+} from "../../types";
 import type { PaginatedResponse, PaginationRequestParams } from "@/src/global/pagination/types/pagination";
 import { toast } from "@/src/hooks/use-toast";
 

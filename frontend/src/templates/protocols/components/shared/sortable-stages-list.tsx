@@ -6,7 +6,7 @@ import { Button } from "@/src/components/ui/button";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { formatCurrency } from "@/src/lib/utils";
 import { SortableStage } from "./sortable-stage";
-import { TemplateStageFormData } from "../../types/template-form";
+import { TemplateStageFormData } from "@/src/templates/protocols/types";
 
 interface Kit {
   id: string;

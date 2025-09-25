@@ -31,7 +31,6 @@ export function useLoginForm(): UseLoginFormReturn {
       [field]: value,
     }));
 
-    // Limpa o erro quando o usuário começa a digitar
     if (authError) {
       clearAuthError();
     }

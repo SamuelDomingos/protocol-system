@@ -24,7 +24,6 @@ export function ProtocolsTable({ data, isLoading, error, onEdit, onDelete }: Pro
         <TableRow>
           <TableHead>Nome</TableHead>
           <TableHead>Cliente</TableHead>
-          <TableHead>Status</TableHead>
           <TableHead>Etapas</TableHead>
           <TableHead>Valor Total</TableHead>
           <TableHead>Criado em</TableHead>
@@ -35,10 +34,8 @@ export function ProtocolsTable({ data, isLoading, error, onEdit, onDelete }: Pro
         {data.map((protocol) => (
           <TableRow key={protocol.id}>
             <TableCell className="font-medium">{protocol.title}</TableCell>
-            <TableCell>{protocol.client?.name || 'N/A'}</TableCell>
-            <TableCell>
-            </TableCell>
-            <TableCell>{protocol.stage} etapas</TableCell>
+            <TableCell>{protocol.clientName}</TableCell>
+            <TableCell>{protocol.stage}</TableCell>
             <TableCell>{formatCurrency(protocol.totalValue)}</TableCell>
             <TableCell>{new Date(protocol.createdAt).toLocaleDateString()}</TableCell>
             <TableCell>

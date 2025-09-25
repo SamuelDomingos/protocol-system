@@ -1,6 +1,6 @@
 "use client";
 
-import { useTemplateForm } from "@/src/templates/protocols/hooks/use-templateForm";
+import { useTemplateForm } from "@/src/templates/protocols/hooks/organelles/use-templateForm";
 import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Card, CardContent } from "@/src/components/ui/card";

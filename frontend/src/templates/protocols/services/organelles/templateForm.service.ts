@@ -1,5 +1,5 @@
-import { TemplatesService } from './templates.service';
-import type { TemplateFormData, TemplateStageFormData } from '../types';
+import { TemplatesService } from '../molecules/templates.service';
+import type { TemplateFormData, TemplateStageFormData } from '../../types';
 import { toast } from '@/src/hooks/use-toast';
 
 export class TemplateFormService {

@@ -1,9 +1,9 @@
 import { useState, useEffect, useCallback } from "react";
-import { TemplateFormService } from "../services/templateForm.service";
-import { stageService } from "../services/stages.service";
-import { useStage } from "./use-stage";
+import { TemplateFormService } from "@/src/templates/protocols/services/organelles/templateForm.service";
+import { stageService } from "@/src/templates/protocols/services/molecules/stages.service";
+import { useStage } from "@/src/templates/protocols/hooks/molecules/use-stage";
 import { toast } from "@/src/hooks/use-toast";
-import type { TemplateStageFormData } from "../types/";
+import type { TemplateStageFormData } from "../../types";
 
 interface UseTemplateFormOptions {
   onSuccess?: () => void;

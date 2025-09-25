@@ -1,24 +1,20 @@
-import { ProtocolsService } from './protocols.service';
+import { ProtocolsService } from '../molecules/protocols.service';
 import type { 
   Protocol, 
   ProtocolStage, 
   CreateProtocolRequest,
   UpdateProtocolRequest 
-} from '../types';
+} from '@/src/templates/protocols/types';
 import { toast } from '@/src/hooks/use-toast';
 
 export type ProtocolStageFormData = Omit<ProtocolStage, 'id' | 'protocolId' | 'createdAt' | 'updatedAt'>;
 
 export class ProtocolFormService {
-  static async loadProtocol(protocolId: string): Promise<CreateProtocolRequest | null> {
+  static async loadProtocol(protocolId: string): Promise<Protocol | null> {
     try {
       const protocol = await ProtocolsService.getById(protocolId);
       
-      return {
-        title: protocol.title,
-        clientId: protocol.clientId,
-        stages: protocol.stages
-      };
+      return protocol;
       
     } catch (error) {
       console.error('Erro ao carregar protocolo:', error);
@@ -27,23 +23,17 @@ export class ProtocolFormService {
   }
 
   static async saveProtocol(
-    protocolData: { title: string; clientId?: string }, 
-    stages: ProtocolStageFormData[] = [],
+    protocolData: CreateProtocolRequest,
     protocolId?: string,
   ): Promise<Protocol | null> {
     try {
-
-      const requestData: CreateProtocolRequest | UpdateProtocolRequest = {
-        title: protocolData.title,
-        clientId: protocolData.clientId,
-        stages: stages,
-      };
+      const requestData = protocolData;
 
       if (protocolId) {
-        const updatedProtocol = await ProtocolsService.update(protocolId, requestData);
+        const updatedProtocol = await ProtocolsService.update(protocolId, requestData as UpdateProtocolRequest);
         return updatedProtocol;
       } else {
-        const newProtocol = await ProtocolsService.create(requestData as CreateProtocolRequest);
+        const newProtocol = await ProtocolsService.create(requestData);
         return newProtocol;
       }
     } catch (error) {

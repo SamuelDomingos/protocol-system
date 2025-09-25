@@ -7,7 +7,7 @@ import {
   deleteStage,
   reorderStages
 } from '@/src/lib/api/protocols';
-import { TemplateStageFormData } from '../types';
+import { TemplateStageFormData } from '@/src/templates/protocols/types';
 
 export function stageService() {
   const [isLoading, setIsLoading] = useState(false);
@@ -16,7 +16,15 @@ export function stageService() {
   const loadStagesByTemplate = async (templateId: string): Promise<TemplateStageFormData[]> => {
     try {
       setIsLoading(true);
-      return await getStagesByTemplateId(templateId);
+      const stages = await getStagesByTemplateId(templateId);
+
+      return stages.map(stage => ({
+        name: stage.name,
+        value: stage.value,
+        intervalDays: stage.intervalDays,
+        order: stage.order,
+        kitId: stage.kitId
+      }));
     } catch (error) {
       toast({
         title: "Erro",

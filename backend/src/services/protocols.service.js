@@ -16,24 +16,29 @@ class ProtocolService extends BaseService {
     }));
   }
 
-  _getQueryConfig(includeClient = true) {
+  _getBaseQueryConfig(includeStagesData = false) {
     const config = {
       attributes: {
         include: [
-          [Sequelize.literal('(SELECT COUNT(*) FROM Stages WHERE Stages.protocolId = Protocol.id)'), 'stage']
+          [Sequelize.literal(`(SELECT SUM(value) FROM Stages WHERE Stages.protocolId = Protocol.id)`), 'totalValue']
         ]
       },
-      include: []
+      include: [
+        {
+          model: Client,
+          as: 'client',
+          attributes: ['id', 'name', 'cpf'],
+          required: false
+        },
+        {
+          model: Stage,
+          as: 'stages',
+          attributes: includeStagesData ? ['id', 'name', 'value', 'intervalDays', 'order'] : ['id'],
+          required: false,
+          order: includeStagesData ? [['order', 'ASC']] : undefined
+        }
+      ]
     };
-
-    if (includeClient) {
-      config.include.push({
-        model: Client,
-        as: 'client',
-        attributes: ['id', 'name', 'cpf', 'phone'],
-        required: false
-      });
-    }
 
     return config;
   }
@@ -41,31 +46,30 @@ class ProtocolService extends BaseService {
   _processResults(results) {
     if (!results) return results;
 
-    if (!Array.isArray(results)) {
-      if (results.isTemplate) {
-        const plainResult = results.get ? results.get({ plain: true }) : results;
-        const { isTemplate, clientId, client, ...templateData } = plainResult;
-        return {
-          ...templateData,
-          title: plainResult.title
-        };
-      }
-      return results;
-    }
-    
-    return results.map(item => {
-      const plainItem = item.get ? item.get({ plain: true }) : item;
+    const processSingle = (item) => {
+      const plain = item.get ? item.get({ plain: true }) : item;
+      const { client, stages, ...data } = plain;
       
-      if (plainItem.isTemplate) {
-        const { isTemplate, clientId, client, ...templateData } = plainItem;
-        return {
-          ...templateData,
-          title: plainItem.title
-        };
+      const processedData = {
+        ...data,
+        totalValue: parseFloat(plain.totalValue) || 0,
+        stage: stages ? stages.length : 0
+      };
+
+      // Para templates, remove clientId e clientName
+      if (data.isTemplate) {
+        const { clientId, ...templateData } = processedData;
+        return templateData;
       }
       
-      return plainItem;
-    });
+      // Para protocolos normais, adiciona clientName
+      return {
+        ...processedData,
+        clientName: client?.name || null
+      };
+    };
+
+    return Array.isArray(results) ? results.map(processSingle) : processSingle(results);
   }
 
   async create(data, additionalData = {}) {
@@ -100,8 +104,7 @@ class ProtocolService extends BaseService {
         isTemplate 
       }, { transaction: t });
 
-      await Stage.destroy({ where: { protocolId: protocol.id }, transaction: t });
-
+      await Stage.destroy({ where: { protocolId: id }, transaction: t });
       const stagesWithOrder = this._prepareStagesWithOrder(stages, protocol.id);
       await Stage.bulkCreate(stagesWithOrder, { transaction: t });
     });
@@ -124,27 +127,23 @@ class ProtocolService extends BaseService {
     const filterOptions = {
       searchFields: ['title'],
       filterFields: ['status', 'isTemplate', 'createdBy', 'clientId'],
-      includes: [],
       defaultSort: [['createdAt', 'DESC']]
     };
 
-    const queryConfig = require('../utils/queryBuilder').buildAdvancedFilters(query, filterOptions);
-    const { where, order, limit, offset } = queryConfig;
+    const { where, order, limit, offset } = require('../utils/queryBuilder')
+      .buildAdvancedFilters(query, filterOptions);
     
-    const config = this._getQueryConfig(true);
+    const config = this._getBaseQueryConfig();
 
+    // Adiciona busca por cliente se necessário
     if (query.search) {
-      config.include.push({
-        model: Client,
-        as: 'client',
-        required: false,
-        where: {
-          [Op.or]: [
-            { name: { [Op.like]: `%${query.search}%` } },
-            { cpf: { [Op.like]: `%${query.search}%` } }
-          ]
-        }
-      });
+      const clientInclude = config.include.find(inc => inc.as === 'client');
+      clientInclude.where = {
+        [Op.or]: [
+          { name: { [Op.like]: `%${query.search}%` } },
+          { cpf: { [Op.like]: `%${query.search}%` } }
+        ]
+      };
     }
 
     const result = await this.model.findAndCountAll({
@@ -155,7 +154,7 @@ class ProtocolService extends BaseService {
       offset
     });
 
-    if (result && result.rows) {
+    if (result?.rows) {
       result.rows = this._processResults(result.rows);
     }
 
@@ -163,53 +162,32 @@ class ProtocolService extends BaseService {
   }
 
   async findById(id) {
-    const config = this._getQueryConfig(true);
-    const protocol = await this.model.findByPk(id, config);
+    const protocol = await this.model.findByPk(id, this._getBaseQueryConfig(true));
     
     if (!protocol) {
       throw new Error('Protocolo não encontrado');
     }
-    
-    return this._processResults(protocol);
+
+    return protocol.get({ plain: true });
   }
 
   async search(term) {
-    if (!term || term.trim() === '') return [];
-
-    const config = this._getQueryConfig(true);
+    if (!term?.trim()) return [];
 
     const protocols = await this.model.findAll({
-      ...config,
+      ...this._getBaseQueryConfig(),
       where: {
         [Op.or]: [
-          { title: { [Op.like]: `%${term}%` } }
+          { title: { [Op.like]: `%${term}%` } },
+          { '$client.name$': { [Op.like]: `%${term}%` } },
+          { '$client.cpf$': { [Op.like]: `%${term}%` } }
         ]
       },
-      include: [
-        {
-          model: Client,
-          as: 'client',
-          attributes: ['id', 'name', 'cpf'],
-          required: false,
-          where: {
-            [Op.or]: [
-              { name: { [Op.like]: `%${term}%` } },
-              { cpf: { [Op.like]: `%${term}%` } }
-            ]
-          }
-        }
-      ],
       limit: 10,
       order: [['title', 'ASC']]
     });
 
     return this._processResults(protocols);
-  }
-
-  async validateClient(clientId, isTemplate) {
-    if (isTemplate) return true;
-    const client = await Client.findByPk(clientId);
-    return !!client;
   }
 }
 

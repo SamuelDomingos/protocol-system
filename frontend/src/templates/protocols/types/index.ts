@@ -1,7 +1,9 @@
 import { 
-  Client, 
+  Client
+} from "@/src/templates/clients";
+import { 
   User
-} from "@/src/lib/api";
+} from "@/src/lib/api/types";
 
 export interface ProtocolStage {
   id: string;
@@ -28,14 +30,15 @@ export interface Protocol {
   id: string;
   title: string;
   clientId?: string;
+  clientName?: string;
   createdBy: string;
   isTemplate: boolean;
   stages?: ProtocolStage[];
+  totalValue?: number;
   createdAt: string;
   updatedAt: string;
   stage?: number;
   client?: Client;
-  creator?: User;
 }
 
 export interface ProtocolTemplate {
@@ -52,6 +55,7 @@ export interface ProtocolTemplate {
 export interface CreateProtocolRequest {
   title: string;
   clientId?: string;
+  clientName?: string;
   stages?: Omit<ProtocolStage, 'id' | 'protocolId' | 'createdAt' | 'updatedAt'>[];
 }
 
@@ -69,7 +73,7 @@ export interface TemplateFormData {
   stages: TemplateStage[];
 }
 
-export type TemplateStageFormData = TemplateStage;
+export type TemplateStageFormData = Omit<TemplateStage, 'id' | 'createdAt' | 'updatedAt'>;
 
 export interface ProtocolsPaginatedResponse {
   rows: Protocol[];

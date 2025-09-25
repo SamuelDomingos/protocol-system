@@ -1,6 +1,6 @@
-import { useDataCollection } from './use-data-collection';
-import { TemplatesService } from '../services/templates.service';
-import type { ProtocolTemplate } from '../types';
+import { useDataCollection } from '@/src/templates/protocols/hooks/atoms/use-data-collection';
+import { TemplatesService } from '@/src/templates/protocols/services/molecules/templates.service';
+import type { ProtocolTemplate } from '@/src/templates/protocols/types';
 
 export function useTemplates() {
   const {

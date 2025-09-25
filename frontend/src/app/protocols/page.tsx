@@ -23,16 +23,17 @@ import {
   DialogTitle,
 } from "@/src/components/ui/dialog";
 import { Plus } from "lucide-react";
-import { ProtocolsTable, TemplatesTable } from "@/src/templates/protocols";
-import { TemplateForm } from "@/src/templates/protocols/components/forms/template-form";
-import { useProtocols } from "@/src/templates/protocols/hooks/use-protocols";
-import { useTemplates } from "@/src/templates/protocols/hooks/use-templates";
+import {
+  ProtocolsTable,
+  TemplatesTable,
+  TemplateForm,
+  useProtocols,
+  useTemplates,
+  ProtocolForm,
+} from "@/src/templates/protocols";
+import type { Protocol, ProtocolTemplate } from "@/src/templates/protocols";
 import { PaginationControls } from "@/src/global/pagination";
 import { SearchInput } from "@/src/global/search/components/search-input";
-import type {
-  Protocol,
-  ProtocolTemplate,
-} from "@/src/templates/protocols/types";
 
 export default function ProtocolsPage() {
   const [isProtocolDialogOpen, setIsProtocolDialogOpen] = useState(false);
@@ -81,6 +82,11 @@ export default function ProtocolsPage() {
     setEditingTemplate(undefined);
   };
 
+  const resetProtocolDialog = () => {
+    setIsProtocolDialogOpen(false);
+    setEditingProtocol(undefined);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -124,10 +130,12 @@ export default function ProtocolsPage() {
                           : "Novo Protocolo"}
                       </DialogTitle>
                     </DialogHeader>
-                    <div className="p-4">
-                      <p className="text-muted-foreground">
-                        Formulário de protocolo será implementado aqui.
-                      </p>
+                    <div className="p-6">
+                      <ProtocolForm
+                        protocol={editingProtocol}
+                        onSave={resetProtocolDialog}
+                        onCancel={resetProtocolDialog}
+                      />
                     </div>
                   </DialogContent>
                 </Dialog>

@@ -34,10 +34,7 @@ const protocolSchema = Joi.object({
     'string.empty': 'Título é obrigatório',
     'any.required': 'Título é obrigatório'
   }),
-  isTemplate: Joi.boolean().required().messages({
-    'boolean.base': 'Campo isTemplate deve ser verdadeiro ou falso',
-    'any.required': 'Campo isTemplate é obrigatório'
-  }),
+  isTemplate: Joi.boolean().messages(),
   stages: Joi.array().items(stageSchema).min(1).required().messages({
     'array.base': 'Estágios devem ser uma lista',
     'array.min': 'É necessário pelo menos 1 estágio',

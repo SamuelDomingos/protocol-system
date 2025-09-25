@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useDebounce } from "@/src/hooks/use-debounce";
 
 export interface ComboboxOption {
   value: string;
@@ -24,10 +25,25 @@ export function useCombobox({
   const [open, setOpen] = React.useState(false);
   const [searchValue, setSearchValue] = React.useState("");
 
+  const debouncedSearchValue = useDebounce(searchValue, 500);
+
   const handleSearchChange = (search: string) => {
     setSearchValue(search);
-    onSearchChange?.(search);
   };
+
+  React.useEffect(() => {
+    onSearchChange?.(debouncedSearchValue);
+  }, [debouncedSearchValue, onSearchChange]);
+
+  const filteredOptions = React.useMemo(() => {
+    if (!searchValue.trim()) {
+      return options;
+    }
+    
+    return options.filter(option =>
+      option.label.toLowerCase().includes(searchValue.toLowerCase())
+    );
+  }, [options, searchValue]);
 
   const handleSelect = (selectedValue: string) => {
     if (selectedValue === value && allowClear) {
@@ -35,6 +51,7 @@ export function useCombobox({
     } else {
       onValueChange?.(selectedValue);
     }
+    setSearchValue("");
     setOpen(false);
   };
 
@@ -53,5 +70,6 @@ export function useCombobox({
     handleSearchChange,
     handleSelect,
     displayValue,
+    filteredOptions,
   };
 }
