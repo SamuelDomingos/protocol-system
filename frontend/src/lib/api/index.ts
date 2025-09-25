@@ -5,30 +5,10 @@ import * as clients from './clients';
 
 export { auth, users, protocols, clients };
 
-export { login, logout } from './auth';
-export { 
-  getUsers, 
-  getUserById, 
-  createUser, 
-  updateUser, 
-  deleteUser 
-} from './users';
-export { 
-  getProtocols, 
-  getProtocolById, 
-  createProtocol, 
-  updateProtocol, 
-  deleteProtocol 
-} from './protocols/protocols';
-export { 
-  getClients, 
-  getClientById, 
-  createClient, 
-  updateClient, 
-  deleteClient,
-  searchClients 
-} from './clients';
-
+export type * from './auth';
+export type * from './users';
+export type * from './protocols/protocols';
+export type * from './clients';
 export type * from './types';
 
 export { ApiError } from '@/src/utils/http';

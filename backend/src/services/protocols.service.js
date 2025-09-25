@@ -5,11 +5,9 @@ const protocolSchema = require('../validation/protocol.schema');
 
 class ProtocolService extends BaseService {
   constructor() {
-    // Configuração básica sem includes desnecessários
     super(Protocol, protocolSchema, []);
   }
 
-  // Método auxiliar para preparar stages com ordem
   _prepareStagesWithOrder(stages, protocolId) {
     return stages.map((stage, index) => ({
       ...stage,
@@ -18,7 +16,6 @@ class ProtocolService extends BaseService {
     }));
   }
 
-  // Método para obter configuração de consulta padrão
   _getQueryConfig(includeClient = true) {
     const config = {
       attributes: {
@@ -41,15 +38,13 @@ class ProtocolService extends BaseService {
     return config;
   }
 
-  // Método para processar resultados e remover campos indesejados em templates
   _processResults(results) {
     if (!results) return results;
-    
-    // Se for um único objeto
+
     if (!Array.isArray(results)) {
       if (results.isTemplate) {
         const plainResult = results.get ? results.get({ plain: true }) : results;
-        const { isTemplate, clientId, client, id, ...templateData } = plainResult;
+        const { isTemplate, clientId, client, ...templateData } = plainResult;
         return {
           ...templateData,
           title: plainResult.title
@@ -58,12 +53,11 @@ class ProtocolService extends BaseService {
       return results;
     }
     
-    // Se for um array
     return results.map(item => {
       const plainItem = item.get ? item.get({ plain: true }) : item;
       
       if (plainItem.isTemplate) {
-        const { isTemplate, clientId, client, id, ...templateData } = plainItem;
+        const { isTemplate, clientId, client, ...templateData } = plainItem;
         return {
           ...templateData,
           title: plainItem.title
@@ -134,14 +128,11 @@ class ProtocolService extends BaseService {
       defaultSort: [['createdAt', 'DESC']]
     };
 
-    // Usar queryBuilder para construir a consulta
     const queryConfig = require('../utils/queryBuilder').buildAdvancedFilters(query, filterOptions);
     const { where, order, limit, offset } = queryConfig;
     
-    // Adicionar configuração de consulta padrão
     const config = this._getQueryConfig(true);
-    
-    // Se houver pesquisa por cliente
+
     if (query.search) {
       config.include.push({
         model: Client,
@@ -186,8 +177,7 @@ class ProtocolService extends BaseService {
     if (!term || term.trim() === '') return [];
 
     const config = this._getQueryConfig(true);
-    
-    // Adicionar condições de pesquisa
+
     const protocols = await this.model.findAll({
       ...config,
       where: {

@@ -41,6 +41,6 @@ export class ProtocolsService {
   }
 
   static calculateTotalValue(protocol: Protocol): number {
-    return protocol.stages.reduce((total, stage) => total + stage.value, 0);
+    return protocol.stages?.reduce((total, stage) => total + stage.value, 0) || 0;
   }
 }

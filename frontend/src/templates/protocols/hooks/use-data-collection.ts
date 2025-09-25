@@ -1,20 +1,14 @@
 import { useState, useEffect } from 'react';
 import { usePagination } from '@/src/global/pagination';
 import { useSearch } from '@/src/global/search/hooks/use-search';
-import type { PaginatedResponse } from '@/src/global/pagination/types/pagination';
 
-interface DataService<T> {
+interface DataService{
   getAll: (params?: any) => Promise<any>;
   delete: (id: string) => Promise<void>;
 }
 
-interface FilterConfig<T> {
-  getSearchableFields: (item: T) => string[];
-}
-
 export function useDataCollection<T extends { id: string }>(
-  service: DataService<T>,
-  filterConfig: FilterConfig<T>,
+  service: DataService,
   initialOptions = {
     initialPage: 1,
     initialItemsPerPage: 10

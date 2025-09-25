@@ -8,8 +8,9 @@ class StageController extends BaseController {
   }
 
   findByProtocolId = asyncHandler(async (req, res) => {
-    const { protocolId } = req.params;
-    const stages = await this.service.findByProtocolId(protocolId);
+    const { protocolId, id } = req.params;
+    const targetId = protocolId || id;
+    const stages = await this.service.findByProtocolId(targetId);
     res.json(stages);
   });
 

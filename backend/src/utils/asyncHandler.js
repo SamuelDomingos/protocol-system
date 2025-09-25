@@ -8,43 +8,48 @@ const ERROR_MAPPINGS = {
   
   'SequelizeForeignKeyConstraintError': () => ({
     status: 400,
-    message: 'Foreign key constraint error'
+    message: 'Erro de chave estrangeira - registro relacionado não encontrado'
   }),
   
   'SequelizeUniqueConstraintError': (err) => ({
     status: 400,
-    message: `Duplicate entry: ${err.errors?.[0]?.message || 'Record already exists'}`
+    message: `Registro duplicado: ${err.errors?.[0]?.message || 'Este registro já existe'}`
   }),
   
   'SequelizeDatabaseError': () => ({
     status: 500,
-    message: 'Database error occurred'
+    message: 'Erro interno do banco de dados'
   }),
   
   'SyntaxError': (err) => err.message.includes('JSON') ? {
     status: 400,
-    message: 'Invalid JSON format'
+    message: 'Formato JSON inválido'
   } : null,
   
   'CastError': () => ({
     status: 400,
-    message: 'Invalid ID format'
+    message: 'Formato de ID inválido'
   }),
-  
-  'JsonWebTokenError': () => ({
-    status: 401,
-    message: 'Invalid token'
-  }),
-  
-  'TokenExpiredError': () => ({
-    status: 401,
-    message: 'Token expired'
+
+  // Adicionar tratamento específico para erros de validação do Joi
+  'ValidationError': (err) => ({
+    status: 400,
+    message: err.details ? err.details.map(detail => detail.message).join(', ') : err.message
   })
 };
 
 const mapError = (err) => {
+  // Verificar se é um erro customizado com status e message
   if (err.status && err.message) {
     return { status: err.status, message: err.message };
+  }
+
+  // Verificar se é um erro do Joi (que pode não ter o name 'ValidationError')
+  if (err.details && Array.isArray(err.details)) {
+    return {
+      status: 400,
+      message: err.details.map(detail => detail.message).join(', ')
+    };
   }
 
   const mapper = ERROR_MAPPINGS[err.name];
@@ -56,8 +61,8 @@ const mapError = (err) => {
   return {
     status: 500,
     message: process.env.NODE_ENV === 'production' 
-      ? 'Internal server error' 
-      : err.message || 'Internal server error'
+      ? 'Erro interno do servidor' 
+      : err.message || 'Erro interno do servidor'
   };
 };
 
@@ -70,7 +75,7 @@ const errorHandler = (err, req, res, next) => {
   const { status, message } = mapError(err);
 
   if (status >= 500 || process.env.NODE_ENV !== 'production') {
-    console.error(`❌ Error [${status}]:`, {
+    console.error(`❌ Erro [${status}]:`, {
       message: err.message,
       stack: err.stack,
       url: req.url,
@@ -88,7 +93,7 @@ const errorHandler = (err, req, res, next) => {
 };
 
 const notFoundHandler = (req, res, next) => {
-  const error = new Error(`Route ${req.originalUrl} not found`);
+  const error = new Error(`Rota ${req.originalUrl} não encontrada`);
   error.status = 404;
   next(error);
 };

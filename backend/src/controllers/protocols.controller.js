@@ -38,10 +38,6 @@ class ProtocolController extends BaseController {
   getTemplateById = asyncHandler(async (req, res) => {
     const template = await this.service.findById(req.params.id);
     
-    if (!template || !template.isTemplate) {
-      return res.status(404).json({ message: 'Template não encontrado' });
-    }
-    
     res.json(template);
   });
 }

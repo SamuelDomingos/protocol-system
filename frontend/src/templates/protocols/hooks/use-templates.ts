@@ -1,5 +1,5 @@
 import { useDataCollection } from './use-data-collection';
-import { TemplatesService } from '../services/templates-service';
+import { TemplatesService } from '../services/templates.service';
 import type { ProtocolTemplate } from '../types';
 
 export function useTemplates() {
@@ -18,11 +18,6 @@ export function useTemplates() {
       getAll: TemplatesService.getAll,
       delete: TemplatesService.delete
     },
-    {
-      getSearchableFields: (template) => [
-        template.title || '',
-      ]
-    }
   );
 
   return {

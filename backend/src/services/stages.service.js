@@ -1,6 +1,5 @@
 const BaseService = require('./base.service');
 const { Stage, Protocol } = require('../models');
-const { Op } = require('sequelize');
 const stageSchema = require('../validation/stage.schema');
 
 class StageService extends BaseService {
@@ -26,11 +25,8 @@ class StageService extends BaseService {
 
   async create(data) {
     const { value } = this.validate(data);
-    
-    // Verificar se o protocolo existe
     await this.checkProtocolExists(value.protocolId);
     
-    // Verificar se já existe um estágio com a mesma ordem para o protocolo
     await this.checkOrderUnique(value.protocolId, value.order);
     
     return super.create(value);
@@ -39,13 +35,11 @@ class StageService extends BaseService {
   async update(id, data) {
     const { value } = this.validate(data);
     const stage = await this.checkExists(id);
-    
-    // Se estiver alterando o protocolo, verificar se o novo protocolo existe
+
     if (value.protocolId && value.protocolId !== stage.protocolId) {
       await this.checkProtocolExists(value.protocolId);
     }
     
-    // Se estiver alterando a ordem, verificar se a nova ordem é única
     if (value.order && value.order !== stage.order) {
       await this.checkOrderUnique(value.protocolId || stage.protocolId, value.order);
     }
@@ -54,7 +48,6 @@ class StageService extends BaseService {
   }
 
   async reorderStages(protocolId, stagesOrder) {
-    // stagesOrder deve ser um array de objetos { id, order }
     await this.checkProtocolExists(protocolId);
     
     return this.transaction(async (t) => {

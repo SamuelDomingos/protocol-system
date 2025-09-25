@@ -27,21 +27,45 @@ const getAuthHeaders = (): Record<string, string> => {
 const handleResponse = async <T>(response: Response): Promise<T> => {
   if (!response.ok) {
     let errorMessage = `Erro ${response.status}: ${response.statusText}`;
+    let errorDetails = null;
     
     try {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const errorData = await response.json();
+        console.error("Erro detalhado do backend:", errorData);
+        
+        errorDetails = errorData;
+        
         // Captura a mensagem que o backend enviou
         if (errorData.message) {
           errorMessage = errorData.message;
         } else if (errorData.error) {
           errorMessage = errorData.error;
+        } else if (errorData.details) {
+          errorMessage = errorData.details;
+        }
+      } else {
+        // Tenta ler como texto se não for JSON
+        const errorText = await response.text();
+        console.error("Erro como texto:", errorText);
+        if (errorText) {
+          errorMessage = errorText;
         }
       }
-    } catch {
+    } catch (parseError) {
+      console.error("Erro ao parsear resposta de erro:", parseError);
       // Se não conseguir parsear, usa a mensagem padrão
     }
+    
+    console.error("Erro HTTP completo:", {
+      status: response.status,
+      statusText: response.statusText,
+      url: response.url,
+      headers: Object.fromEntries(response.headers.entries()),
+      errorMessage,
+      errorDetails
+    });
     
     throw new ApiError(errorMessage, response.status, response);
   }

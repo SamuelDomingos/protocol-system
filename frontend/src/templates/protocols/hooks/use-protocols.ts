@@ -1,5 +1,5 @@
 import { useDataCollection } from './use-data-collection';
-import { ProtocolsService } from '../services/protocols-service';
+import { ProtocolsService } from '../services/protocols.service';
 import type { Protocol } from '../types';
 
 export function useProtocols() {
@@ -18,12 +18,6 @@ export function useProtocols() {
       getAll: ProtocolsService.getAll,
       delete: ProtocolsService.delete
     },
-    {
-      getSearchableFields: (protocol) => [
-        protocol.title || '',
-        protocol.clientName || ''
-      ]
-    }
   );
 
   return {

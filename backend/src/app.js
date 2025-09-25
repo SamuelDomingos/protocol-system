@@ -19,6 +19,9 @@ const messagesRoutes = require('./routes/messages.route');
 const templatesRoutes = require('./routes/templates.route');
 const stagesRoutes = require('./routes/stages.routes');
 
+// Importar os middlewares de erro
+const { errorHandler, notFoundHandler } = require('./utils/asyncHandler');
+
 const app = express();
 app.use(express.json());
 app.use(cors());
@@ -54,6 +57,10 @@ const startServer = async () => {
     app.use('/api/messages', messagesRoutes);
     app.use('/api/stock-locations', stockLocationsRoutes);
     app.use('/api/stock-movements', stockMovementsRoutes);
+
+    // Middlewares de tratamento de erro (devem vir DEPOIS das rotas)
+    app.use(notFoundHandler);
+    app.use(errorHandler);
 
     // Inicia servidor
     const PORT = process.env.PORT || 5000;

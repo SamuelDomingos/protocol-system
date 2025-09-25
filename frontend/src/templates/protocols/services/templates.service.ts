@@ -11,6 +11,7 @@ import type {
   UpdateTemplateRequest,
 } from "../types";
 import type { PaginatedResponse, PaginationRequestParams } from "@/src/global/pagination/types/pagination";
+import { toast } from "@/src/hooks/use-toast";
 
 export class TemplatesService {
   static async getAll(params?: PaginationRequestParams): Promise<PaginatedResponse<ProtocolTemplate>> {
@@ -27,6 +28,11 @@ export class TemplatesService {
     data: CreateTemplateRequest
   ): Promise<ProtocolTemplate> {
     const template = await createTemplate(data as any);
+    toast({
+      title: "Template criado com sucesso",
+      description: "O template foi criado com sucesso",
+      variant: "success",
+    });
     return template as unknown as ProtocolTemplate;
   }
 
@@ -35,10 +41,20 @@ export class TemplatesService {
     data: UpdateTemplateRequest
   ): Promise<ProtocolTemplate> {
     const template = await updateTemplate(id, data as any);
+    toast({
+      title: "Template atualizado com sucesso",
+      description: "O template foi atualizado com sucesso",
+      variant: "success",
+    });
     return template as unknown as ProtocolTemplate;
   }
 
   static async delete(id: string): Promise<void> {
+    toast({
+      title: "Template deletado com sucesso",
+      description: "O template foi deletado com sucesso",
+      variant: "success",
+    });
     return deleteTemplate(id);
   }
 }

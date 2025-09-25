@@ -1,10 +1,9 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/src/components/ui/table';
-import { Badge } from '@/src/components/ui/badge';
 import { Button } from '@/src/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/src/components/ui/dropdown-menu';
-import { MoreHorizontal, Eye, Edit, Trash2 } from 'lucide-react';
+import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
 import { formatCurrency } from '@/src/lib/utils';
-import type { Protocol } from '../types';
+import type { Protocol } from '@/src/templates/protocols/types';
 
 interface ProtocolsTableProps {
   data: Protocol[];
@@ -36,10 +35,10 @@ export function ProtocolsTable({ data, isLoading, error, onEdit, onDelete }: Pro
         {data.map((protocol) => (
           <TableRow key={protocol.id}>
             <TableCell className="font-medium">{protocol.title}</TableCell>
-            <TableCell>{protocol.clientName}</TableCell>
+            <TableCell>{protocol.client?.name || 'N/A'}</TableCell>
             <TableCell>
             </TableCell>
-            <TableCell>{protocol.stage}</TableCell>
+            <TableCell>{protocol.stage} etapas</TableCell>
             <TableCell>{formatCurrency(protocol.totalValue)}</TableCell>
             <TableCell>{new Date(protocol.createdAt).toLocaleDateString()}</TableCell>
             <TableCell>

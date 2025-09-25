@@ -1,50 +1,67 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import { Button } from "@/src/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/src/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle } from "@/src/components/ui/dialog";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/src/components/ui/card";
+import {
+  Tabs,
+  TabsContent,
+  TabsList,
+  TabsTrigger,
+} from "@/src/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogTrigger,
+  DialogHeader,
+  DialogTitle,
+} from "@/src/components/ui/dialog";
 import { Plus } from "lucide-react";
 import { ProtocolsTable, TemplatesTable } from "@/src/templates/protocols";
-import { TemplateForm } from "@/src/templates/protocols/components/template-form";
+import { TemplateForm } from "@/src/templates/protocols/components/forms/template-form";
 import { useProtocols } from "@/src/templates/protocols/hooks/use-protocols";
 import { useTemplates } from "@/src/templates/protocols/hooks/use-templates";
 import { PaginationControls } from "@/src/global/pagination";
 import { SearchInput } from "@/src/global/search/components/search-input";
-import type { Protocol, ProtocolTemplate } from "@/src/templates/protocols/types";
+import type {
+  Protocol,
+  ProtocolTemplate,
+} from "@/src/templates/protocols/types";
 
 export default function ProtocolsPage() {
   const [isProtocolDialogOpen, setIsProtocolDialogOpen] = useState(false);
   const [isTemplateDialogOpen, setIsTemplateDialogOpen] = useState(false);
-  const [editingProtocol, setEditingProtocol] = useState<Protocol | undefined>();
-  const [editingTemplate, setEditingTemplate] = useState<ProtocolTemplate | undefined>();
-  const [selectedTemplate, setSelectedTemplate] = useState<ProtocolTemplate | undefined>();
+  const [editingProtocol, setEditingProtocol] = useState<
+    Protocol | undefined
+  >();
+  const [editingTemplate, setEditingTemplate] = useState<
+    ProtocolTemplate | undefined
+  >();
 
-  // Usar hooks separados para protocolos e templates
-  const { 
-    protocols, 
-    searchTerm: protocolSearchTerm, 
-    setSearchTerm: setProtocolSearchTerm, 
-    pagination: protocolPagination, 
-    isLoading: isProtocolsLoading, 
-    error: protocolsError, 
+  const {
+    protocols,
+    searchTerm: protocolSearchTerm,
+    setSearchTerm: setProtocolSearchTerm,
+    pagination: protocolPagination,
+    isLoading: isProtocolsLoading,
+    error: protocolsError,
     deleteProtocol,
-    loadProtocols
   } = useProtocols();
-  
-  // Hook separado para templates
+
   const {
     templates,
     searchTerm: templateSearchTerm,
     setSearchTerm: setTemplateSearchTerm,
     pagination: templatePagination,
-    isLoading: isTemplatesLoading,
-    error: templatesError,
     deleteTemplate,
-    loadTemplates
   } = useTemplates();
-  
+
   const openProtocolDialog = (protocol?: Protocol) => {
     setEditingProtocol(protocol);
     setIsProtocolDialogOpen(true);
@@ -55,26 +72,13 @@ export default function ProtocolsPage() {
     setIsTemplateDialogOpen(true);
   };
 
-  const handleUseTemplate = (template: ProtocolTemplate) => {
-    setSelectedTemplate(template);
-    setIsProtocolDialogOpen(true);
-  };
-
   const handleEditTemplate = (template: ProtocolTemplate) => {
     openTemplateDialog(template);
-  };
-
-  const resetProtocolDialog = () => {
-    setIsProtocolDialogOpen(false);
-    setEditingProtocol(undefined);
-    setSelectedTemplate(undefined);
   };
 
   const resetTemplateDialog = () => {
     setIsTemplateDialogOpen(false);
     setEditingTemplate(undefined);
-    // Recarregar templates após salvar
-    loadTemplates();
   };
 
   return (
@@ -103,7 +107,10 @@ export default function ProtocolsPage() {
                   placeholder="Buscar protocolo..."
                   className="w-[250px]"
                 />
-                <Dialog open={isProtocolDialogOpen} onOpenChange={setIsProtocolDialogOpen}>
+                <Dialog
+                  open={isProtocolDialogOpen}
+                  onOpenChange={setIsProtocolDialogOpen}
+                >
                   <DialogTrigger asChild>
                     <Button onClick={() => openProtocolDialog()}>
                       <Plus className="mr-2 h-4 w-4" /> Novo Protocolo
@@ -112,7 +119,9 @@ export default function ProtocolsPage() {
                   <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>
-                        {editingProtocol ? 'Editar Protocolo' : 'Novo Protocolo'}
+                        {editingProtocol
+                          ? "Editar Protocolo"
+                          : "Novo Protocolo"}
                       </DialogTitle>
                     </DialogHeader>
                     <div className="p-4">
@@ -126,7 +135,7 @@ export default function ProtocolsPage() {
             </CardHeader>
 
             <CardContent>
-              <ProtocolsTable 
+              <ProtocolsTable
                 data={protocols}
                 isLoading={isProtocolsLoading}
                 error={protocolsError}
@@ -136,7 +145,7 @@ export default function ProtocolsPage() {
             </CardContent>
 
             <CardFooter className="border-t pt-6">
-              <PaginationControls 
+              <PaginationControls
                 pagination={protocolPagination}
                 showItemsPerPage={true}
                 className="w-full"
@@ -156,7 +165,10 @@ export default function ProtocolsPage() {
                   placeholder="Buscar template..."
                   className="w-[250px]"
                 />
-                <Dialog open={isTemplateDialogOpen} onOpenChange={setIsTemplateDialogOpen}>
+                <Dialog
+                  open={isTemplateDialogOpen}
+                  onOpenChange={setIsTemplateDialogOpen}
+                >
                   <DialogTrigger asChild>
                     <Button onClick={() => openTemplateDialog()}>
                       <Plus className="mr-2 h-4 w-4" /> Novo Template
@@ -165,11 +177,11 @@ export default function ProtocolsPage() {
                   <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
                     <DialogHeader>
                       <DialogTitle>
-                        {editingTemplate ? 'Editar Template' : 'Novo Template'}
+                        {editingTemplate ? "Editar Template" : "Novo Template"}
                       </DialogTitle>
                     </DialogHeader>
                     <div className="p-6">
-                      <TemplateForm 
+                      <TemplateForm
                         templateId={editingTemplate?.id}
                         onSave={resetTemplateDialog}
                         onCancel={resetTemplateDialog}
@@ -181,18 +193,15 @@ export default function ProtocolsPage() {
             </CardHeader>
 
             <CardContent>
-              <TemplatesTable 
+              <TemplatesTable
                 data={templates}
-                isLoading={isTemplatesLoading}
-                error={templatesError}
-                onUseTemplate={handleUseTemplate}
                 onEdit={handleEditTemplate}
                 onDelete={deleteTemplate}
               />
             </CardContent>
 
             <CardFooter className="border-t pt-6">
-              <PaginationControls 
+              <PaginationControls
                 pagination={templatePagination}
                 showItemsPerPage={true}
                 className="w-full"
