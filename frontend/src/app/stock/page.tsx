@@ -1,9 +1,11 @@
 "use client"
 
+import StockTemplate from '../../templates/stock';
+
 export default function StockPage() {
- 
   return (
-    <div className="space-y-6">
+    <div className="flex-grow p-6">
+      <StockTemplate />
     </div>
   )
 }

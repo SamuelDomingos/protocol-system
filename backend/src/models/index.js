@@ -22,12 +22,15 @@ const models = {
   Message,
   StockLocation,
   StockMovement,
+  Product,
 };
 
 const SYNC_ORDER = [
-  ["User", "Client", "StockLocation"],
-  ["Protocol", "Permission", "Message"],
-  ["Stage"],
+  ["User", "Client"],
+  ["Product"],
+  ["Protocol"],
+  ["Stage", "Permission", "Message"],
+  ["StockLocation"],
   ["Application", "StockMovement"],
 ];
 
@@ -96,10 +99,6 @@ const setupAssociations = () => {
 
 const syncModelsInOrder = async (options = {}) => {
   const { force = false, alter = false } = options;
-
-  if (force) {
-    await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
-  }
 
   for (const [index, level] of SYNC_ORDER.entries()) {
     await Promise.all(

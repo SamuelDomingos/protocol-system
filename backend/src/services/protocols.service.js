@@ -62,7 +62,6 @@ class ProtocolService extends BaseService {
         return templateData;
       }
       
-      // Para protocolos normais, adiciona clientName
       return {
         ...processedData,
         clientName: client?.name || null

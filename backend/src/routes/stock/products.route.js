@@ -7,7 +7,6 @@ router.post('/', authenticate, productsController.create);
 router.get('/', authenticate, productsController.getAll);
 router.get('/categories', authenticate, productsController.getCategories);
 router.get('/brands', authenticate, productsController.getBrands);
-router.get('/low-stock', authenticate, productsController.getLowStock);
 router.get('/sku/:sku', authenticate, productsController.getBySku);
 router.get('/barcode/:barcode', authenticate, productsController.getByBarcode);
 router.get('/:id', authenticate, productsController.getById);

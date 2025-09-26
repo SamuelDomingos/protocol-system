@@ -107,20 +107,6 @@ paths:
   - $ref: './paths/permissions.yaml'
   - $ref: './paths/messages.yaml'
 
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: Token JWT obtido através do endpoint de login
-
-  schemas:
-    # Mude de múltiplos "$ref: './schemas/...' " para uma lista:
-    - $ref: './schemas/auth.yaml'
-    - $ref: './schemas/client.yaml'
-    - $ref: './schemas/protocol.yaml'
-    - $ref: './schemas/stock.yaml'
 
 tags:
   - name: Autenticação

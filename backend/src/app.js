@@ -7,6 +7,7 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 
 const os = require('os');
+const productsRoutes = require('./routes/stock/products.route');
 const stockLocationsRoutes = require('./routes/stock/stockLocations.route');
 const stockMovementsRoutes = require('./routes/stock/stockMovements.route');
 
@@ -40,8 +41,7 @@ function getLocalIp() {
 const startServer = async () => {
   try {
     await initDB();
-    
-    // Rotas
+
     app.get('/', (req, res) => {
       res.send('Treatment Protocol System API 🧪');
     });
@@ -54,14 +54,13 @@ const startServer = async () => {
     app.use('/api/applications', applicationsRoutes);
     app.use('/api/permissions', permissionsRoutes);
     app.use('/api/messages', messagesRoutes);
+    app.use('/api/products', productsRoutes);
     app.use('/api/stock-locations', stockLocationsRoutes);
     app.use('/api/stock-movements', stockMovementsRoutes);
 
-    // Middlewares de tratamento de erro (devem vir DEPOIS das rotas)
     app.use(notFoundHandler);
     app.use(errorHandler);
 
-    // Inicia servidor
     const PORT = process.env.PORT || 5000;
 
     app.listen(PORT, () => {
@@ -75,5 +74,4 @@ const startServer = async () => {
   }
 };
 
-// Inicia o servidor
 startServer();

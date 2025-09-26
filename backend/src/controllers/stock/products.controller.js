@@ -1,5 +1,5 @@
 const BaseController = require('../base.controller');
-const productsService = require('../../services/products.service');
+const productsService = require('../../services/stock/products.service');
 const asyncHandler = require('../../utils/asyncHandler');
 
 class ProductsController extends BaseController {
@@ -48,12 +48,10 @@ class ProductsController extends BaseController {
   getByBarcode = this._findByField('barcode');
   getCategories = this._getList('getCategories');
   getBrands = this._getList('getBrands');
-  getLowStock = this._getList('getLowStockProducts');
 
   create = this._handleCRUD('create', 'Produto criado com sucesso');
   update = this._handleCRUD('update', 'Produto atualizado com sucesso');
-  delete = this._handleCRUD('delete', 'Produto excluído com sucesso'); // Adicione esta linha
-
+  delete = this._handleCRUD('delete', 'Produto excluído com sucesso');
   getAll = asyncHandler(async (req, res) => {
     const result = await this.service.findAll(req.query);
     res.json(result);
