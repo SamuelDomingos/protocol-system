@@ -7,8 +7,8 @@ const swaggerUi = require('swagger-ui-express');
 const swaggerSpec = require('./config/swagger');
 
 const os = require('os');
-const stockLocationsRoutes = require('./routes/stockLocations.route');
-const stockMovementsRoutes = require('./routes/stockMovements.route');
+const stockLocationsRoutes = require('./routes/stock/stockLocations.route');
+const stockMovementsRoutes = require('./routes/stock/stockMovements.route');
 
 const authRoutes = require('./routes/authRoutes.route');
 const clientsRoutes = require('./routes/clients.route');
@@ -19,7 +19,6 @@ const messagesRoutes = require('./routes/messages.route');
 const templatesRoutes = require('./routes/templates.route');
 const stagesRoutes = require('./routes/stages.routes');
 
-// Importar os middlewares de erro
 const { errorHandler, notFoundHandler } = require('./utils/asyncHandler');
 
 const app = express();

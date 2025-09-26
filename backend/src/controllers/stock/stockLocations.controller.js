@@ -1,5 +1,5 @@
-const StockLocation = require('../models/StockLocation');
-const { buildAdvancedFilters, formatPaginatedResponse } = require('../utils/queryBuilder');
+const StockLocation = require('../../models/stock/StockLocation');
+const { buildAdvancedFilters, formatPaginatedResponse } = require('../../utils/queryBuilder');
 const { Op } = require('sequelize');
 
 exports.createStockLocation = async (req, res) => {

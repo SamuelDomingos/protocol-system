@@ -1,9 +1,9 @@
-const StockMovement = require('../models/StockMovement');
-const StockLocation = require('../models/StockLocation');
+const { StockMovement } = require('../../models/stock/StockMovement');
+const StockLocation = require('../../models/stock/StockLocation');
 const { findByProductAndLocationName } = require('./stockLocations.controller');
 const { Op } = require('sequelize');
-const sequelize = require('../config/database');
-const { buildAdvancedFilters, formatPaginatedResponse } = require('../utils/queryBuilder');
+const sequelize = require('../../config/database');
+const { buildAdvancedFilters, formatPaginatedResponse } = require('../../utils/queryBuilder');
 
 exports.createStockMovement = async (req, res) => {
   const transaction = await sequelize.transaction();

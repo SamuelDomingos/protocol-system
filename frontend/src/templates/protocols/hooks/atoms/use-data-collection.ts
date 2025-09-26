@@ -81,7 +81,7 @@ export function useDataCollection<T extends { id: string }>(
       toast({
         title: "Item deletado com sucesso",
         description: "O item foi deletado com sucesso",
-        variant: "success",
+        variant: "destructive",
       });
       loadItems();
     } catch (err) {
