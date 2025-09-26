@@ -9,7 +9,7 @@ import type {
   Protocol,
   CreateProtocolRequest,
   UpdateProtocolRequest,
-} from "../../types";
+} from "@/src/templates/protocols/types";
 import type { PaginatedResponse, PaginationRequestParams } from "@/src/global/pagination/types/pagination";
 
 export class ProtocolsService {

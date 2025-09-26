@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
-import type { TemplateStageFormData } from '@/src/templates/protocols/types';
+import type { ProtocolStageFormData } from '@/src/templates/protocols/types';
 
-export function useStage(initialStages: TemplateStageFormData[] = []) {
-  const [stages, setStages] = useState<TemplateStageFormData[]>(initialStages);
+export function useStage(initialStages: ProtocolStageFormData[] = []) {
+  const [stages, setStages] = useState<ProtocolStageFormData[]>(initialStages);
 
   const addStage = useCallback(() => {
     setStages(prevStages => {
-      const newStage: TemplateStageFormData = {
+      const newStage: ProtocolStageFormData = {
         name: '',
         order: prevStages.length + 1,
         value: 0,
@@ -17,7 +17,7 @@ export function useStage(initialStages: TemplateStageFormData[] = []) {
     });
   }, []);
 
-  const updateStage = useCallback((index: number, updatedStage: Partial<TemplateStageFormData>) => {
+  const updateStage = useCallback((index: number, updatedStage: Partial<ProtocolStageFormData>) => {
     setStages(prevStages => 
       prevStages.map((stage, i) => 
         i === index ? { ...stage, ...updatedStage } : stage
@@ -56,7 +56,7 @@ export function useStage(initialStages: TemplateStageFormData[] = []) {
     }, 0);
   }, [stages]);
 
-  const setStagesData = useCallback((newStages: TemplateStageFormData[] = []) => {
+  const setStagesData = useCallback((newStages: ProtocolStageFormData[] = []) => {
     setStages(newStages);
   }, []);
 

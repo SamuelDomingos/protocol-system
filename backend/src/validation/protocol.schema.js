@@ -24,9 +24,8 @@ const protocolSchema = Joi.object({
   clientId: Joi.when('isTemplate', {
     is: true,
     then: Joi.allow(null),
-    otherwise: Joi.number().integer().required().messages({
-      'number.base': 'ID do cliente deve ser um número',
-      'number.integer': 'ID do cliente deve ser um número inteiro',
+    otherwise: Joi.string().uuid().required().messages({
+      'string.guid': 'ID do cliente deve ser um UUID válido',
       'any.required': 'ID do cliente é obrigatório para protocolos'
     })
   }),

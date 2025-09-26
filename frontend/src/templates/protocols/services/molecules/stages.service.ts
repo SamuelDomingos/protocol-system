@@ -7,24 +7,18 @@ import {
   deleteStage,
   reorderStages
 } from '@/src/lib/api/protocols';
-import { TemplateStageFormData } from '@/src/templates/protocols/types';
+import { ProtocolStageFormData } from '@/src/templates/protocols/types';
 
 export function stageService() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const loadStagesByTemplate = async (templateId: string): Promise<TemplateStageFormData[]> => {
+  const loadStagesByTemplate = async (templateId: string): Promise<ProtocolStageFormData[]> => {  
     try {
       setIsLoading(true);
       const stages = await getStagesByTemplateId(templateId);
 
-      return stages.map(stage => ({
-        name: stage.name,
-        value: stage.value,
-        intervalDays: stage.intervalDays,
-        order: stage.order,
-        kitId: stage.kitId
-      }));
+      return stages;
     } catch (error) {
       toast({
         title: "Erro",
@@ -37,7 +31,7 @@ export function stageService() {
     }
   };
 
-  const createNewStage = async (templateId: string, stageData: Omit<TemplateStageFormData, 'id'>): Promise<TemplateStageFormData | null> => {
+  const createNewStage = async (templateId: string, stageData: Omit<ProtocolStageFormData, 'id'>): Promise<ProtocolStageFormData | null> => {
     try {
       return await createStage(templateId, stageData);
     } catch (error) {
@@ -50,7 +44,7 @@ export function stageService() {
     }
   };
 
-  const updateExistingStage = async (stageId: string, stageData: Partial<TemplateStageFormData>): Promise<TemplateStageFormData | null> => {
+  const updateExistingStage = async (stageId: string, stageData: Partial<ProtocolStageFormData>): Promise<ProtocolStageFormData | null> => {
     try {
       return await updateStage(stageId, stageData);
     } catch (error) {

@@ -1,6 +1,6 @@
 import { useDataCollection } from '@/src/templates/protocols/hooks/atoms/use-data-collection';
 import { TemplatesService } from '@/src/templates/protocols/services/molecules/templates.service';
-import type { ProtocolTemplate } from '@/src/templates/protocols/types';
+import type { Protocol } from '@/src/templates/protocols/types';
 
 export function useTemplates() {
   const {
@@ -13,7 +13,7 @@ export function useTemplates() {
     loadItems,
     deleteItem,
     isSearchMode
-  } = useDataCollection<ProtocolTemplate>(
+  } = useDataCollection<Protocol>(
     {
       getAll: TemplatesService.getAll,
       delete: TemplatesService.delete

@@ -4,7 +4,7 @@ import { TemplatesService } from "@/src/templates/protocols/services/molecules/t
 import { stageService } from "@/src/templates/protocols/services/molecules/stages.service";
 import { useStage } from "@/src/templates/protocols/hooks/molecules/use-stage";
 import { toast } from "@/src/hooks/use-toast";
-import type { CreateProtocolRequest, Protocol } from "../../types";
+import type { CreateProtocolRequest, Protocol } from "@/src/templates/protocols/types";
 
 
 interface UseProtocolFormOptions {
@@ -64,7 +64,7 @@ export function useProtocolForm(
           value: stage.value,
           intervalDays: stage.intervalDays,
           order: stage.order,
-          kitId: stage.kitId
+          // kitId: stage.kitId
         }))
       };
 

@@ -6,26 +6,7 @@ import { Button } from "@/src/components/ui/button";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { formatCurrency } from "@/src/lib/utils";
 import { SortableStage } from "./sortable-stage";
-import { TemplateStageFormData } from "@/src/templates/protocols/types";
-
-interface Kit {
-  id: string;
-  name: string;
-}
-
-interface SortableStagesListProps {
-  stages: TemplateStageFormData[];
-  updateStage: (index: number, data: Partial<TemplateStageFormData>) => void;
-  removeStage: (index: number) => void;
-  reorderStages: (oldIndex: number, newIndex: number) => void;
-  addStage: () => void;
-  calculateTotal: () => number;
-  mockKits: Kit[];
-  showKitSelection?: boolean;
-  isProtocol?: boolean;
-  showTotal?: boolean;
-  title?: string;
-}
+import { SortableStagesListProps } from "@/src/templates/protocols/types";
 
 export const SortableStagesList = ({
   stages,
@@ -52,10 +33,10 @@ export const SortableStagesList = ({
 
     if (over && active.id !== over.id) {
       const oldIndex = stages.findIndex(stage => 
-        (stage.id || `stage-${stages.indexOf(stage)}`) === active.id
+        (stage.order || stages.indexOf(stage)) === active.id
       );
       const newIndex = stages.findIndex(stage => 
-        (stage.id || `stage-${stages.indexOf(stage)}`) === over.id
+        (stage.order || stages.indexOf(stage)) === over.id
       );
 
       if (oldIndex !== -1 && newIndex !== -1) {
@@ -85,12 +66,12 @@ export const SortableStagesList = ({
             onDragEnd={handleDragEnd}
           >
             <SortableContext
-              items={stages.map((stage, index) => stage.id || `stage-${index}`)}
+              items={stages.map((stage, index) => stage.order || index)}
               strategy={verticalListSortingStrategy}
             >
               {stages.map((stage, index) => (
                 <SortableStage
-                  key={stage.id || `stage-${index}`}
+                  key={stage.order || index}
                   stage={stage}
                   index={index}
                   updateStage={updateStage}

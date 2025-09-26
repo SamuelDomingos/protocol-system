@@ -26,7 +26,6 @@ const Client = sequelize.define(
   {
     timestamps: true,
     tableName: "clients",
-    // Remove os indexes problemáticos
   }
 );
 

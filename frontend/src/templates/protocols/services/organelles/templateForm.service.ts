@@ -1,14 +1,15 @@
 import { TemplatesService } from '../molecules/templates.service';
-import type { TemplateFormData, TemplateStageFormData } from '../../types';
+import type { ProtocolFormData, ProtocolStageFormData } from '@/src/templates/protocols/types';
 import { toast } from '@/src/hooks/use-toast';
 
 export class TemplateFormService {
-  static async loadTemplate(templateId: string): Promise<TemplateFormData | null> {
+  static async loadTemplate(templateId: string): Promise<ProtocolFormData | null> {
     try {
       const template = await TemplatesService.getById(templateId);
       
       return {
         title: template.title,
+        clientId: template.clientId,
         stages: template.stages || []
       };
       
@@ -20,26 +21,14 @@ export class TemplateFormService {
 
   static async saveTemplate(
     templateData: { title: string }, 
-    stages: TemplateStageFormData[] = [],
+    stages: ProtocolStageFormData[] = [],
     templateId?: string
   ): Promise<{ id: string } | null> {
     try {
-      const stagesToSend = stages.length > 0 ? stages.map(stage => ({
-        name: stage.name,
-        order: stage.order || 1,
-        value: stage.value || 0,
-        intervalDays: stage.intervalDays || 0,
-        // kitId: stage.kitId,
-      })) : [{
-        name: "Estágio Inicial",
-        order: 1,
-        value: 0,
-        intervalDays: 0
-      }];
 
       const requestData = {
         title: templateData.title,
-        stages: stagesToSend
+        stages: stages
       };
 
       if (templateId) {

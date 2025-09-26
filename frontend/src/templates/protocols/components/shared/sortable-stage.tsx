@@ -8,17 +8,7 @@ import { Input } from "@/src/components/ui/input";
 import { Card, CardContent } from "@/src/components/ui/card";
 import { Label } from "@/src/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/src/components/ui/select";
-import { TemplateStageFormData, Kit } from "@/src/templates/protocols/types";
-
-interface SortableStageProps {
-  stage: TemplateStageFormData;
-  index: number;
-  updateStage: (index: number, data: Partial<TemplateStageFormData>) => void;
-  removeStage: (index: number) => void;
-  mockKits: Kit[];
-  showKitSelection?: boolean;
-  isProtocol?: boolean;
-}
+import { SortableStageProps } from "@/src/templates/protocols/types";
 
 export const SortableStage = ({ 
   stage, 
@@ -27,7 +17,6 @@ export const SortableStage = ({
   removeStage, 
   mockKits,
   showKitSelection = true,
-  isProtocol = false
 }: SortableStageProps) => {
   const {
     attributes,
@@ -36,7 +25,7 @@ export const SortableStage = ({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: stage.id || `stage-${index}` });
+  } = useSortable({ id: stage.order || index });
 
   const style = {
     transform: CSS.Transform.toString(transform),

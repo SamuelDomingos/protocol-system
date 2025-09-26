@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { usePagination } from '@/src/global/pagination';
 import { useSearch } from '@/src/global/search/hooks/use-search';
+import { toast } from '@/src/hooks/use-toast';
 
 interface DataService{
   getAll: (params?: any) => Promise<any>;
@@ -77,6 +78,11 @@ export function useDataCollection<T extends { id: string }>(
   const deleteItem = async (id: string) => {
     try {
       await service.delete(id);
+      toast({
+        title: "Item deletado com sucesso",
+        description: "O item foi deletado com sucesso",
+        variant: "success",
+      });
       loadItems();
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao excluir item');

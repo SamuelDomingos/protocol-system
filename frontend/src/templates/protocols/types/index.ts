@@ -1,13 +1,12 @@
-import { 
+import {
   Client
 } from "@/src/templates/clients";
-import { 
+import {
   User
 } from "@/src/lib/api/types";
 
-export interface ProtocolStage {
+export interface BaseStage {
   id: string;
-  protocolId: string;
   name: string;
   value: number;
   intervalDays: number;
@@ -16,14 +15,8 @@ export interface ProtocolStage {
   updatedAt?: string;
 }
 
-export interface TemplateStage {
-  id: string;
-  name: string;
-  value: number;
-  intervalDays: number;
-  order: number;
-  createdAt?: string;
-  updatedAt?: string;
+export interface ProtocolStage extends BaseStage {
+  protocolId: string;
 }
 
 export interface Protocol {
@@ -39,41 +32,28 @@ export interface Protocol {
   updatedAt: string;
   stage?: number;
   client?: Client;
-}
-
-export interface ProtocolTemplate {
-  id: string;
-  title: string;
-  createdBy: string;
-  stages?: TemplateStage[];
-  createdAt: string;
-  updatedAt: string;
-  stage?: number;
   creator?: User;
 }
+
+export type StageRequest = Omit<BaseStage, 'id' | 'createdAt' | 'updatedAt'>;
 
 export interface CreateProtocolRequest {
   title: string;
   clientId?: string;
   clientName?: string;
-  stages?: Omit<ProtocolStage, 'id' | 'protocolId' | 'createdAt' | 'updatedAt'>[];
+  isTemplate?: boolean;
+  stages?: StageRequest[];
 }
 
-export interface UpdateProtocolRequest extends Partial<CreateProtocolRequest> {}
+export interface UpdateProtocolRequest extends Partial<CreateProtocolRequest> { }
 
-export interface CreateTemplateRequest {
+export interface ProtocolFormData {
   title: string;
-  stages?: Omit<TemplateStage, 'id' | 'createdAt' | 'updatedAt'>[];
+  clientId?: string;
+  stages: StageRequest[];
 }
 
-export interface UpdateTemplateRequest extends Partial<CreateTemplateRequest> {}
-
-export interface TemplateFormData {
-  title: string;
-  stages: TemplateStage[];
-}
-
-export type TemplateStageFormData = Omit<TemplateStage, 'id' | 'createdAt' | 'updatedAt'>;
+export type ProtocolStageFormData = StageRequest;
 
 export interface ProtocolsPaginatedResponse {
   rows: Protocol[];
@@ -98,4 +78,28 @@ export interface ProtocolSearchParams {
 export interface Kit {
   id: string;
   name: string;
+}
+
+export interface SortableStagesListProps {
+  stages: ProtocolStageFormData[];
+  updateStage: (index: number, data: Partial<ProtocolStageFormData>) => void;
+  removeStage: (index: number) => void;
+  reorderStages: (oldIndex: number, newIndex: number) => void;
+  addStage: () => void;
+  calculateTotal: () => number;
+  mockKits: Kit[];
+  showKitSelection?: boolean;
+  isProtocol?: boolean;
+  showTotal?: boolean;
+  title?: string;
+}
+
+export interface SortableStageProps {
+  stage: ProtocolStageFormData;
+  index: number;
+  updateStage: (index: number, data: Partial<ProtocolStageFormData>) => void;
+  removeStage: (index: number) => void;
+  mockKits: Kit[];
+  showKitSelection?: boolean;
+  isProtocol?: boolean;
 }

@@ -3,7 +3,6 @@ import { TemplateFormService } from "@/src/templates/protocols/services/organell
 import { stageService } from "@/src/templates/protocols/services/molecules/stages.service";
 import { useStage } from "@/src/templates/protocols/hooks/molecules/use-stage";
 import { toast } from "@/src/hooks/use-toast";
-import type { TemplateStageFormData } from "../../types";
 
 interface UseTemplateFormOptions {
   onSuccess?: () => void;

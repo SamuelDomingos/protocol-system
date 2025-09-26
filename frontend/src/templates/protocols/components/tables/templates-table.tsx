@@ -2,12 +2,12 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Button } from '@/src/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/src/components/ui/dropdown-menu';
 import { MoreHorizontal, Edit, Trash2 } from 'lucide-react';
-import type { ProtocolTemplate } from '@/src/templates/protocols/types';
+import type { Protocol } from '@/src/templates/protocols/types';
 import { formatCurrency } from '@/src/lib/utils';
 
 interface TemplatesTableProps {
-  data: ProtocolTemplate[];
-  onEdit: (template: ProtocolTemplate) => void;
+  data: Protocol[];
+  onEdit: (template: Protocol) => void;
   onDelete: (id: string) => void;
 }
 
@@ -30,7 +30,7 @@ export function TemplatesTable({ data, onEdit, onDelete }: TemplatesTableProps) 
           <TableRow key={template.id}>
             <TableCell className="font-medium">{template.title}</TableCell>
             <TableCell>{template.stage}</TableCell>
-            <TableCell>{formatCurrency(template.totalValue)}</TableCell>
+            <TableCell>{formatCurrency(template.totalValue ?? 0)}</TableCell>
             <TableCell>{new Date(template.createdAt).toLocaleDateString()}</TableCell>
             <TableCell>
               <DropdownMenu>
