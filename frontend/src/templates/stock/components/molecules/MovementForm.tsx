@@ -11,6 +11,7 @@ import { Combobox } from '@/src/global/combobox/components/combobox';
 import { DatePicker } from '@/src/components/ui/date-picker';
 import { ProductEntryList } from '../organelles/ProductEntryList';
 import { useMovementForm } from '../../hooks/organelles/useMovementForm';
+import { useSuppliers } from '@/src/templates/config/hooks/useSuppliers';
 
 interface MovementFormProps {
   onSuccess?: () => void;
@@ -27,17 +28,26 @@ export function MovementForm({ onSuccess, open, onOpenChange, initialType }: Mov
     setEntryDate,
     handleChange,
     handleSubmit,
-    locations,
-    supplierOptions,
     entryTypeOptions,
     resetForm,
     productEntryList,
   } = useMovementForm({ onSuccess, initialType });
 
-  const stockLocationOptions = locations.map(location => ({
-    value: location.id,
-    label: location.name
-  }));
+  const { suppliers } = useSuppliers();
+
+  const supplierOptions = suppliers
+    .filter(supplier => supplier.type === 'supplier')
+    .map(supplier => ({
+      value: supplier.id,
+      label: supplier.name
+    }));
+
+  const unitOptions = suppliers
+    .filter(supplier => supplier.type === 'unit' && supplier.category === 'estoque')
+    .map(unit => ({
+      value: unit.id,
+      label: unit.name
+    }));
 
   const handleClose = () => {
     onOpenChange(false);
@@ -80,12 +90,12 @@ export function MovementForm({ onSuccess, open, onOpenChange, initialType }: Mov
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="locationId">Local de Estoque</Label>
+              <Label htmlFor="unit">Estoque</Label>
               <Combobox
-                options={stockLocationOptions}
-                value={formData.locationId}
-                onValueChange={(value) => handleChange('locationId', value)}
-                placeholder="Selecionar local"
+                options={unitOptions}
+                value={formData.unit}
+                onValueChange={(value) => handleChange('unit', value)}
+                placeholder="Selecionar estoque"
               />
             </div>
 

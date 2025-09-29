@@ -20,7 +20,6 @@ export interface SupplierTableProps {
   loading: boolean;
   onEdit: (supplier: Supplier) => void;
   onDelete: (id: string) => void;
-  onView: (supplier: Supplier) => void;
 }
 
 export interface SupplierFormProps {

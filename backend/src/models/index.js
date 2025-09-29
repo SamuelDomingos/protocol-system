@@ -11,6 +11,7 @@ const Message = require("./Message");
 const StockLocation = require("./stock/StockLocation");
 const { StockMovement } = require("./stock/StockMovement");
 const Product = require("./stock/Product");
+const Supplier = require("./stock/Supplier");
 
 const models = {
   User,
@@ -23,11 +24,13 @@ const models = {
   StockLocation,
   StockMovement,
   Product,
+  Supplier,
 };
 
 const SYNC_ORDER = [
   ["User", "Client"],
   ["Product"],
+  ["Supplier"],
   ["Protocol"],
   ["Stage", "Permission", "Message"],
   ["StockLocation"],
@@ -59,38 +62,44 @@ const setupAssociations = () => {
   Message.belongsTo(User, { foreignKey: "senderId", as: "sender" });
   Message.belongsTo(User, { foreignKey: "receiverId", as: "receiver" });
 
-  StockLocation.hasMany(StockMovement, {
-    foreignKey: "locationId",
-    as: "movements",
-  });
-  StockLocation.hasMany(StockMovement, {
+  // StockMovement associations - apenas com Supplier
+  StockMovement.belongsTo(Supplier, {
     foreignKey: "fromLocationId",
-    as: "movementsFrom",
+    as: "fromSupplier",
   });
-  StockLocation.hasMany(StockMovement, {
+  StockMovement.belongsTo(Supplier, {
     foreignKey: "toLocationId",
-    as: "movementsTo",
-  });
-
-  StockMovement.belongsTo(StockLocation, {
-    foreignKey: "locationId",
-    as: "location",
-  });
-  StockMovement.belongsTo(StockLocation, {
-    foreignKey: "fromLocationId",
-    as: "fromLocation",
-  });
-  StockMovement.belongsTo(StockLocation, {
-    foreignKey: "toLocationId",
-    as: "toLocation",
+    as: "toSupplier",
   });
   StockMovement.belongsTo(User, { foreignKey: "userId", as: "user" });
+  StockMovement.belongsTo(Product, { foreignKey: "productId", as: "product" });
 
+  // StockLocation associations
+  StockLocation.belongsTo(Supplier, {
+    foreignKey: "location",
+    as: "supplierLocation",
+  });
+  StockLocation.belongsTo(Product, { foreignKey: "productId", as: "product" });
+
+  // Supplier associations
+  Supplier.hasMany(StockLocation, {
+    foreignKey: "location",
+    as: "stockLocations",
+  });
+  Supplier.hasMany(StockMovement, {
+    foreignKey: "fromLocationId",
+    as: "outgoingStockMovements",
+  });
+  Supplier.hasMany(StockMovement, {
+    foreignKey: "toLocationId",
+    as: "incomingStockMovements",
+  });
+
+  // Product associations
   Product.hasMany(StockLocation, {
     foreignKey: "productId",
     as: "stockLocations",
   });
-
   Product.hasMany(StockMovement, {
     foreignKey: "productId",
     as: "stockMovements",

@@ -25,21 +25,11 @@ const StockMovement = sequelize.define('StockMovement', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  locationId: {
-    type: DataTypes.UUID,
-    allowNull: true,
-    references: {
-      model: 'stock_locations',
-      key: 'id'
-    },
-    onDelete: 'SET NULL',
-    onUpdate: 'CASCADE'
-  },
   fromLocationId: {
     type: DataTypes.UUID,
     allowNull: true,
     references: {
-      model: 'stock_locations',
+      model: 'suppliers',
       key: 'id'
     },
     onDelete: 'SET NULL',
@@ -49,7 +39,7 @@ const StockMovement = sequelize.define('StockMovement', {
     type: DataTypes.UUID,
     allowNull: true,
     references: {
-      model: 'stock_locations',
+      model: 'suppliers',
       key: 'id'
     },
     onDelete: 'SET NULL',

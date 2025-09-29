@@ -16,9 +16,6 @@ const stockMovementSchema = Joi.object({
     'any.invalid': 'Quantidade não pode ser zero',
     'any.required': 'Quantidade é obrigatória'
   }),
-  locationId: Joi.string().uuid().allow(null).messages({
-    'string.guid': 'ID da localização deve ser um UUID válido'
-  }),
   fromLocationId: Joi.string().uuid().allow(null).messages({
     'string.guid': 'ID da localização de origem deve ser um UUID válido'
   }),
@@ -58,15 +55,20 @@ const stockMovementSchema = Joi.object({
     }
   }
   
-  if ((value.type === 'entrada' || value.type === 'saida') && !value.locationId) {
-    return helpers.error('custom.locationRequired');
+  if (value.type === 'entrada' && !value.toLocationId) {
+    return helpers.error('custom.entradaLocationRequired');
+  }
+  
+  if (value.type === 'saida' && !value.fromLocationId) {
+    return helpers.error('custom.saidaLocationRequired');
   }
   
   return value;
 }).messages({
-  'custom.transferenceLocations': 'Transferência deve ter localização de origem e destino',
-  'custom.sameLocations': 'Localização de origem e destino não podem ser iguais',
-  'custom.locationRequired': 'Localização é obrigatória para entrada e saída'
+  'custom.transferenceLocations': 'Transferência deve ter fornecedor/unidade de origem e destino',
+  'custom.sameLocations': 'Fornecedor/unidade de origem e destino não podem ser iguais',
+  'custom.entradaLocationRequired': 'Fornecedor/unidade de destino é obrigatório para entrada',
+  'custom.saidaLocationRequired': 'Fornecedor/unidade de origem é obrigatório para saída'
 });
 
 module.exports = stockMovementSchema;

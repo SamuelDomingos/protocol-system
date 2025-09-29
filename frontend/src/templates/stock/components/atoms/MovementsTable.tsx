@@ -31,6 +31,8 @@ export function MovementsTable({
   const [isMovementFormOpen, setIsMovementFormOpen] = useState(false);
   const [selectedMovementType, setSelectedMovementType] = useState<StockMovement | undefined>(undefined);
 
+  console.log(movements);
+
   const handleOpenMovementForm = (type?: StockMovement) => {
     setSelectedMovementType(type);
     setIsMovementFormOpen(true);
@@ -79,12 +81,12 @@ export function MovementsTable({
           <TableHeader>
             <TableRow>
               <TableHead>Data</TableHead>
-              <TableHead>Produto</TableHead>
               <TableHead>Descrição</TableHead>
-              <TableHead>Quantidade</TableHead>
-              <TableHead>Tipo</TableHead>
-              <TableHead>Localização</TableHead>
-              <TableHead>Usuário</TableHead>
+              <TableHead>Qtd</TableHead>
+              <TableHead>Tipo de Operação</TableHead>
+              <TableHead>Origem</TableHead>
+              <TableHead>Destino</TableHead>
+              <TableHead>Movimentado por</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -96,8 +98,7 @@ export function MovementsTable({
                   className={onRowClick ? "cursor-pointer" : ""}
                 >
                   <TableCell>{formatDate(movement.createdAt || "")}</TableCell>
-                  <TableCell>{movement.productName}</TableCell>
-                  <TableCell>{movement.reason}</TableCell>
+                  <TableCell>{movement.reason || "-"}</TableCell>
                   <TableCell>{movement.quantity}</TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
@@ -119,7 +120,22 @@ export function MovementsTable({
                       )}
                     </div>
                   </TableCell>
-                  <TableCell>{movement.location?.location || "-"}</TableCell>
+                  <TableCell>
+                    {movement.type === "entrada" 
+                      ? movement.fromSupplier?.name || "-"
+                      : movement.type === "saida" || movement.type === "transferencia"
+                      ? movement.fromSupplier?.name || "-"
+                      : "-"
+                    }
+                  </TableCell>
+                  <TableCell>
+                    {movement.type === "entrada" || movement.type === "transferencia"
+                      ? movement.toSupplier?.name || "-"
+                      : movement.type === "saida"
+                      ? "-"
+                      : "-"
+                    }
+                  </TableCell>
                   <TableCell>
                     <div className="flex items-center gap-1">
                       <User className="h-4 w-4 text-muted-foreground" />

@@ -26,15 +26,18 @@ const StockLocation = sequelize.define('StockLocation', {
     }
   },
   location: {
-    type: DataTypes.STRING,
+    type: DataTypes.UUID,
     allowNull: false,
+    references: {
+      model: 'suppliers',
+      key: 'id'
+    },
+    onDelete: 'CASCADE',
+    onUpdate: 'CASCADE'
   },
   price: {
     type: DataTypes.DECIMAL(10, 2),
     allowNull: true,
-    validate: {
-      min: 0
-    }
   },
   sku: {
     type: DataTypes.STRING,

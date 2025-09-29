@@ -7,7 +7,6 @@ exports.createStockLocation = async (req, res) => {
     }
 
     const stockLocation = await stockLocationsService.create(req.body);
-    console.log('StockLocation criada/salva:', stockLocation.id, stockLocation.location);
     res.status(201).json(stockLocation);
   } catch (err) {
     console.error('❌ Error creating stock location:', err);

@@ -1,6 +1,8 @@
 const BaseService = require('../base.service');
 const { StockMovement } = require('../../models/stock/StockMovement');
-const StockLocation = require('../../models/stock/StockLocation');
+const Supplier = require('../../models/stock/Supplier');
+const Product = require('../../models/stock/Product');
+const User = require('../../models/User');
 const stockMovementSchema = require('../../validation/stockMovementSchema');
 const stockLocationsService = require('./stockLocations.service');
 const sequelize = require('../../config/database');
@@ -39,15 +41,16 @@ class StockMovementsService extends BaseService {
   }
 
   async _handleEntrada(data, transaction) {
+
     let stockLocation = await stockLocationsService.findByProductAndLocationName(
       data.productId, 
-      data.locationId
+      data.toLocationId
     );
 
     if (!stockLocation) {
       stockLocation = await StockLocation.create({
         productId: data.productId,
-        location: data.locationId,
+        location: data.toLocationId,
         quantity: 0,
         price: data.unitPrice || null,
         sku: data.sku || null,
@@ -62,7 +65,7 @@ class StockMovementsService extends BaseService {
   async _handleSaida(data, transaction) {
     const stockLocation = await stockLocationsService.findByProductAndLocationName(
       data.productId, 
-      data.locationId
+      data.fromLocationId
     );
     
     if (!stockLocation) {
@@ -114,20 +117,30 @@ class StockMovementsService extends BaseService {
 
   }
 
-  async findAllPaginated(query) {
+  async findAllPaginated(query = {}) {
     const filterOptions = {
       searchFields: ['reason', 'notes'],
       filterFields: ['type', 'productId', 'fromLocationId', 'toLocationId', 'userId'],
       includes: [
         {
-          model: StockLocation,
-          as: 'fromLocation',
-          attributes: ['id', 'location', 'sku']
+          model: Product,
+          as: 'product',
+          attributes: ['id', 'name', 'description', 'barcode']
         },
         {
-          model: StockLocation,
-          as: 'toLocation',
-          attributes: ['id', 'location', 'sku']
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        },
+        {
+          model: Supplier,
+          as: 'fromSupplier',
+          attributes: ['id', 'name', 'type', 'category']
+        },
+        {
+          model: Supplier,
+          as: 'toSupplier',
+          attributes: ['id', 'name', 'type', 'category']
         }
       ],
       defaultSort: [['createdAt', 'DESC']]

@@ -13,13 +13,16 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
   const [formData, setFormData] = useState<Partial<StockMovementCreateInput> & { 
     supplier?: string;
     entryType?: string;
+    unit?: string;
   }>({
     type: initialType || 'entrada',
     supplier: '',
     entryType: '',
     productId: '',
     quantity: 0,
-    locationId: '',
+    fromLocationId: '',
+    toLocationId: '',
+    unit: '',
     userId: '',
     reason: '',
     unitPrice: 0,
@@ -40,20 +43,6 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
   const { createMovement } = useMovements();
   const { handleError, handleSuccess } = useFeedbackHandler();
   const [loading, setLoading] = useState(false);
-
-  const locations = [
-    { id: '1', name: 'Estoque Principal' },
-    { id: '2', name: 'Estoque Secundário' },
-    { id: '3', name: 'Loja A' },
-    { id: '4', name: 'Loja B' },
-    { id: '5', name: 'Depósito Central' },
-  ];
-
-  const supplierOptions = [
-    { value: 'fornecedor1', label: 'Fornecedor A' },
-    { value: 'fornecedor2', label: 'Fornecedor B' },
-    { value: 'fornecedor3', label: 'Fornecedor C' },
-  ];
 
   const entryTypeOptions = [
     { value: 'compra', label: 'Compra' },
@@ -79,7 +68,8 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
             type: formData.type as 'entrada' | 'saida',
             productId: entry.productId,
             quantity: entry.quantity,
-            locationId: formData.locationId || '1',
+            fromLocationId: formData.type === 'entrada' ? formData.supplier : formData.unit,
+            toLocationId: formData.type === 'entrada' ? formData.unit : formData.supplier,
             userId: 'user-1',
             reason: `${formData.entryType} - Lote: ${entry.batchNumber}`,
             unitPrice: entry.unitPrice,
@@ -112,7 +102,9 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
       productId: '',
       quantity: 0,
       reason: '',
-      locationId: '',
+      fromLocationId: '',
+      toLocationId: '',
+      unit: '',
       userId: '',
       unitPrice: 0,
       totalValue: 0,
@@ -131,8 +123,6 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
     handleChange,
     handleSubmit,
     movementTypes,
-    locations,
-    supplierOptions,
     entryTypeOptions,
     resetForm,
     productEntryList,

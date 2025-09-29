@@ -1,4 +1,5 @@
 const stockMovementsService = require("../../services/stock/stockMovements.service");
+const { formatPaginatedResponse } = require('../../utils/queryBuilder');
 
 exports.createStockMovement = async (req, res) => {
   try {
@@ -20,7 +21,11 @@ exports.createStockMovement = async (req, res) => {
 exports.getAllStockMovements = async (req, res) => {
   try {
     const result = await stockMovementsService.findAllPaginated(req.query);
-    res.status(200).json(result);
+
+    const { page = 1, limit = 10 } = req.query;
+    const response = formatPaginatedResponse(result, page, limit, 'data');
+  
+    res.status(200).json(response);
   } catch (err) {
     console.error("❌ Error fetching stock movements:", err);
     res.status(500).json({ message: "Internal server error" });

@@ -10,11 +10,10 @@ const stockLocationSchema = Joi.object({
     'number.integer': 'Quantidade deve ser um número inteiro',
     'number.min': 'Quantidade não pode ser negativa'
   }),
-  location: Joi.string().min(1).max(100).required().messages({
-    'string.empty': 'Localização é obrigatória',
-    'string.min': 'Localização deve ter no mínimo 1 caractere',
-    'string.max': 'Localização deve ter no máximo 100 caracteres',
-    'any.required': 'Localização é obrigatória'
+  location: Joi.string().uuid().required().messages({
+    'string.empty': 'ID do fornecedor/unidade é obrigatório',
+    'string.guid': 'ID do fornecedor/unidade deve ser um UUID válido',
+    'any.required': 'Fornecedor/unidade é obrigatório'
   }),
   price: Joi.number().precision(2).positive().allow(null).messages({
     'number.base': 'Preço deve ser um número',

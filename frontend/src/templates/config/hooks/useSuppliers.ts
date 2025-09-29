@@ -65,7 +65,7 @@ export const useSuppliers = () => {
       fetchSuppliers(pagination.currentPage);
       return true;
     } catch (error) {
-      handleError('Erro ao criar fornecedor');
+      handleError(error);
       return false;
     } finally {
       setLoading(false);

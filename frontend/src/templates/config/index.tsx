@@ -132,7 +132,6 @@ export const ConfigTemplate: React.FC = () => {
             loading={loading}
             onEdit={handleOpenForm}
             onDelete={handleDelete}
-            onView={handleOpenForm}
           />
         </CardContent>
       </Card>
