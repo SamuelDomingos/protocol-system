@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useProducts } from '../molecules/useProducts';
 import { ProductCreateInput, ProductUpdateInput, Product } from '../../types';
 import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
@@ -9,20 +9,12 @@ interface UseProductFormProps {
 }
 
 export function useProductForm({ initialData, onSuccess }: UseProductFormProps = {}) {
-  const [formData, setFormData] = useState<ProductCreateInput | ProductUpdateInput>(
-    initialData || {
-      name: '',
-      description: '',
-      barcode: '',
-      category: '',
-      minimumStock: 0,
-      status: 'active',
-      unit: '',
-      supplier: '',
-      specifications: {},
-    }
-  );
-  
+  const [formData, setFormData] = useState<ProductCreateInput | ProductUpdateInput>( initialData || {});
+
+  useEffect(() => {
+    setFormData(initialData || {});
+  }, [initialData]);
+
   const [loading, setLoading] = useState(false);
   const { createProduct, updateProduct } = useProducts();
   const { handleError, handleSuccess } = useFeedbackHandler();
@@ -35,9 +27,10 @@ export function useProductForm({ initialData, onSuccess }: UseProductFormProps =
     setLoading(true);
     try {
       let result;
-      
+
       if (initialData?.id) {
-        result = await updateProduct(initialData.id, formData as ProductUpdateInput);
+        const { id, createdAt, updatedAt, ...dataToUpdate } = formData;
+        result = await updateProduct(initialData.id, dataToUpdate as ProductUpdateInput);
         if (result) {
           handleSuccess('Produto atualizado com sucesso!');
         }
@@ -47,11 +40,11 @@ export function useProductForm({ initialData, onSuccess }: UseProductFormProps =
           handleSuccess('Produto criado com sucesso!');
         }
       }
-      
+
       if (result && onSuccess) {
         onSuccess(result);
       }
-      
+
       return result;
     } catch (error) {
       handleError(error, initialData ? 'Erro ao atualizar produto' : 'Erro ao criar produto');
@@ -72,7 +65,6 @@ export function useProductForm({ initialData, onSuccess }: UseProductFormProps =
         status: 'active',
         unit: '',
         supplier: '',
-        specifications: {},
       }
     );
   }, [initialData]);

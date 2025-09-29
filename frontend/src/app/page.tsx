@@ -29,10 +29,10 @@ export default function Home() {
             router.push("/stock")
             break
           default:
-            router.push("/login")
+            router.push("/auth")
         }
       } else {
-        router.push("/login")
+        router.push("/auth")
       }
     }
   }, [user, isLoading, router])

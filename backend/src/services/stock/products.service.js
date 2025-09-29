@@ -8,19 +8,28 @@ class ProductsService extends BaseService {
     super(Product, productSchema);
   }
 
-  _buildWhereClause({ name, category, status, minPrice, maxPrice, supplier, brand }) {
+  _buildWhereClause({ name, category, status, minPrice, maxPrice, supplier, brand, search }) {
     const where = {};
     
-    if (name) where.name = { [Op.iLike]: `%${name}%` };
-    if (category) where.category = { [Op.iLike]: `%${category}%` };
+    if (name) where.name = { [Op.like]: `%${name}%` };
+    if (category) where.category = { [Op.like]: `%${category}%` };
     if (status) where.status = status;
-    if (supplier) where.supplier = { [Op.iLike]: `%${supplier}%` };
-    if (brand) where.brand = { [Op.iLike]: `%${brand}%` };
+    if (supplier) where.supplier = { [Op.like]: `%${supplier}%` };
+    if (brand) where.brand = { [Op.like]: `%${brand}%` };
     
     if (minPrice !== undefined || maxPrice !== undefined) {
       where.unitPrice = {};
       if (minPrice !== undefined) where.unitPrice[Op.gte] = minPrice;
       if (maxPrice !== undefined) where.unitPrice[Op.lte] = maxPrice;
+    }
+
+    if (search) {
+      where[Op.or] = [
+        { name: { [Op.like]: `%${search}%` } },
+        { description: { [Op.like]: `%${search}%` } },
+        { sku: { [Op.like]: `%${search}%` } },
+        { barcode: { [Op.like]: `%${search}%` } },
+      ];
     }
 
     return where;

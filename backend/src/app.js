@@ -19,6 +19,7 @@ const permissionsRoutes = require('./routes/permission.route');
 const messagesRoutes = require('./routes/messages.route');
 const templatesRoutes = require('./routes/templates.route');
 const stagesRoutes = require('./routes/stages.routes');
+const suppliersRoutes = require('./routes/stock/suppliers.route');
 
 const { errorHandler, notFoundHandler } = require('./utils/asyncHandler');
 
@@ -57,6 +58,7 @@ const startServer = async () => {
     app.use('/api/products', productsRoutes);
     app.use('/api/stock-locations', stockLocationsRoutes);
     app.use('/api/stock-movements', stockMovementsRoutes);
+    app.use('/api/suppliers', suppliersRoutes);
 
     app.use(notFoundHandler);
     app.use(errorHandler);

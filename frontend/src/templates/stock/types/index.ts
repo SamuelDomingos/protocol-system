@@ -1,3 +1,4 @@
+import { UsePaginationReturn } from '@/src/global/pagination';
 import { Product, ProductCreateInput, ProductUpdateInput, StockLocation, StockLocationCreateInput, StockLocationUpdateInput, StockMovement, StockMovementCreateInput, StockMovementUpdateInput } from '../../../lib/api/types/stock';
 
 export type { 
@@ -12,7 +13,6 @@ export type {
   StockMovementUpdateInput 
 };
 
-// Tipos adicionais específicos para a UI
 export interface ProductTableItem extends Product {
   selected?: boolean;
 }
@@ -23,6 +23,22 @@ export interface StockLocationTableItem extends StockLocation {
 
 export interface StockMovementTableItem extends StockMovement {
   selected?: boolean;
+}
+
+export interface ProductEntry {
+  id: string;
+  productId: string;
+  productName: string;
+  quantity: number;
+  batchNumber: string;
+  expiryDate: Date | undefined;
+  unitPrice: number;
+  totalValue: number;
+}
+
+export interface ProductEntryListProps {
+  entries: ProductEntry[];
+  onEntriesChange: (entries: ProductEntry[]) => void;
 }
 
 export interface RequestParams {
@@ -50,6 +66,26 @@ export interface PaginationState {
   page: number;
   pageSize: number;
   total: number;
+}
+
+export interface ProductsTableProps {
+  products: Product[]
+  onRowClick: (product: Product) => void
+  pagination: UsePaginationReturn
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  fetchData: () => void;
+  deleteProduct: (id: string) => Promise<any>;
+}
+
+export interface MovementsTableProps {
+  movements: StockMovement[]
+  isLoading?: boolean
+  onRowClick?: (movement: StockMovement) => void
+  pagination: UsePaginationReturn
+  searchTerm: string;
+  setSearchTerm: (term: string) => void;
+  fetchData: () => void;
 }
 
 export interface StockState {

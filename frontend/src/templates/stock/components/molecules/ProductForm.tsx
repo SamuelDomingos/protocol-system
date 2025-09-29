@@ -33,9 +33,8 @@ export function ProductForm({
     initialData,
     onSuccess,
   });
-
+  
   const unitOptions = [
-
     { value: "frasco", label: "FRASCO" },
     { value: "tubo", label: "TUBO" },
     { value: "sache", label: "SACHÊ" },
@@ -84,7 +83,9 @@ export function ProductForm({
               />
             </div>
             <div>
-              <Label htmlFor="category" className="mb-2 block">Categoria</Label>
+              <Label htmlFor="category" className="mb-2 block">
+                Categoria
+              </Label>
               <RadioGroup
                 onValueChange={(value) => handleChange("category", value)}
                 defaultValue={formData.category}
@@ -100,15 +101,31 @@ export function ProductForm({
                 </div>
               </RadioGroup>
             </div>
-            <div>
-              <Label htmlFor="unit">Valor Unitario</Label>
-              <Combobox
-                options={unitOptions}
-                value={formData.unit}
-                onValueChange={(value) => handleChange("unit", value)}
-                placeholder="Selecione o tipo de unidade..."
-              />
+
+            <div className="flex items-start gap-4">
+              <div className="w-44">
+                <Label htmlFor="minimumStock">Estoque Mínimo</Label>
+                <Input
+                  id="minimumStock"
+                  type="number"
+                  value={formData.minimumStock}
+                  onChange={(e) =>
+                    handleChange("minimumStock", Number(e.target.value))
+                  }
+                  required
+                />
+              </div>
+              <div className="w-60">
+                <Label htmlFor="unit">Valor Unitário</Label>
+                <Combobox
+                  options={unitOptions}
+                  value={formData.unit}
+                  onValueChange={(value) => handleChange("unit", value)}
+                  placeholder="Selecione o tipo de unidade..."
+                />
+              </div>
             </div>
+
             <div>
               <Label htmlFor="supplier">Fornecedor</Label>
               <Combobox

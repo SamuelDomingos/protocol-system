@@ -40,7 +40,7 @@ export function useStockData<T>(
 
       const params = {
         ...pagination.getRequestParams(),
-        search: search.searchTerm
+        search: search.debouncedSearchTerm
       };
 
       const response = await service.getAll(params);

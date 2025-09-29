@@ -3,25 +3,25 @@ import { StockMovement, StockMovementCreateInput, StockMovementUpdateInput } fro
 import { PaginationRequestParams } from '@/src/global/pagination/types/pagination';
 
 export const getStockMovements = async (params?: PaginationRequestParams): Promise<any> => {
-  return apiRequest<any>('/stock-movements', {
+  return apiRequest<any>('/api/stock-movements', {
     method: 'GET',
     params
   });
 };
 
 export const getStockMovementById = async (id: string): Promise<StockMovement> => {
-  return apiRequest<StockMovement>(`/stock-movements/${id}`);
+  return apiRequest<StockMovement>(`/api/stock-movements/${id}`);
 };
 
 export const createStockMovement = async (movement: StockMovementCreateInput): Promise<StockMovement> => {
-  return apiRequest<StockMovement>('/stock-movements', {
+  return apiRequest<StockMovement>('/api/stock-movements', {
     method: 'POST',
     body: movement,
   });
 };
 
 export const updateStockMovement = async (id: string, movement: StockMovementUpdateInput): Promise<StockMovement> => {
-  return apiRequest<StockMovement>(`/stock-movements/${id}`, {
+  return apiRequest<StockMovement>(`/api/stock-movements/${id}`, {
     method: 'PUT',
     body: movement,
   });

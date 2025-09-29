@@ -1,13 +1,12 @@
 import { useCallback } from 'react';
-import { useStockData } from '../atoms/useStockData';
+import { useStockData } from '@/src/templates/stock/hooks/atoms/useStockData';
 import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
 import * as stockService from '../../services/stockService';
 import { Product, ProductCreateInput, ProductUpdateInput } from '../../types';
-import { toast } from '@/src/hooks/use-toast';
 
 export function useProducts() {
   const { handleError, handleSuccess } = useFeedbackHandler();
-  
+
   const {
     items: products,
     isLoading: loading,
@@ -55,36 +54,21 @@ export function useProducts() {
       return true;
     } catch (error) {
       handleError(error, 'Erro ao alterar status do produto');
-      return false;
+      return null;
     }
   }, [fetchData, handleError, handleSuccess]);
 
-  const getLowStockProducts = useCallback(async () => {
+  const deleteProduct = useCallback(async (id: string) => {
     try {
-      return await stockService.getLowStockProducts();
+      await stockService.deleteProduct(id);
+      handleSuccess('Produto excluído com sucesso!');
+      fetchData();
+      return true;
     } catch (error) {
-      handleError(error, 'Erro ao buscar produtos com estoque baixo');
-      return { data: [], pagination: { total: 0, page: 1, pageSize: 10 } };
+      handleError(error, 'Erro ao excluir produto');
+      return null;
     }
-  }, [handleError]);
-
-  const getCategories = useCallback(async () => {
-    try {
-      return await stockService.getProductCategories();
-    } catch (error) {
-      handleError(error, 'Erro ao buscar categorias');
-      return [];
-    }
-  }, [handleError]);
-
-  const getBrands = useCallback(async () => {
-    try {
-      return await stockService.getProductBrands();
-    } catch (error) {
-      handleError(error, 'Erro ao buscar marcas');
-      return [];
-    }
-  }, [handleError]);
+  }, [fetchData, handleError, handleSuccess]);
 
   return {
     products,
@@ -93,13 +77,11 @@ export function useProducts() {
     pagination,
     searchTerm,
     setSearchTerm,
-    fetchProducts: fetchData,
+    fetchData,
+    isSearchMode,
     createProduct,
     updateProduct,
     toggleProductStatus,
-    getLowStockProducts,
-    getCategories,
-    getBrands,
-    isSearchMode
+    deleteProduct,
   };
 }

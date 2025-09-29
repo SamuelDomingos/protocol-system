@@ -47,6 +47,12 @@ export const updateProduct = async (id: string, product: ProductUpdateInput): Pr
   });
 };
 
+export const deleteProduct = async (id: string): Promise<void> => {
+  return apiRequest<void>(`api/products/${id}`, {
+    method: 'DELETE',
+  });
+};
+
 export const toggleProductStatus = async (id: string): Promise<Product> => {
   return apiRequest<Product>(`api/products/${id}/toggle-active`, {
     method: 'PATCH',

@@ -1,5 +1,5 @@
 import { useCallback } from 'react';
-import { useStockData } from '../atoms/useStockData';
+import { useStockData } from '@/src/templates/stock/hooks/atoms/useStockData';
 import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
 import * as stockService from '../../services/stockService';
 import { StockMovement, StockMovementCreateInput } from '../../types';
@@ -34,6 +34,18 @@ export function useMovements() {
     }
   }, [fetchData, handleError, handleSuccess]);
 
+  const updateMovement = useCallback(async (id: string, movementData: StockMovementCreateInput) => {
+    try {
+      const updatedMovement = await stockService.updateStockMovement(id, movementData);
+      handleSuccess('Movimentação atualizada com sucesso!');
+      fetchData();
+      return updatedMovement;
+    } catch (error) {
+      handleError(error, 'Erro ao atualizar movimentação');
+      return null;
+    }
+  }, [fetchData, handleError, handleSuccess]);
+
   const getMovementTypes = useCallback(async () => {
     try {
       return await stockService.getStockMovementTypes();
@@ -52,6 +64,7 @@ export function useMovements() {
     setSearchTerm,
     fetchMovements: fetchData,
     createMovement,
+    updateMovement,
     getMovementTypes,
     isSearchMode
   };

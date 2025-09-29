@@ -18,19 +18,12 @@ const StockMovement = sequelize.define('StockMovement', {
     onUpdate: 'CASCADE'
   },
   type: {
-    type: DataTypes.ENUM('entrada', 'saida', 'transferencia', 'ajuste'),
+    type: DataTypes.ENUM('entrada', 'saida', 'transferencia'),
     allowNull: false,
   },
   quantity: {
     type: DataTypes.INTEGER,
     allowNull: false,
-    validate: {
-      notZero(value) {
-        if (value === 0) {
-          throw new Error('Quantidade não pode ser zero');
-        }
-      }
-    }
   },
   locationId: {
     type: DataTypes.UUID,
@@ -97,18 +90,6 @@ const StockMovement = sequelize.define('StockMovement', {
 }, {
   tableName: 'stock_movements',
   timestamps: true,
-  validate: {
-    transferenceValidation() {
-      if (this.type === 'transferencia') {
-        if (!this.fromLocationId || !this.toLocationId) {
-          throw new Error('Transferência deve ter origem e destino');
-        }
-        if (this.fromLocationId === this.toLocationId) {
-          throw new Error('Origem e destino não podem ser iguais');
-        }
-      }
-    }
-  }
 });
 
 module.exports = { StockMovement };

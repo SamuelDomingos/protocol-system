@@ -23,7 +23,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAuthenticated = !!user;
 
-  // Verificar se há um token salvo ao inicializar
   useEffect(() => {
     const initAuth = async () => {
       try {

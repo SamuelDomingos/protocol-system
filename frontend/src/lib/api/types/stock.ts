@@ -10,7 +10,6 @@ export interface Product {
   status: 'active' | 'inactive';
   unit: string;
   supplier: string;
-  specifications: Record<string, any>;
   createdAt?: string;
   updatedAt?: string;
 }

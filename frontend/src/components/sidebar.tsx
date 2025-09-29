@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/src/lib/utils"
-import { Users, ClipboardList, FileText, Package, Home, Users2, ChevronLeft, ChevronRight } from "lucide-react"
+import { Users, ClipboardList, FileText, Package, Home, Users2, ChevronLeft, ChevronRight, Settings } from "lucide-react"
 import { Button } from "@/src/components/ui/button"
 
 interface SidebarProps {
@@ -52,6 +52,11 @@ export function Sidebar({ isOpen, onToggle, isMobile }: SidebarProps) {
       href: "/users",
       label: "Usuários",
       icon: Users2,
+    },
+    {
+      href: "/config",
+      label: "Configurações",
+      icon: Settings,
     }
   ]
 

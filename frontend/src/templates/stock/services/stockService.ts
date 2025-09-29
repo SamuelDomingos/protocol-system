@@ -1,12 +1,9 @@
-import * as stockApi from '../../../lib/api/stock';
+import * as stockApi from '@/src/lib/api/stock';
 import { 
-  Product, 
   ProductCreateInput, 
   ProductUpdateInput,
-  StockLocation,
   StockLocationCreateInput,
   StockLocationUpdateInput,
-  StockMovement,
   StockMovementCreateInput,
   StockMovementUpdateInput,
   RequestParams
@@ -46,6 +43,10 @@ export const createProduct = async (product: ProductCreateInput) => {
 
 export const updateProduct = async (id: string, product: ProductUpdateInput) => {
   return await stockApi.updateProduct(id, product);
+};
+
+export const deleteProduct = async (id: string) => {
+  return await stockApi.deleteProduct(id);
 };
 
 export const toggleProductStatus = async (id: string) => {

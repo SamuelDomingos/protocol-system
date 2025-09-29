@@ -17,7 +17,6 @@ export default function RootLayout({
   return (
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
-        {/* Adicione o título e favicon diretamente aqui */}
         <title>Infinity Way</title>
         <link rel="icon" href="/logo_nav.png" />
       </head>
