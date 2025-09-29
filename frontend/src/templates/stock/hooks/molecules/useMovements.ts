@@ -21,7 +21,7 @@ export function useMovements() {
       getAll: stockService.getStockMovements
     }
   );
-
+  
   const createMovement = useCallback(async (movementData: StockMovementCreateInput) => {
     try {
       const newMovement = await stockService.createStockMovement(movementData);

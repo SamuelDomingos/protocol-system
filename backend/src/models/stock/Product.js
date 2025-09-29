@@ -33,16 +33,6 @@ const Product = sequelize.define('Product', {
     defaultValue: 'active',
     allowNull: false,
   },
-  sku: {
-    type: DataTypes.STRING,
-    unique: true,
-  },
-  barcode: {
-    type: DataTypes.STRING,
-    unique: false,
-    allowNull: true,
-  },
-  supplier: DataTypes.STRING,
   unitPrice: {
     type: DataTypes.DECIMAL(10, 2),
     validate: { min: 0 }
@@ -51,11 +41,6 @@ const Product = sequelize.define('Product', {
   tableName: 'products',
   timestamps: true,
   indexes: [
-    {
-      unique: true,
-      fields: ['sku'],
-      where: { sku: { [Op.ne]: null } }
-    },
     { fields: ['category'] },
     { fields: ['status'] },
     { fields: ['name'] }

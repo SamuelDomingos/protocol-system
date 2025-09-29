@@ -13,4 +13,10 @@ router.put('/:id', authenticate, stockLocationsController.updateStockLocation);
 
 router.delete('/:id', authenticate, stockLocationsController.deleteStockLocation);
 
+router.get('/location/:locationId/products', authenticate, stockLocationsController.getProductsByLocation);
+
+router.get('/batches/product/:productId/location/:locationId', authenticate, stockLocationsController.findBatchesByProductAndLocation);
+
+router.get('/batches/product/:productId', authenticate, stockLocationsController.findAllBatchesByProduct);
+
 module.exports = router;

@@ -61,16 +61,24 @@ export const getStockLocationById = async (id: string) => {
   return await stockApi.getStockLocationById(id);
 };
 
+export const getProductsByLocation = async (locationId: string) => {
+  return await stockApi.getProductsByLocation(locationId);
+};
+
+export const getBatchesByProductAndLocation = async (productId: string, locationId: string) => {
+  return await stockApi.findBatchesByProductAndLocation(productId, locationId);
+};
+
+export const getAllBatchesByProduct = async (productId: string) => {
+  return await stockApi.findAllBatchesByProduct(productId);
+};
+
 export const createStockLocation = async (location: StockLocationCreateInput) => {
   return await stockApi.createStockLocation(location);
 };
 
 export const updateStockLocation = async (id: string, location: StockLocationUpdateInput) => {
   return await stockApi.updateStockLocation(id, location);
-};
-
-export const toggleStockLocationStatus = async (id: string) => {
-  return await stockApi.toggleStockLocationStatus(id);
 };
 
 export const getStockMovements = async (params: RequestParams = {}) => {

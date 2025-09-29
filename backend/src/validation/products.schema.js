@@ -26,16 +26,6 @@ const productSchema = Joi.object({
   status: Joi.string().valid("active", "inactive").default("active").messages({
     'any.only': 'Status deve ser "active" ou "inactive"'
   }),
-  sku: Joi.string().allow("", null).messages({
-    'string.base': 'SKU deve ser um texto'
-  }),
-  barcode: Joi.string().allow("", null).messages({
-    'string.base': 'Código de barras deve ser um texto'
-  }),
-  supplier: Joi.string().allow("", null).required().messages({
-    'string.empty': 'Fornecedor é obrigatório',
-    'string.base': 'Fornecedor deve ser um texto'
-  }),
   unitPrice: Joi.number().precision(2).min(0).allow(null).messages({
     'number.base': 'Preço unitário deve ser um número',
     'number.precision': 'Preço unitário deve ter no máximo 2 casas decimais',

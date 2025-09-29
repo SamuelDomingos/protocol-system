@@ -72,7 +72,37 @@ exports.deleteStockLocation = async (req, res) => {
   }
 };
 
-// Manter esta função para compatibilidade com o controller de movimentações
-exports.findByProductAndLocationName = async (productId, locationName) => {
-  return await stockLocationsService.findByProductAndLocationName(productId, locationName);
+exports.getProductsByLocation = async (req, res) => {
+  try {
+    const { locationId } = req.params;
+    const products = await stockLocationsService.findProductsByLocation(locationId);
+    res.status(200).json(products);
+  } catch (err) {
+    console.error('❌ Error fetching products by location:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+
+
+exports.findBatchesByProductAndLocation = async (req, res) => {
+  try {
+    const { productId, locationId } = req.params;
+    const batches = await stockLocationsService.findBatchesByProductAndLocation(productId, locationId);
+    res.status(200).json(batches);
+  } catch (err) {
+    console.error('❌ Error fetching batches by product and location:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
+
+exports.findAllBatchesByProduct = async (req, res) => {
+  try {
+    const { productId } = req.params;
+    const batches = await stockLocationsService.findAllBatchesByProduct(productId);
+    res.status(200).json(batches);
+  } catch (err) {
+    console.error('❌ Error fetching all batches by product:', err);
+    res.status(500).json({ message: 'Internal server error' });
+  }
 };

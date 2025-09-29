@@ -1,152 +1,228 @@
 const BaseService = require('../base.service');
 const { StockMovement } = require('../../models/stock/StockMovement');
-const Supplier = require('../../models/stock/Supplier');
-const Product = require('../../models/stock/Product');
-const User = require('../../models/User');
-const stockMovementSchema = require('../../validation/stockMovementSchema');
-const stockLocationsService = require('./stockLocations.service');
-const sequelize = require('../../config/database');
+const StockLocation = require('../../models/stock/StockLocation');
+const { Product, Supplier, User } = require('../../models');
+const { stockMovementSchema } = require('../../validation/stockMovementSchema');
 
 class StockMovementsService extends BaseService {
   constructor() {
-    super(StockMovement, stockMovementSchema);
-  }
-
-  async createMovement(data) {
-    const { value } = this.validate(data);
-    
-    const transaction = await sequelize.transaction();
-    
-    try {
-      console.log('--- [StockMovementsService.createMovement] ---');
-      console.log('Dados validados:', JSON.stringify(value));
-
-      if (value.type === 'entrada') {
-        await this._handleEntrada(value, transaction);
-      } else if (value.type === 'saida') {
-        await this._handleSaida(value, transaction);
-      } else if (value.type === 'transferencia') {
-        await this._handleTransferencia(value, transaction);
+    super(StockMovement, stockMovementSchema, [
+      {
+        model: Product,
+        as: 'product',
+        attributes: ['id', 'name', 'unit']
+      },
+      {
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name']
       }
-
-      const stockMovement = await this.model.create(value, { transaction });
-      
-      await transaction.commit();
-      return stockMovement;
-    } catch (err) {
-      await transaction.rollback();
-      console.error('❌ Error creating stock movement:', err);
-      throw err;
-    }
+    ]);
   }
 
-  async _handleEntrada(data, transaction) {
-
-    let stockLocation = await stockLocationsService.findByProductAndLocationName(
-      data.productId, 
-      data.toLocationId
-    );
-
-    if (!stockLocation) {
-      stockLocation = await StockLocation.create({
-        productId: data.productId,
-        location: data.toLocationId,
-        quantity: 0,
-        price: data.unitPrice || null,
-        sku: data.sku || null,
-        expiryDate: data.expiryDate || null
-      }, { transaction });
-    }
-
-    const newQuantity = stockLocation.quantity + data.quantity;
-    await stockLocation.update({ quantity: newQuantity }, { transaction });
-  }
-
-  async _handleSaida(data, transaction) {
-    const stockLocation = await stockLocationsService.findByProductAndLocationName(
-      data.productId, 
-      data.fromLocationId
-    );
-    
-    if (!stockLocation) {
-      throw { status: 400, message: 'Local de estoque não encontrado' };
-    }
-
-    if (stockLocation.quantity < data.quantity) {
-      throw { status: 400, message: 'Quantidade insuficiente em estoque' };
-    }
-
-    const newQuantity = stockLocation.quantity - data.quantity;
-    await stockLocation.update({ quantity: newQuantity }, { transaction });
-  }
-
-  async _handleTransferencia(data, transaction) {
-    const fromLocation = await stockLocationsService.findByProductAndLocationName(
-      data.productId, 
-      data.fromLocationId
-    );
-    
-    if (!fromLocation) {
-      throw { status: 400, message: 'Local de origem não encontrado' };
-    }
-
-    if (fromLocation.quantity < data.quantity) {
-      throw { status: 400, message: 'Quantidade insuficiente no local de origem' };
-    }
-
-    let toLocation = await stockLocationsService.findByProductAndLocationName(
-      data.productId, 
-      data.toLocationId
-    );
-    
-    if (!toLocation) {
-      toLocation = await StockLocation.create({
-        productId: data.productId,
-        location: data.toLocationId,
-        quantity: 0
-      }, { transaction });
-    }
-
-    await fromLocation.update({ 
-      quantity: fromLocation.quantity - data.quantity 
-    }, { transaction });
-    
-    await toLocation.update({ 
-      quantity: toLocation.quantity + data.quantity 
-    }, { transaction });
-
-  }
-
-  async findAllPaginated(query = {}) {
+  async findAllPaginated(query) {
     const filterOptions = {
-      searchFields: ['reason', 'notes'],
-      filterFields: ['type', 'productId', 'fromLocationId', 'toLocationId', 'userId'],
+      searchFields: ['type', 'notes'],
+      filterFields: ['type', 'productId', 'userId'],
       includes: [
         {
           model: Product,
           as: 'product',
-          attributes: ['id', 'name', 'description', 'barcode']
+          attributes: ['id', 'name', 'unit']
         },
         {
           model: User,
           as: 'user',
-          attributes: ['id', 'name', 'email']
-        },
-        {
-          model: Supplier,
-          as: 'fromSupplier',
-          attributes: ['id', 'name', 'type', 'category']
-        },
-        {
-          model: Supplier,
-          as: 'toSupplier',
-          attributes: ['id', 'name', 'type', 'category']
+          attributes: ['id', 'name']
         }
       ],
       defaultSort: [['createdAt', 'DESC']]
     };
 
-    return await super.findAllPaginated(query, filterOptions);
+    const result = await super.findAllPaginated(query, filterOptions);
+    
+    // Buscar localizações e formatar como arrays
+    const simplifiedRows = await Promise.all(
+      result.rows.map(async (movement) => {
+        const data = movement.toJSON();
+        
+        // Buscar localização de origem
+        let fromLocation = null;
+        if (data.fromLocationId) {
+          const location = await Supplier.findByPk(data.fromLocationId, {
+            attributes: ['id', 'name']
+          });
+          fromLocation = location ? { id: location.id, name: location.name } : null;
+        }
+        
+        // Buscar localização de destino
+        let toLocation = null;
+        if (data.toLocationId) {
+          const location = await Supplier.findByPk(data.toLocationId, {
+            attributes: ['id', 'name']
+          });
+          toLocation = location ? { id: location.id, name: location.name } : null;
+        }
+
+        return {
+          id: data.id,
+          type: data.type,
+          quantity: data.quantity,
+          reason: data.reason,
+          createdAt: data.createdAt,
+          fromLocation: fromLocation,
+          toLocation: toLocation,
+          product: data.product,
+          user: data.user
+        };
+      })
+    );
+
+    return {
+      count: result.count,
+      rows: simplifiedRows
+    };
+  }
+
+  async createMovement(movementData) {
+    return this.transaction(async (transaction) => {
+      const movement = await this.model.create(movementData, { transaction });
+
+      switch (movementData.type) {
+        case 'entrada':
+          await this.processEntrada(movementData, transaction);
+          break;
+        case 'saida':
+          await this.processSaida(movementData, transaction);
+          break;
+        case 'transferencia':
+          await this.processTransferencia(movementData, transaction);
+          break;
+      }
+
+      return movement;
+    });
+  }
+
+  async processEntrada(movementData, transaction) {
+    const { productId, quantity, sku, expiryDate, unitPrice } = movementData;
+    
+    const internalSupplier = await Supplier.findOne({ 
+      where: { type: 'unit' }, 
+      transaction 
+    });
+    
+    if (!internalSupplier) {
+      throw new Error('Fornecedor interno não encontrado');
+    }
+
+    const [stockLocation] = await StockLocation.findOrCreate({
+      where: { 
+        productId, 
+        location: internalSupplier.id 
+      },
+      defaults: { 
+        quantity: 0, 
+        price: unitPrice || 0,
+        sku: sku || null,
+        expiryDate: expiryDate || null
+      },
+      transaction
+    });
+
+    await stockLocation.update({
+      quantity: stockLocation.quantity + quantity,
+      price: unitPrice || stockLocation.price,
+      sku: sku || stockLocation.sku,
+      expiryDate: expiryDate || stockLocation.expiryDate
+    }, { transaction });
+  }
+
+  async processSaida(movementData, transaction) {
+    const { productId, quantity } = movementData;
+    
+    const internalSupplier = await Supplier.findOne({ 
+      where: { type: 'unit' }, 
+      transaction 
+    });
+    
+    if (!internalSupplier) {
+      throw new Error('Fornecedor interno não encontrado');
+    }
+
+    const stockLocation = await StockLocation.findOne({
+      where: { 
+        productId, 
+        location: internalSupplier.id 
+      },
+      transaction
+    });
+
+    if (!stockLocation || stockLocation.quantity < quantity) {
+      throw new Error('Estoque insuficiente');
+    }
+
+    await stockLocation.update({
+      quantity: stockLocation.quantity - quantity
+    }, { transaction });
+  }
+
+  async processTransferencia(movementData, transaction) {
+    const { productId, quantity, fromLocationId, toLocationId } = movementData;
+    
+    const fromLocation = await StockLocation.findOne({
+      where: { 
+        productId, 
+        location: fromLocationId 
+      },
+      transaction
+    });
+
+    if (!fromLocation || fromLocation.quantity < quantity) {
+      throw new Error('Estoque insuficiente no local de origem');
+    }
+
+    await fromLocation.update({
+      quantity: fromLocation.quantity - quantity
+    }, { transaction });
+
+    const [toLocation] = await StockLocation.findOrCreate({
+      where: { 
+        productId, 
+        location: toLocationId 
+      },
+      defaults: { 
+        quantity: 0, 
+        price: fromLocation.price,
+        sku: fromLocation.sku,
+        expiryDate: fromLocation.expiryDate
+      },
+      transaction
+    });
+
+    await toLocation.update({
+      quantity: toLocation.quantity + quantity
+    }, { transaction });
+  }
+
+  async findByProduct(productId, options = {}) {
+    const { page = 1, limit = 10 } = options;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await this.model.findAndCountAll({
+      where: { productId },
+      include: this.defaultIncludes,
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    return {
+      movements: rows,
+      totalCount: count,
+      totalPages: Math.ceil(count / limit),
+      currentPage: parseInt(page)
+    };
   }
 }
 

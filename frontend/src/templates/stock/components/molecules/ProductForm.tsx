@@ -2,7 +2,7 @@ import { Button } from "@/src/components/ui/button";
 import { Input } from "@/src/components/ui/input";
 import { Label } from "@/src/components/ui/label";
 import { Textarea } from "@/src/components/ui/textarea";
-import { useProductForm } from "../../hooks/organelles/useProductForm";
+import { useProductForm } from "../../hooks/organelles/forms/useProductForm";
 import { Product } from "../../types";
 import { Switch } from "@/src/components/ui/switch";
 import {
@@ -50,12 +50,6 @@ export function ProductForm({
     { value: "peça", label: "PEÇA" },
     { value: "caixa", label: "CAIXA" },
     { value: "ampola", label: "AMPOLA" },
-  ];
-
-  const supplierOptions = [
-    { value: "fornecedor_a", label: "Fornecedor A" },
-    { value: "fornecedor_b", label: "Fornecedor B" },
-    { value: "fornecedor_c", label: "Fornecedor C" },
   ];
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -124,16 +118,6 @@ export function ProductForm({
                   placeholder="Selecione o tipo de unidade..."
                 />
               </div>
-            </div>
-
-            <div>
-              <Label htmlFor="supplier">Fornecedor</Label>
-              <Combobox
-                options={supplierOptions}
-                value={formData.supplier}
-                onValueChange={(value) => handleChange("supplier", value)}
-                placeholder="Selecione o fornecedor..."
-              />
             </div>
           </div>
           <div>

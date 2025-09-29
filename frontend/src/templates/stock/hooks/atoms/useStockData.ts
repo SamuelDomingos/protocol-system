@@ -44,7 +44,7 @@ export function useStockData<T>(
       };
 
       const response = await service.getAll(params);
-      
+
       if (response && response.data) {
         setItems(response.data);
       }

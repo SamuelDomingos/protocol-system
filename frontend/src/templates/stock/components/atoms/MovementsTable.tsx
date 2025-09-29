@@ -31,8 +31,6 @@ export function MovementsTable({
   const [isMovementFormOpen, setIsMovementFormOpen] = useState(false);
   const [selectedMovementType, setSelectedMovementType] = useState<StockMovement | undefined>(undefined);
 
-  console.log(movements);
-
   const handleOpenMovementForm = (type?: StockMovement) => {
     setSelectedMovementType(type);
     setIsMovementFormOpen(true);
@@ -122,15 +120,15 @@ export function MovementsTable({
                   </TableCell>
                   <TableCell>
                     {movement.type === "entrada" 
-                      ? movement.fromSupplier?.name || "-"
+                      ? movement.fromLocation?.name || movement.fromLocationId || "-"
                       : movement.type === "saida" || movement.type === "transferencia"
-                      ? movement.fromSupplier?.name || "-"
+                      ? movement.fromLocation?.name || movement.fromLocationId || "-"
                       : "-"
                     }
                   </TableCell>
                   <TableCell>
                     {movement.type === "entrada" || movement.type === "transferencia"
-                      ? movement.toSupplier?.name || "-"
+                      ? movement.toLocation?.name || movement.toLocationId || "-"
                       : movement.type === "saida"
                       ? "-"
                       : "-"

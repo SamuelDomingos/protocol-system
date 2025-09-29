@@ -1,12 +1,12 @@
-import { useState, useCallback, useEffect } from 'react';
-import { useMovements } from '../molecules/useMovements';
+import { useState, useCallback } from 'react';
+import { useMovements } from '../../molecules/useMovements';
 import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
-import { StockMovementCreateInput } from '../../types';
-import { useProductEntryList } from './useProductEntryList';
+import { StockMovementCreateInput } from '../../../types';
+import { useProductEntryList } from '../lists/useProductEntryList';
 
 interface UseMovementFormProps {
   onSuccess?: () => void;
-  initialType?: 'entrada' | 'saida';
+  initialType?: 'entrada' | 'saida' | 'transferencia';
 }
 
 export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps = {}) {
@@ -33,25 +33,17 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
 
   const productEntryList = useProductEntryList();
 
-  useEffect(() => {
-    setFormData(prev => ({ 
-      ...prev, 
-      type: initialType || 'entrada' 
-    }));
-  }, [initialType]);
-
   const { createMovement } = useMovements();
   const { handleError, handleSuccess } = useFeedbackHandler();
   const [loading, setLoading] = useState(false);
 
   const entryTypeOptions = [
     { value: 'compra', label: 'Compra' },
+    { value: 'doacao', label: 'Doação' },
+    { value: 'transferencia', label: 'Transferência' },
     { value: 'devolucao', label: 'Devolução' },
     { value: 'ajuste', label: 'Ajuste de Estoque' },
-    { value: 'transferencia', label: 'Transferência' },
   ];
-
-  const movementTypes = ['entrada', 'saida', 'transferencia'];
 
   const handleChange = useCallback((field: string, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -70,11 +62,14 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
             quantity: entry.quantity,
             fromLocationId: formData.type === 'entrada' ? formData.supplier : formData.unit,
             toLocationId: formData.type === 'entrada' ? formData.unit : formData.supplier,
+            locationId: formData.unit || '',
             userId: 'user-1',
             reason: `${formData.entryType} - Lote: ${entry.batchNumber}`,
             unitPrice: entry.unitPrice,
             totalValue: entry.totalValue,
             notes: formData.notes,
+            sku: entry.batchNumber,
+            expiryDate: entry.expiryDate,
           };
 
           const result = await createMovement(movementData);
@@ -84,11 +79,11 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
           }
         }
 
-        handleSuccess('Movimentações registradas com sucesso!');
+        handleSuccess('Movimentação registrada com sucesso!');
         resetForm();
         onSuccess?.();
       } catch (error) {
-        handleError(error, 'Erro ao registrar movimentações');
+        handleError(error, 'Erro ao registrar movimentação');
       } finally {
         setLoading(false);
       }
@@ -122,7 +117,6 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
     setEntryDate,
     handleChange,
     handleSubmit,
-    movementTypes,
     entryTypeOptions,
     resetForm,
     productEntryList,

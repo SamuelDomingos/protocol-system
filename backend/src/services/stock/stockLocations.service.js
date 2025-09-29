@@ -1,5 +1,6 @@
 const BaseService = require('../base.service');
 const StockLocation = require('../../models/stock/StockLocation');
+const Product = require('../../models/stock/Product');
 const stockLocationSchema = require('../../validation/stockLocationSchema');
 
 class StockLocationsService extends BaseService {
@@ -31,6 +32,52 @@ class StockLocationsService extends BaseService {
   async getTotalQuantityByProduct(productId) {
     const locations = await this.findByProductId(productId);
     return locations.reduce((total, location) => total + (location.quantity || 0), 0);
+  }
+
+  async findProductsByLocation(locationId) {
+    return await this.model.findAll({
+      where: { 
+        location: locationId,
+        quantity: { [require('sequelize').Op.gt]: 0 }
+      },
+      include: [{
+        model: Product,
+        as: 'product',
+        attributes: ['id', 'name', 'unit', 'unitPrice']
+      }],
+      order: [['product', 'name', 'ASC']]
+    });
+  }
+
+  async findBatchesByProductAndLocation(productId, locationId) {
+    return await this.model.findAll({
+      where: { 
+        productId,
+        location: locationId,
+        quantity: { [require('sequelize').Op.gt]: 0 }
+      },
+      include: [{
+        model: Product,
+        as: 'product',
+        attributes: ['id', 'name', 'unit', 'unitPrice']
+      }],
+      order: [['expiryDate', 'ASC'], ['sku', 'ASC']]
+    });
+  }
+
+  async findAllBatchesByProduct(productId) {
+    return await this.model.findAll({
+      where: { 
+        productId,
+        quantity: { [require('sequelize').Op.gt]: 0 }
+      },
+      include: [{
+        model: Product,
+        as: 'product',
+        attributes: ['id', 'name', 'unit', 'unitPrice']
+      }],
+      order: [['location', 'ASC'], ['expiryDate', 'ASC'], ['sku', 'ASC']]
+    });
   }
 
   async findAllPaginated(query) {

@@ -1,11 +1,8 @@
 import { useState, useCallback } from 'react';
-import { useProducts } from '../molecules/useProducts';
-import { ProductEntry } from '../../types';
+import { ProductEntry } from '../../../types';
 
 export function useProductEntryList() {
   const [entries, setEntries] = useState<ProductEntry[]>([]);
-
-  const { products } = useProducts();
 
   const addNewEntry = useCallback(() => {
     const newEntry: ProductEntry = {
@@ -43,6 +40,7 @@ export function useProductEntryList() {
   const selectProduct = useCallback((entryId: string, product: any) => {
     updateEntry(entryId, 'productId', product.id);
     updateEntry(entryId, 'productName', product.name);
+    updateEntry(entryId, 'unitPrice', product.unitPrice || 0);
   }, [updateEntry]);
 
   const resetEntries = useCallback(() => {
@@ -55,7 +53,6 @@ export function useProductEntryList() {
 
   return {
     entries,
-    filteredProducts: products,
     addNewEntry,
     removeEntry,
     updateEntry,

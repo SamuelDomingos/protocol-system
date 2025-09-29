@@ -73,28 +73,11 @@ export function ProductDetailsDialog({
           <h3 className="text-lg font-semibold mb-4">Informações do Item</h3>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-            <div className="flex items-center gap-2">
-              <Barcode className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">SKU:</span>
-              <span>{product.sku}</span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Barcode className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Código de Barras:</span>
-              <span>{product.barcode}</span>
-            </div>
             
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Categoria:</span>
               <span>{product.category}</span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Building className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Marca:</span>
-              <span>{product.brand}</span>
             </div>
             
             <div className="flex items-center gap-2">
@@ -122,13 +105,7 @@ export function ProductDetailsDialog({
                 {product.status === 'active' ? 'Ativo' : 'Inativo'}
               </span>
             </div>
-            
-            <div className="flex items-center gap-2">
-              <Truck className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Fornecedor:</span>
-              <span>{product.supplier}</span>
-            </div>
-            
+
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Data de Criação:</span>

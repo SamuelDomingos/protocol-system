@@ -26,3 +26,7 @@ export const updateStockMovement = async (id: string, movement: StockMovementUpd
     body: movement,
   });
 };
+
+export const getStockMovementTypes = async (): Promise<string[]> => {
+  return apiRequest<string[]>('/api/stock-movements/types');
+};

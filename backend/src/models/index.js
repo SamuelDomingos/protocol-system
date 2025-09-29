@@ -62,15 +62,6 @@ const setupAssociations = () => {
   Message.belongsTo(User, { foreignKey: "senderId", as: "sender" });
   Message.belongsTo(User, { foreignKey: "receiverId", as: "receiver" });
 
-  // StockMovement associations - apenas com Supplier
-  StockMovement.belongsTo(Supplier, {
-    foreignKey: "fromLocationId",
-    as: "fromSupplier",
-  });
-  StockMovement.belongsTo(Supplier, {
-    foreignKey: "toLocationId",
-    as: "toSupplier",
-  });
   StockMovement.belongsTo(User, { foreignKey: "userId", as: "user" });
   StockMovement.belongsTo(Product, { foreignKey: "productId", as: "product" });
 
@@ -85,14 +76,6 @@ const setupAssociations = () => {
   Supplier.hasMany(StockLocation, {
     foreignKey: "location",
     as: "stockLocations",
-  });
-  Supplier.hasMany(StockMovement, {
-    foreignKey: "fromLocationId",
-    as: "outgoingStockMovements",
-  });
-  Supplier.hasMany(StockMovement, {
-    foreignKey: "toLocationId",
-    as: "incomingStockMovements",
   });
 
   // Product associations
@@ -142,6 +125,10 @@ const initDB = async () => {
 
 const resetDB = async () => {
   try {
+    await sequelize.query("SET FOREIGN_KEY_CHECKS = 0");
+    await sequelize.drop(); // Drop all tables
+    await sequelize.query("SET FOREIGN_KEY_CHECKS = 1");
+
     setupAssociations();
     await syncModelsInOrder({ force: true });
 

@@ -5,7 +5,11 @@ const stockMovementsController = require('../../controllers/stock/stockMovements
 
 router.post('/', authenticate, stockMovementsController.createStockMovement);
 
+router.get('/types', authenticate, stockMovementsController.getStockMovementTypes);
+
 router.get('/', authenticate, stockMovementsController.getAllStockMovements);
+
+router.get('/product/:productId', authenticate, stockMovementsController.getByProduct);
 
 router.get('/:id', authenticate, stockMovementsController.getStockMovementById);
 

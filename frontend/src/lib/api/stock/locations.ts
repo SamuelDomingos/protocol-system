@@ -1,5 +1,5 @@
 import { apiRequest } from '@/src/utils/http';
-import { StockLocation, StockLocationCreateInput, StockLocationUpdateInput } from '../types/stock';
+import { ProductWithStock, StockLocation, StockLocationCreateInput, StockLocationUpdateInput } from '../types/stock';
 import { PaginationRequestParams } from '@/src/global/pagination/types/pagination';
 
 export const getStockLocations = async (params?: PaginationRequestParams): Promise<any> => {
@@ -25,4 +25,16 @@ export const updateStockLocation = async (id: string, location: StockLocationUpd
     method: 'PUT',
     body: location,
   });
+};
+
+export const getProductsByLocation = async (locationId: string): Promise<ProductWithStock[]> => {
+  return apiRequest<ProductWithStock[]>(`/api/stock-locations/location/${locationId}/products`);
+};
+
+export const findAllBatchesByProduct = async (productId: string): Promise<any[]> => {
+  return apiRequest<any[]>(`/api/stock-locations/batches/product/${productId}`);
+};
+
+export const findBatchesByProductAndLocation = async (productId: string, locationId: string): Promise<any[]> => {
+  return apiRequest<any[]>(`/api/stock-locations/batches/product/${productId}/location/${locationId}`);
 };

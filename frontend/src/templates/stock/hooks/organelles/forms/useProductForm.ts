@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useProducts } from '../molecules/useProducts';
-import { ProductCreateInput, ProductUpdateInput, Product } from '../../types';
+import { useProducts } from '../../molecules/useProducts';
+import { ProductCreateInput, ProductUpdateInput, Product } from '../../../types';
 import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
 
 interface UseProductFormProps {
@@ -64,7 +64,6 @@ export function useProductForm({ initialData, onSuccess }: UseProductFormProps =
         minimumStock: 0,
         status: 'active',
         unit: '',
-        supplier: '',
       }
     );
   }, [initialData]);

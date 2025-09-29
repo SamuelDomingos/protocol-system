@@ -5,22 +5,24 @@ import { Label } from '@/src/components/ui/label';
 import { DatePicker } from '@/src/components/ui/date-picker';
 import { Combobox } from '@/src/global/combobox/components/combobox';
 import { Trash2, Plus } from 'lucide-react';
+import { useProducts } from '../../hooks/molecules/useProducts';
 
 interface ProductEntryListProps {
-  productEntryList: ReturnType<typeof import('../../hooks/organelles/useProductEntryList').useProductEntryList>;
+  productEntryList: ReturnType<typeof import('../../hooks/organelles/lists/useProductEntryList').useProductEntryList>;
 }
 
 export function ProductEntryList({ productEntryList }: ProductEntryListProps) {
   const {
     entries,
-    filteredProducts,
     addNewEntry,
     removeEntry,
     updateEntry,
     selectProduct,
   } = productEntryList;
 
-  const productOptions = filteredProducts.map(product => ({
+  const { products } = useProducts();
+
+  const productOptions = products.map(product => ({
     value: product.id,
     label: product.name,
   }));
@@ -56,14 +58,14 @@ export function ProductEntryList({ productEntryList }: ProductEntryListProps) {
                 </Button>
               </div>
 
-              <div className="grid grid-cols-7 gap-4 items-end">
+              <div className="grid grid-cols-6 gap-4 items-end">
                 <div className="col-span-2">
                   <Label>Produto</Label>
                   <Combobox
                     value={entry.productId}
                     onValueChange={(value) => {
                       if (value) {
-                        const product = filteredProducts.find(p => p.id === value);
+                        const product = products.find(p => p.id === value);
                         if (product) {
                           selectProduct(entry.id, product);
                         }

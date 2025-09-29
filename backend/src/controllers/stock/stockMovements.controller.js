@@ -1,75 +1,46 @@
-const stockMovementsService = require("../../services/stock/stockMovements.service");
-const { formatPaginatedResponse } = require('../../utils/queryBuilder');
+const BaseController = require('../base.controller');
+const stockMovementsService = require('../../services/stock/stockMovements.service');
+const asyncHandler = require('../../utils/asyncHandler');
 
-exports.createStockMovement = async (req, res) => {
-  try {
+class StockMovementsController extends BaseController {
+  constructor() {
+    super(stockMovementsService, 'data');
+  }
+
+  // Override create para adicionar userId do usuário autenticado
+  create = asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
       return res.status(400).json({ message: "Usuário não autenticado." });
     }
 
     const data = { ...req.body, userId };
-    const stockMovement = await stockMovementsService.createMovement(data);
-
+    const stockMovement = await this.service.createMovement(data);
     res.status(201).json(stockMovement);
-  } catch (err) {
-    console.error("❌ Error creating stock movement:", err);
-    res.status(500).json({ message: err.message || "Internal server error" });
-  }
-};
+  });
 
-exports.getAllStockMovements = async (req, res) => {
-  try {
-    const result = await stockMovementsService.findAllPaginated(req.query);
+  // Método específico para buscar por produto
+  getByProduct = asyncHandler(async (req, res) => {
+    const { productId } = req.params;
+    const result = await this.service.findByProduct(productId, req.query);
+    res.json(result);
+  });
 
-    const { page = 1, limit = 10 } = req.query;
-    const response = formatPaginatedResponse(result, page, limit, 'data');
-  
-    res.status(200).json(response);
-  } catch (err) {
-    console.error("❌ Error fetching stock movements:", err);
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
+  // Método para retornar tipos de movimentação
+  getMovementTypes = asyncHandler(async (req, res) => {
+    const types = ['entrada', 'saida', 'transferencia'];
+    res.json(types);
+  });
+}
 
-exports.getStockMovementById = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const stockMovement = await stockMovementsService.findById(id);
-    res.status(200).json(stockMovement);
-  } catch (err) {
-    console.error("❌ Error fetching stock movement:", err);
-    if (err.status === 404) {
-      return res.status(404).json({ message: "StockMovement not found" });
-    }
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
+const stockMovementsController = new StockMovementsController();
 
-exports.updateStockMovement = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const stockMovement = await stockMovementsService.update(id, req.body);
-    res.status(200).json(stockMovement);
-  } catch (err) {
-    console.error("❌ Error updating stock movement:", err);
-    if (err.status === 404) {
-      return res.status(404).json({ message: "StockMovement not found" });
-    }
-    res.status(500).json({ message: "Internal server error" });
-  }
-};
-
-exports.deleteStockMovement = async (req, res) => {
-  try {
-    const { id } = req.params;
-    await stockMovementsService.delete(id);
-    res.status(200).json({ message: "StockMovement deleted successfully" });
-  } catch (err) {
-    console.error("❌ Error deleting stock movement:", err);
-    if (err.status === 404) {
-      return res.status(404).json({ message: "StockMovement not found" });
-    }
-    res.status(500).json({ message: "Internal server error" });
-  }
+module.exports = {
+  createStockMovement: stockMovementsController.create,
+  getAllStockMovements: stockMovementsController.getAll,
+  getStockMovementById: stockMovementsController.getById,
+  updateStockMovement: stockMovementsController.update,
+  deleteStockMovement: stockMovementsController.delete,
+  getByProduct: stockMovementsController.getByProduct,
+  getStockMovementTypes: stockMovementsController.getMovementTypes
 };
