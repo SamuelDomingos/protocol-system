@@ -20,6 +20,7 @@ const messagesRoutes = require('./routes/messages.route');
 const templatesRoutes = require('./routes/templates.route');
 const stagesRoutes = require('./routes/stages.routes');
 const suppliersRoutes = require('./routes/stock/suppliers.route');
+const usersRoutes = require('./routes/users.route');
 
 const { errorHandler, notFoundHandler } = require('./utils/asyncHandler');
 
@@ -48,6 +49,7 @@ const startServer = async () => {
     });
     app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     app.use('/api/auth', authRoutes);
+    app.use('/api/users', usersRoutes);
     app.use('/api/clients', clientsRoutes);
     app.use('/api/protocols', protocolsRoutes);
     app.use('/api/stages', stagesRoutes);

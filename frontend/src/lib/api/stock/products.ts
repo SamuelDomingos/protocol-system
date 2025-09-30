@@ -13,24 +13,12 @@ export const getProductById = async (id: string): Promise<Product> => {
   return apiRequest<Product>(`api/products/${id}`);
 };
 
-export const getProductByBarcode = async (barcode: string): Promise<Product> => {
-  return apiRequest<Product>(`api/products/barcode/${barcode}`);
-};
-
-export const getProductBySku = async (sku: string): Promise<Product> => {
-  return apiRequest<Product>(`api/products/sku/${sku}`);
-};
-
 export const getLowStockProducts = async (): Promise<Product[]> => {
   return apiRequest<Product[]>('api/products/low-stock');
 };
 
-export const getProductCategories = async (): Promise<string[]> => {
-  return apiRequest<string[]>('api/products/categories');
-};
-
-export const getProductBrands = async (): Promise<string[]> => {
-  return apiRequest<string[]>('api/products/brands');
+export const getNearExpiryProducts = async (): Promise<Product[]> => {
+  return apiRequest<Product[]>('api/products/near-expiry');
 };
 
 export const createProduct = async (product: ProductCreateInput): Promise<Product> => {

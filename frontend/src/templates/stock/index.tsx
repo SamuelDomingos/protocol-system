@@ -1,3 +1,5 @@
+'use client'
+
 import React from "react";
 import StockCard from "./components/organelles/StockCard";
 import {
@@ -48,7 +50,7 @@ export const StockTemplate: React.FC = () => {
     <div className="container py-6">
       <h1 className="text-3xl font-bold mb-6">Gestão de Estoque</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         <StockCard
           title="Total de Produtos"
           value={stockStats.totalProducts}
@@ -62,16 +64,10 @@ export const StockTemplate: React.FC = () => {
           variant="danger"
         />
         <StockCard
-          title="Localizações"
-          value={stockStats.totalLocations}
-          icon={<MapPin className="h-6 w-6" />}
-          variant="success"
-        />
-        <StockCard
-          title="Movimentações"
-          value={stockStats.totalMovements}
+          title="Produtos Próximos do Vencimento"
+          value={stockStats.nearExpiryProducts}
           icon={<Repeat className="h-6 w-6" />}
-          variant="success"
+          variant="warning"
         />
       </div>
 

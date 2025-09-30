@@ -17,24 +17,12 @@ export const getProductById = async (id: string) => {
   return await stockApi.getProductById(id);
 };
 
-export const getProductByBarcode = async (barcode: string) => {
-  return await stockApi.getProductByBarcode(barcode);
-};
-
-export const getProductBySku = async (sku: string) => {
-  return await stockApi.getProductBySku(sku);
-};
-
 export const getLowStockProducts = async () => {
   return await stockApi.getLowStockProducts();
 };
 
-export const getProductCategories = async () => {
-  return await stockApi.getProductCategories();
-};
-
-export const getProductBrands = async () => {
-  return await stockApi.getProductBrands();
+export const getNearExpiryProducts = async () => {
+  return await stockApi.getNearExpiryProducts();
 };
 
 export const createProduct = async (product: ProductCreateInput) => {

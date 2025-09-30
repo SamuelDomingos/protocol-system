@@ -44,16 +44,23 @@ class ProductsController extends BaseController {
            error.message.includes('Código de barras já existe');
   }
 
-  getBySku = this._findByField('sku');
-  getByBarcode = this._findByField('barcode');
   getCategories = this._getList('getCategories');
-  getBrands = this._getList('getBrands');
 
   create = this._handleCRUD('create', 'Produto criado com sucesso');
   update = this._handleCRUD('update', 'Produto atualizado com sucesso');
   delete = this._handleCRUD('delete', 'Produto excluído com sucesso');
   getAll = asyncHandler(async (req, res) => {
     const result = await this.service.findAll(req.query);
+    res.json(result);
+  });
+
+  getLowStock = asyncHandler(async (req, res) => {
+    const result = await this.service.getProductsWithLowStock(req.query);
+    res.json(result);
+  });
+
+  getNearExpiry = asyncHandler(async (req, res) => {
+    const result = await this.service.getProductsNearExpiry(req.query);
     res.json(result);
   });
 

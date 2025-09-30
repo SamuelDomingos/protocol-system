@@ -3,6 +3,7 @@ import { useStockData } from '@/src/templates/stock/hooks/atoms/useStockData';
 import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
 import * as stockService from '../../services/stockService';
 import { Product, ProductCreateInput, ProductUpdateInput } from '../../types';
+import { getLowStockProducts, getNearExpiryProducts } from '@/src/lib/api';
 
 export function useProducts() {
   const { handleError, handleSuccess } = useFeedbackHandler();
@@ -78,6 +79,8 @@ export function useProducts() {
     searchTerm,
     setSearchTerm,
     fetchData,
+    getLowStockProducts,
+    getNearExpiryProducts,
     isSearchMode,
     createProduct,
     updateProduct,

@@ -19,9 +19,7 @@ interface ProductLocationTabProps {
 
 export function ProductLocationTab({ product, locations }: ProductLocationTabProps) {
   const productLocations = locations.filter(loc => loc.productId === product?.id)
-
-  console.log(productLocations)
-
+  
   return (
     <div>
       <h4 className="text-sm font-medium mb-2">Quantidade por Localização</h4>

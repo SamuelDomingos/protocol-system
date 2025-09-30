@@ -1,9 +1,8 @@
-import { useState, useCallback, useMemo, useEffect, useRef } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { useProducts } from "../molecules/useProducts";
 import { useLocations } from "../molecules/useLocations";
 import { useMovements } from "../molecules/useMovements";
 
-// Interface para controle de cache
 interface TabCache {
   produtos: boolean;
   movimentacoes: boolean;
@@ -18,13 +17,13 @@ export function useStockTemplate() {
   const [selectedProduct, setSelectedProduct] = useState<any>(null);
   const [selectedMovement, setSelectedMovement] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  
-  // Ref para controlar se já foi inicializado
-  const initializedRef = useRef(false);
+  const [stockStats, setStockStats] = useState({
+    totalProducts: 0,
+    lowStockProducts: 0,
+    nearExpiryProducts: 0
+  });
 
-  // Hooks condicionais baseados no cache e aba ativa
-  const shouldLoadProducts = tabCache.produtos;
-  const shouldLoadMovements = tabCache.movimentacoes;
+  const initializedRef = useRef(false);
 
   const {
     products,
@@ -33,6 +32,8 @@ export function useStockTemplate() {
     searchTerm: productsSearchTerm,
     setSearchTerm: setProductsSearchTerm,
     fetchData: fetchProducts,
+    getLowStockProducts,
+    getNearExpiryProducts,
     deleteProduct,
   } = useProducts();
 
@@ -51,26 +52,38 @@ export function useStockTemplate() {
     fetchMovements,
   } = useMovements();
 
-  // Memoização dos cálculos para evitar recálculos desnecessários
-  const stockStats = useMemo(() => {
-    const totalProducts = products?.length || 0;
-    const totalLocations = locations?.length || 0;
-    const totalMovements = movements?.length || 0;
-    const lowStockProducts = products?.filter((product) => product.quantity < product.minimumStock).length || 0;
+  // Atualizar o número total de produtos quando products mudar
+  useEffect(() => {
+    setStockStats(prev => ({
+      ...prev,
+      totalProducts: products?.length || 0
+    }));
+  }, [products]);
 
-    return {
-      totalProducts,
-      totalLocations,
-      totalMovements,
-      lowStockProducts,
-    };
-  }, [products, locations, movements]);
+  useEffect(() => {
+    async function loadStockStats() {
+      try {
+        const lowStock = await getLowStockProducts();
+        const nearExpiry = await getNearExpiryProducts();
 
-  // Função para gerenciar o cache das abas
+        setStockStats(prev => ({
+          ...prev,
+          lowStockProducts: lowStock?.data?.length || 0,
+          nearExpiryProducts: nearExpiry?.data?.length || 0
+        }));
+      } catch (error) {
+        console.error("Erro ao carregar estatísticas de estoque:", error);
+      }
+    }
+    
+    if (products?.length > 0) {
+      loadStockStats();
+    }
+  }, [getLowStockProducts, getNearExpiryProducts, products]);
+
   const handleTabChange = useCallback((newTab: string) => {
     setActiveTab(newTab);
-    
-    // Marcar a aba como carregada no cache apenas se ainda não foi carregada
+
     setTabCache(prev => {
       if (!prev[newTab as keyof TabCache]) {
         return {
@@ -82,39 +95,33 @@ export function useStockTemplate() {
     });
   }, []);
 
-  // Carregar dados apenas quando necessário
   useEffect(() => {
     if (!initializedRef.current) {
       initializedRef.current = true;
       return;
     }
 
-    // Só carregar movimentações quando a aba for acessada pela primeira vez
     if (activeTab === "movimentacoes" && !tabCache.movimentacoes) {
       fetchMovements();
     }
   }, [activeTab, tabCache.movimentacoes, fetchMovements]);
 
-  // Handlers para produtos
   const handleProductClick = useCallback((product: any) => {
     setSelectedProduct(product);
     setIsDialogOpen(true);
   }, []);
 
-  // Handlers para movimentações
   const handleMovementClick = useCallback((movement: any) => {
     setSelectedMovement(movement);
     setIsDialogOpen(true);
   }, []);
 
-  // Handler para fechar dialog
   const handleCloseDialog = useCallback(() => {
     setIsDialogOpen(false);
     setSelectedProduct(null);
     setSelectedMovement(null);
   }, []);
 
-  // Função para forçar atualização de dados
   const refreshCurrentTab = useCallback(() => {
     if (activeTab === "produtos") {
       fetchProducts();
@@ -123,20 +130,21 @@ export function useStockTemplate() {
     }
   }, [activeTab, fetchProducts, fetchMovements]);
 
-  // Verificar se deve mostrar loading (apenas na primeira carga)
   const shouldShowProductsLoading = productsLoading && activeTab === "produtos";
-  const shouldShowMovementsLoading = movementsLoading && activeTab === "movimentacoes" && !tabCache.movimentacoes;
+  const shouldShowMovementsLoading =
+    movementsLoading &&
+    activeTab === "movimentacoes" &&
+    !tabCache.movimentacoes;
 
-  // Determinar qual searchTerm usar baseado na aba ativa
-  const currentSearchTerm = activeTab === "produtos" ? productsSearchTerm : movementsSearchTerm;
-  const setCurrentSearchTerm = activeTab === "produtos" ? setProductsSearchTerm : setMovementsSearchTerm;
+  const currentSearchTerm =
+    activeTab === "produtos" ? productsSearchTerm : movementsSearchTerm;
+  const setCurrentSearchTerm =
+    activeTab === "produtos" ? setProductsSearchTerm : setMovementsSearchTerm;
 
   return {
-    // Estado das abas
     activeTab,
     handleTabChange,
-    
-    // Dados dos produtos
+
     products: products || [],
     productsLoading: shouldShowProductsLoading,
     productsPagination,
@@ -144,23 +152,20 @@ export function useStockTemplate() {
     setSearchTerm: setCurrentSearchTerm,
     fetchData: fetchProducts,
     deleteProduct,
-    
-    // Dados das localizações
+
     locations: locations || [],
     locationsLoading,
     locationsPagination,
-    
-    // Dados das movimentações
+
     movements: movements || [],
     movementsLoading: shouldShowMovementsLoading,
     movementsPagination,
     movementsSearchTerm,
     setMovementsSearchTerm,
     fetchMovements,
-    
-    // Estatísticas
+
     stockStats,
-    
+
     // Dialog handlers
     selectedProduct,
     selectedMovement,
@@ -168,7 +173,7 @@ export function useStockTemplate() {
     handleProductClick,
     handleMovementClick,
     handleCloseDialog,
-    
+
     // Utilitários
     refreshCurrentTab,
     tabCache,
