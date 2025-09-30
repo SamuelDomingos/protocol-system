@@ -12,12 +12,7 @@ import { DatePicker } from '@/src/components/ui/date-picker';
 import { ProductExitList } from '../ProductExitList';
 import { useExitForm } from '../../../hooks/organelles/forms/useExitForm';
 import { ProductEntry } from '../../../types';
-
-interface ExitFormProps {
-  onSuccess?: () => void;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+import { ExitFormProps } from '../../../types/components';
 
 export function ExitForm({ onSuccess, open, onOpenChange }: ExitFormProps) {
   const {
@@ -64,7 +59,7 @@ export function ExitForm({ onSuccess, open, onOpenChange }: ExitFormProps) {
               <Combobox
                 options={exitTypeOptions}
                 value={exitType}
-                onValueChange={handleExitTypeChange}
+                onValueChange={(value) => handleExitTypeChange(value ?? '')}
                 placeholder="Selecionar tipo"
               />
             </div>
@@ -73,7 +68,7 @@ export function ExitForm({ onSuccess, open, onOpenChange }: ExitFormProps) {
               <Label htmlFor="exitDate">Data da Saída *</Label>
               <DatePicker
                 date={exitDate}
-                onDateChange={setExitDate}
+                onDateChange={(date) => date && setExitDate(date)}
                 placeholder="Selecionar data da saída"
               />
             </div>
@@ -83,7 +78,7 @@ export function ExitForm({ onSuccess, open, onOpenChange }: ExitFormProps) {
               <Combobox
                 options={originOptions}
                 value={formData.originId}
-                onValueChange={(value) => handleChange('originId', value)}
+                onValueChange={(value) => handleChange('originId', value ?? '')}
                 placeholder="Selecionar origem"
               />
             </div>
@@ -92,9 +87,9 @@ export function ExitForm({ onSuccess, open, onOpenChange }: ExitFormProps) {
               <div className="space-y-2">
                 <Label htmlFor="destination">Destino</Label>
                 <Combobox
-                  options={destinationOptions}
+                  options={destinationOptions.map(opt => ({ ...opt, value: String(opt.value) }))}
                   value={formData.destinationId}
-                  onValueChange={(value) => handleChange('destinationId', value)}
+                  onValueChange={(value) => handleChange('destinationId', value ?? '')}
                   placeholder="Selecionar destino"
                 />
               </div>

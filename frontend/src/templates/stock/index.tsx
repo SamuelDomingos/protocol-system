@@ -1,7 +1,4 @@
-import React, { useState } from "react";
-import { useProducts } from "./hooks/molecules/useProducts";
-import { useLocations } from "./hooks/molecules/useLocations";
-import { useMovements } from "./hooks/molecules/useMovements";
+import React from "react";
 import StockCard from "./components/organelles/StockCard";
 import {
   Tabs,
@@ -13,96 +10,79 @@ import { Loader2, Package, AlertTriangle, MapPin, Repeat } from "lucide-react";
 import ProductsTable from "./components/atoms/ProductsTable";
 import MovementsTable from "./components/atoms/MovementsTable";
 import ProductDetailsDialog from "./components/molecules/ProductDetailsDialog";
+import { useStockTemplate } from "./hooks/atoms/useStockTemplate";
 
 export const StockTemplate: React.FC = () => {
-  const [activeTab, setActiveTab] = useState("produtos");
   const {
+    // Estado das abas
+    activeTab,
+    handleTabChange,
+    
+    // Dados dos produtos
     products,
-    loading: productsLoading,
-    pagination: productsPagination,
+    productsLoading,
+    productsPagination,
     searchTerm,
     setSearchTerm,
     fetchData,
     deleteProduct,
-  } = useProducts();
-  const {
+    
+    // Dados das localizações
     locations,
-    loading: locationsLoading,
-    pagination: locationsPagination,
-  } = useLocations();
-  const {
+    
+    // Dados das movimentações
     movements,
-    loading: movementsLoading,
-    pagination: movementsPagination,
-    searchTerm: movementsSearchTerm,
-    setSearchTerm: setMovementsSearchTerm,
+    movementsLoading,
+    movementsPagination,
+    movementsSearchTerm,
+    setMovementsSearchTerm,
     fetchMovements,
-  } = useMovements();
-  const [selectedProduct, setSelectedProduct] = useState<any>(null);
-  const [selectedMovement, setSelectedMovement] = useState<any>(null);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const totalProducts = products?.length || 0;
-  const totalLocations = locations?.length || 0;
-  const totalMovements = movements?.length || 0;
-
-  const lowStockProducts =
-    products?.filter((product) => product.quantity < product.minimumStock)
-      .length || 0;
-
-  const handleProductClick = (product: any) => {
-    setSelectedProduct(product);
-    setIsDialogOpen(true);
-  };
-
-    const handleMovementClick = (movement: any) => {
-    setSelectedMovement(movement);
-    setIsDialogOpen(true);
-  };
+    stockStats,
+    
+    selectedProduct,
+    selectedMovement,
+    isDialogOpen,
+    handleProductClick,
+    handleMovementClick,
+    handleCloseDialog,
+  } = useStockTemplate();
 
   return (
     <div className="container py-6">
       <h1 className="text-3xl font-bold mb-6">Gestão de Estoque</h1>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-        <div>
-          <StockCard
-            title="Total de Produtos"
-            value={totalProducts}
-            icon={<Package className="h-6 w-6" />}
-            variant="success"
-          />
-        </div>
-        <div>
-          <StockCard
-            title="Estoque Baixo"
-            value={lowStockProducts}
-            icon={<AlertTriangle className="h-6 w-6" />}
-            variant="danger"
-          />
-        </div>
-        <div>
-          <StockCard
-            title="Localizações"
-            value={totalLocations}
-            icon={<MapPin className="h-6 w-6" />}
-            variant="success"
-          />
-        </div>
-        <div>
-          <StockCard
-            title="Movimentações"
-            value={totalMovements}
-            icon={<Repeat className="h-6 w-6" />}
-            variant="success"
-          />
-        </div>
+        <StockCard
+          title="Total de Produtos"
+          value={stockStats.totalProducts}
+          icon={<Package className="h-6 w-6" />}
+          variant="success"
+        />
+        <StockCard
+          title="Estoque Baixo"
+          value={stockStats.lowStockProducts}
+          icon={<AlertTriangle className="h-6 w-6" />}
+          variant="danger"
+        />
+        <StockCard
+          title="Localizações"
+          value={stockStats.totalLocations}
+          icon={<MapPin className="h-6 w-6" />}
+          variant="success"
+        />
+        <StockCard
+          title="Movimentações"
+          value={stockStats.totalMovements}
+          icon={<Repeat className="h-6 w-6" />}
+          variant="success"
+        />
       </div>
 
       <Tabs
         defaultValue="produtos"
         className="w-full"
-        onValueChange={setActiveTab}
+        onValueChange={handleTabChange}
         value={activeTab}
       >
         <TabsList className="grid w-full grid-cols-2">
@@ -121,7 +101,7 @@ export const StockTemplate: React.FC = () => {
             </div>
           ) : (
             <ProductsTable
-              products={products || []}
+              products={products}
               onRowClick={handleProductClick}
               pagination={productsPagination}
               searchTerm={searchTerm}
@@ -138,30 +118,28 @@ export const StockTemplate: React.FC = () => {
           </h2>
           {movementsLoading ? (
             <div className="flex items-center justify-center p-6">
-              \n <Loader2 className="h-6 w-6 animate-spin mr-2" />
+              <Loader2 className="h-6 w-6 animate-spin mr-2" />
               <span>Carregando movimentações...</span>
             </div>
           ) : (
-            <>
-              <MovementsTable
-                movements={movements || []}
-                onRowClick={handleMovementClick}
-                pagination={movementsPagination}
-                searchTerm={movementsSearchTerm}
-                setSearchTerm={setMovementsSearchTerm}
-                fetchData={fetchMovements}
-              />
-            </>
+            <MovementsTable
+              movements={movements}
+              onRowClick={handleMovementClick}
+              pagination={movementsPagination}
+              searchTerm={movementsSearchTerm}
+              setSearchTerm={setMovementsSearchTerm}
+              fetchData={fetchMovements}
+            />
           )}
         </TabsContent>
       </Tabs>
 
       <ProductDetailsDialog
         product={selectedProduct}
-        locations={locations || []}
-        movements={movements || []}
+        locations={locations}
+        movements={movements}
         isOpen={isDialogOpen}
-        onClose={() => setIsDialogOpen(false)}
+        onClose={handleCloseDialog}
       />
     </div>
   );

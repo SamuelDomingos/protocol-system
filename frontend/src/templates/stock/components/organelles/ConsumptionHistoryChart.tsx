@@ -2,14 +2,9 @@
 
 import React from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui/card"
-import { StockMovement } from '@/src/lib/api/types/stock'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
 import { useConsumptionHistory } from '../../hooks/organelles/useConsumptionHistory'
-
-interface ConsumptionHistoryChartProps {
-  movements: StockMovement[]
-  productId?: string
-}
+import { ConsumptionHistoryChartProps } from '@/src/templates/stock/types/components'
 
 export function ConsumptionHistoryChart({ movements, productId }: ConsumptionHistoryChartProps) {
   const { chartData, hasData } = useConsumptionHistory(movements, productId)

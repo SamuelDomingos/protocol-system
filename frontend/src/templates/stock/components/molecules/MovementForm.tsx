@@ -1,6 +1,7 @@
 import React from 'react';
 import { EntryForm } from '../organelles/movement/EntryForm';
 import { ExitForm } from '../organelles/movement/ExitForm';
+import { TransferForm } from '../organelles/movement/TransferForm';
 
 interface MovementFormProps {
   onSuccess?: () => void;
@@ -21,11 +22,24 @@ export function MovementForm({ onSuccess, open, onOpenChange, initialType }: Mov
     );
   }
 
-  return (
-    <EntryForm 
-      onSuccess={onSuccess}
-      open={open}
-      onOpenChange={onOpenChange}
-    />
-  );
+  if (initialType === 'transferencia') {
+    return (
+      <TransferForm
+        onSuccess={onSuccess}
+        open={open}
+        onOpenChange={onOpenChange}
+      />
+    );
+  }
+
+  if (initialType === 'entrada') {
+    return (
+      <EntryForm 
+        onSuccess={onSuccess}
+        open={open}
+        onOpenChange={onOpenChange}
+      />
+    );
+  }
+
 }

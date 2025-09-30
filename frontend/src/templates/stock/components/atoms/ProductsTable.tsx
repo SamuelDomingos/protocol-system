@@ -10,7 +10,7 @@ import {
   TableRow,
 } from "@/src/components/ui/table";
 import { Button } from "@/src/components/ui/button";
-import { Package, AlertTriangle, MoreHorizontal } from "lucide-react";
+import { Package, AlertTriangle, MoreHorizontal, Plus } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -74,7 +74,10 @@ export function ProductsTable({
           placeholder="Pesquisar produtos..."
           className="max-w-sm"
         />
-        <Button onClick={handleNewProductClick}>Novo Produto</Button>
+        <Button onClick={handleNewProductClick} variant="outline" className="gap-2">
+          <Plus className="h-4 w-4 text-muted-foreground" />
+          <span>Novo Produto</span>
+        </Button>
       </div>
 
       <div className="rounded-md border">

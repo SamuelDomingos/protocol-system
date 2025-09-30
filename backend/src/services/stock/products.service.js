@@ -8,14 +8,12 @@ class ProductsService extends BaseService {
     super(Product, productSchema);
   }
 
-  _buildWhereClause({ name, category, status, minPrice, maxPrice, supplier, brand, search }) {
+  _buildWhereClause({ name, category, status, minPrice, maxPrice, search }) {
     const where = {};
     
     if (name) where.name = { [Op.like]: `%${name}%` };
     if (category) where.category = { [Op.like]: `%${category}%` };
     if (status) where.status = status;
-    if (supplier) where.supplier = { [Op.like]: `%${supplier}%` };
-    if (brand) where.brand = { [Op.like]: `%${brand}%` };
     
     if (minPrice !== undefined || maxPrice !== undefined) {
       where.unitPrice = {};
@@ -27,8 +25,7 @@ class ProductsService extends BaseService {
       where[Op.or] = [
         { name: { [Op.like]: `%${search}%` } },
         { description: { [Op.like]: `%${search}%` } },
-        { sku: { [Op.like]: `%${search}%` } },
-        { barcode: { [Op.like]: `%${search}%` } },
+        { category: { [Op.like]: `%${search}%` } }
       ];
     }
 
@@ -64,20 +61,6 @@ class ProductsService extends BaseService {
     return product;
   }
 
-  async findBySku(sku) {
-    if (!sku) throw new Error('SKU é obrigatório');
-    const product = await this.model.findOne({ where: { sku } });
-    if (!product) throw new Error('Produto não encontrado');
-    return product;
-  }
-
-  async findByBarcode(barcode) {
-    if (!barcode) throw new Error('Código de barras é obrigatório');
-    const product = await this.model.findOne({ where: { barcode } });
-    if (!product) throw new Error('Produto não encontrado');
-    return product;
-  }
-
   async getCategories() {
     const categories = await this.model.findAll({
       attributes: ['category'],
@@ -86,16 +69,6 @@ class ProductsService extends BaseService {
       order: [['category', 'ASC']]
     });
     return categories.map(item => item.category).filter(Boolean);
-  }
-
-  async getBrands() {
-    const brands = await this.model.findAll({
-      attributes: ['brand'],
-      where: { brand: { [Op.ne]: null }, status: 'active' },
-      group: ['brand'],
-      order: [['brand', 'ASC']]
-    });
-    return brands.map(item => item.brand).filter(Boolean);
   }
 
   async toggleActive(id) {
@@ -110,6 +83,17 @@ class ProductsService extends BaseService {
 
   async update(id, data) {
     return await super.update(id, data);
+  }
+
+  async findAllPaginated(query) {
+    const filterOptions = {
+      searchFields: ['name', 'description', 'category'],
+      filterFields: ['category', 'status'],
+      includes: [],
+      defaultSort: [['createdAt', 'DESC']]
+    };
+
+    return await super.findAllPaginated(query, filterOptions);
   }
 }
 

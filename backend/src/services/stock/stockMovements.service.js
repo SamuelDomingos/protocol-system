@@ -21,19 +21,21 @@ class StockMovementsService extends BaseService {
   }
 
   async createMovement(movementData) {
+    const { value } = this.validate(movementData);
+    
     return this.transaction(async (transaction) => {
-      await this.validateLocations(movementData, transaction);
+      await this.validateLocations(value, transaction);
 
-      const movement = await this.model.create(movementData, { transaction });
+      const movement = await this.model.create(value, { transaction });
 
-      await this.processStock(movementData, transaction);
+      await this.processStock(value, transaction);
 
       return movement;
     });
   }
 
   async validateLocations(movementData, transaction) {
-    const { type, fromLocationId, fromLocationType, toLocationId, toLocationType } = movementData;
+    const { fromLocationId, fromLocationType, toLocationId, toLocationType } = movementData;
 
     if (fromLocationId && fromLocationType) {
       await this.validateLocationExists(fromLocationId, fromLocationType, transaction);
@@ -107,8 +109,7 @@ class StockMovementsService extends BaseService {
 
   async processSaida(movementData, transaction) {
     const { productId, quantity, fromLocationId } = movementData;
-    
-    // Para saída, precisamos de um local de origem (supplier)
+
     const stockLocation = await StockLocation.findOne({
       where: { 
         productId, 
@@ -128,8 +129,7 @@ class StockMovementsService extends BaseService {
 
   async processTransferencia(movementData, transaction) {
     const { productId, quantity, fromLocationId, toLocationId } = movementData;
-    
-    // Origem
+
     const fromLocation = await StockLocation.findOne({
       where: { 
         productId, 
@@ -142,7 +142,6 @@ class StockMovementsService extends BaseService {
       throw new Error('Estoque insuficiente no local de origem');
     }
 
-    // Reduzir estoque da origem
     await fromLocation.update({
       quantity: fromLocation.quantity - quantity
     }, { transaction });
@@ -180,8 +179,12 @@ class StockMovementsService extends BaseService {
   }
 
   async findAllPaginated(query) {
+    if (query.search) {
+      return await this.searchMovements(query);
+    }
+
     const filterOptions = {
-      searchFields: ['type', 'notes'],
+      searchFields: ['type', 'reason', 'notes'],
       filterFields: ['type', 'productId', 'userId'],
       includes: [
         {
@@ -232,6 +235,133 @@ class StockMovementsService extends BaseService {
 
     return {
       count: result.count,
+      rows: simplifiedRows
+    };
+  }
+
+  async searchMovements(query) {
+    const { Op } = require('sequelize');
+    const { search, page = 1, limit = 10 } = query;
+    const offset = (parseInt(page) - 1) * parseInt(limit);
+
+    // Primeiro, buscar IDs de localizações que correspondem ao termo de busca
+    const [suppliers, users, clients] = await Promise.all([
+      Supplier.findAll({
+        where: { name: { [Op.like]: `%${search}%` } },
+        attributes: ['id']
+      }),
+      User.findAll({
+        where: { name: { [Op.like]: `%${search}%` } },
+        attributes: ['id']
+      }),
+      Client.findAll({
+        where: { name: { [Op.like]: `%${search}%` } },
+        attributes: ['id']
+      })
+    ]);
+
+    const supplierIds = suppliers.map(s => s.id);
+    const userIds = users.map(u => u.id);
+    const clientIds = clients.map(c => c.id);
+
+    // Construir condições de busca
+    const searchConditions = [
+      // Busca nos campos diretos da movimentação
+      { type: { [Op.like]: `%${search}%` } },
+      { reason: { [Op.like]: `%${search}%` } },
+      { notes: { [Op.like]: `%${search}%` } },
+      
+      // Busca por localização de origem
+      ...(supplierIds.length > 0 ? [{ 
+        fromLocationId: { [Op.in]: supplierIds },
+        fromLocationType: 'supplier'
+      }] : []),
+      ...(userIds.length > 0 ? [{ 
+        fromLocationId: { [Op.in]: userIds },
+        fromLocationType: 'user'
+      }] : []),
+      ...(clientIds.length > 0 ? [{ 
+        fromLocationId: { [Op.in]: clientIds },
+        fromLocationType: 'client'
+      }] : []),
+      
+      // Busca por localização de destino
+      ...(supplierIds.length > 0 ? [{ 
+        toLocationId: { [Op.in]: supplierIds },
+        toLocationType: 'supplier'
+      }] : []),
+      ...(userIds.length > 0 ? [{ 
+        toLocationId: { [Op.in]: userIds },
+        toLocationType: 'user'
+      }] : []),
+      ...(clientIds.length > 0 ? [{ 
+        toLocationId: { [Op.in]: clientIds },
+        toLocationType: 'client'
+      }] : [])
+    ];
+
+    const { count, rows } = await this.model.findAndCountAll({
+      where: {
+        [Op.or]: searchConditions
+      },
+      include: [
+        {
+          model: Product,
+          as: 'product',
+          attributes: ['id', 'name', 'unit'],
+          where: {
+            name: { [Op.like]: `%${search}%` }
+          },
+          required: false
+        },
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name'],
+          where: {
+            name: { [Op.like]: `%${search}%` }
+          },
+          required: false
+        }
+      ],
+      order: [['createdAt', 'DESC']],
+      limit: parseInt(limit),
+      offset: parseInt(offset)
+    });
+
+    // Processar os resultados para incluir informações de localização
+    const simplifiedRows = await Promise.all(
+      rows.map(async (movement) => {
+        const data = movement.toJSON();
+
+        let fromLocation = null;
+        if (data.fromLocationId && data.fromLocationType) {
+          const location = await this.getLocationByTypeAndId(data.fromLocationId, data.fromLocationType);
+          fromLocation = location ? { id: location.id, name: location.name } : null;
+        }
+
+        let toLocation = null;
+        if (data.toLocationId && data.toLocationType) {
+          const location = await this.getLocationByTypeAndId(data.toLocationId, data.toLocationType);
+          toLocation = location ? { id: location.id, name: location.name } : null;
+        }
+
+        return {
+          id: data.id,
+          type: data.type,
+          quantity: data.quantity,
+          reason: data.reason,
+          createdAt: data.createdAt,
+          fromLocation: fromLocation,
+          toLocation: toLocation,
+          product: data.product,
+          user: data.user
+        };
+      })
+    );
+
+    return {
+      count,
       rows: simplifiedRows
     };
   }

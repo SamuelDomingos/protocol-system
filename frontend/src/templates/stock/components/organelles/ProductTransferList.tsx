@@ -4,49 +4,53 @@ import { Input } from '@/src/components/ui/input';
 import { Label } from '@/src/components/ui/label';
 import { Combobox } from '@/src/global/combobox/components/combobox';
 import { Trash2, Plus } from 'lucide-react';
-import { useExitProductList } from '../../hooks/organelles/lists/useProductExitList';
+import { useTransferProductList } from '../../hooks/organelles/lists/useProductTransferList';
 import { BatchDialog } from './BatchDialog';
-import { ExitProductListProps, BatchInfo } from '../../types/components';
+import { TransferProductEntry } from '../../types/hooks';
+import { BatchInfo } from '../../types/components';
 
-export function ProductExitList({ 
+interface ProductTransferListProps {
+  locationId: string;
+  entries: TransferProductEntry[];
+  onEntriesChange: (entries: TransferProductEntry[]) => void;
+}
+
+export function ProductTransferList({ 
   locationId, 
   entries, 
-  onEntriesChange,
-  exitType 
-}: ExitProductListProps) {
+  onEntriesChange 
+}: ProductTransferListProps) {
   const {
     filteredProducts,
-    getMaxQuantityForProduct,
-    getBatchesForProduct,
     loading,
     addNewEntry,
     removeEntry,
     updateEntry,
     selectProduct,
     selectBatch,
-  } = useExitProductList({ 
+    getMaxQuantityForProduct,
+    getBatchesForProduct,
+  } = useTransferProductList({ 
     locationId, 
     entries, 
-    onEntriesChange,
-    exitType 
+    onEntriesChange 
   });
 
-  const showDestination = ['employee', 'patient', 'sector', 'loan_return'].includes(exitType);
-
-  const handleBatchSelect = (index: number, batchInfo: BatchInfo) => {
-    selectBatch(index, batchInfo);
+  const handleBatchSelect = (index: number, batch: BatchInfo) => {
+    selectBatch(index, batch);
   };
 
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
-        <h3 className="text-lg font-medium">Produtos</h3>
+        <h3 className="text-lg font-medium">Produtos para Transferência</h3>
         <Button
           type="button"
           variant="outline"
           size="sm"
           onClick={addNewEntry}
           className="flex items-center gap-2"
+          disabled={loading}
         >
           <Plus className="h-4 w-4" />
           Adicionar Produto
@@ -55,55 +59,52 @@ export function ProductExitList({
 
       {entries.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
-          Nenhum produto adicionado
+          <p>Nenhum produto adicionado ainda.</p>
+          <p className="text-sm">Clique em "Adicionar Produto" para começar.</p>
         </div>
       ) : (
         <div className="space-y-4">
           {entries.map((entry, index) => {
             const maxQuantity = getMaxQuantityForProduct(entry.productId);
-            const hasQuantityError = entry.quantity > maxQuantity;
             const batches = getBatchesForProduct(entry.productId);
 
             return (
-              <div key={entry.id} className="border rounded-lg p-4 bg-card">
-                <div className={`grid gap-4 ${showDestination ? 'grid-cols-1 md:grid-cols-8' : 'grid-cols-1 md:grid-cols-7'}`}>
-                  <div className="col-span-1 md:col-span-2">
-                    <Label htmlFor={`product-${entry.id}`}>Produto *</Label>
+              <div key={entry.id} className="border rounded-lg p-4">
+                <div className="grid grid-cols-12 gap-4 items-end">
+                  <div className="col-span-3">
+                    <Label>Produto *</Label>
                     <Combobox
                       options={filteredProducts}
                       value={entry.productId}
                       onValueChange={(value) => selectProduct(index, value)}
-                      placeholder="Selecionar produto"
+                      placeholder="Selecione um produto..."
+                      searchPlaceholder="Buscar produto..."
+                      emptyText="Nenhum produto encontrado"
                       disabled={loading}
                     />
                   </div>
 
-                  <div className="col-span-1 md:col-span-1">
-                    <Label>Estoque Atual</Label>
+                  <div className="col-span-1">
+                    <Label>Estoque</Label>
                     <div className="h-10 flex items-center px-3 border rounded-md bg-muted/50 text-muted-foreground">
                       <span className="text-sm">{maxQuantity}</span>
                     </div>
                   </div>
 
-                  <div className="col-span-1 md:col-span-1">
-                    <Label htmlFor={`quantity-${entry.id}`}>Qtd. Saída *</Label>
+                  <div className="col-span-1">
+                    <Label htmlFor={`quantity-${entry.id}`}>Qtd. *</Label>
                     <Input
                       id={`quantity-${entry.id}`}
                       type="number"
-                      min="0"
+                      min="1"
                       max={maxQuantity}
-                      value={entry.quantity || ''}
-                      onChange={(e) => updateEntry(index, 'quantity', Number(e.target.value))}
-                      className={hasQuantityError ? 'border-destructive' : ''}
+                      value={entry.transferQuantity || ''}
+                      onChange={(e) => updateEntry(index, 'transferQuantity', Number(e.target.value))}
                     />
-                    {hasQuantityError && (
-                      <p className="text-sm text-destructive mt-1">
-                        Máximo: {maxQuantity}
-                      </p>
-                    )}
+
                   </div>
 
-                  <div className="col-span-1 md:col-span-2">
+                  <div className="col-span-3">
                     <Label>Lote</Label>
                     <div className="flex gap-2">
                       <Input
@@ -121,7 +122,7 @@ export function ProductExitList({
                     </div>
                   </div>
 
-                  <div className="col-span-1 md:col-span-1">
+                  <div className="col-span-2">
                     <Label>Validade</Label>
                     <div className="h-10 flex items-center px-3 border rounded-md bg-muted/50 text-muted-foreground">
                       <span className="text-sm">
@@ -130,19 +131,18 @@ export function ProductExitList({
                     </div>
                   </div>
 
-                  <div className="flex items-end justify-center">
+                  <div className="col-span-2 flex justify-end">
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => removeEntry(index)}
-                      className="h-8 w-8 p-0"
+                      className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                     >
-                      <Trash2 className="h-4 w-4 text-red-500" />
+                      <Trash2 className="h-4 w-4" />
                     </Button>
                   </div>
                 </div>
-
               </div>
             );
           })}

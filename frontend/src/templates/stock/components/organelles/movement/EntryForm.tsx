@@ -12,12 +12,7 @@ import { DatePicker } from '@/src/components/ui/date-picker';
 import { ProductEntryList } from '../ProductEntryList';
 import { useMovementForm } from '../../../hooks/organelles/forms/useEntryForm';
 import { useSuppliers } from '@/src/templates/config/hooks/useSuppliers';
-
-interface EntryFormProps {
-  onSuccess?: () => void;
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-}
+import { EntryFormProps } from '../../../types/components';
 
 export function EntryForm({ onSuccess, open, onOpenChange }: EntryFormProps) {
   const {

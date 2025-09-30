@@ -119,11 +119,9 @@ export function MovementsTable({
                     </div>
                   </TableCell>
                   <TableCell>
-                    {/* Coluna Origem - sempre mostra fromLocation quando existe */}
                     {movement.fromLocation?.name || movement.fromLocationId || "-"}
                   </TableCell>
                   <TableCell>
-                    {/* Coluna Destino - mostra toLocation para entrada, saída e transferência */}
                     {movement.type === "entrada" || movement.type === "saida" || movement.type === "transferencia"
                       ? movement.toLocation?.name || movement.toLocationId || "-"
                       : "-"

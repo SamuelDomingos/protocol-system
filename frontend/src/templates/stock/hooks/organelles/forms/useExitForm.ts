@@ -1,7 +1,7 @@
 import { useState, useCallback, useMemo } from 'react';
 import { useMovements } from '../../molecules/useMovements';
 import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
-import { StockMovementCreateInput } from '../../../types';
+import { StockMovementCreateInput } from '@/src/lib/api/types/stock';
 import { useSuppliers } from '@/src/templates/config/hooks/useSuppliers';
 import { useClients } from '@/src/templates/clients/hooks/useClients';
 
@@ -168,7 +168,7 @@ export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
         onSuccess?.();
         return true;
       } catch (error) {
-        handleError(error, 'Erro ao registrar saída');
+        handleError(error);
         return false;
       } finally {
         setLoading(false);

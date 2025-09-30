@@ -4,25 +4,7 @@ import { Label } from '@/src/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/src/components/ui/popover';
 import { Package } from 'lucide-react';
 import { formatCurrency, formatDate } from '@/src/lib/utils';
-
-interface BatchInfo {
-  id: string;
-  sku: string;
-  quantity: number;
-  expiryDate?: string;
-  price: number;
-  product: {
-    name: string;
-    unitPrice: number;
-  };
-}
-
-interface BatchDialogProps {
-  productId: string;
-  batches: BatchInfo[];
-  onBatchSelect: (batch: BatchInfo) => void;
-  disabled?: boolean;
-}
+import { BatchDialogProps, BatchInfo } from '@/src/templates/stock/types/components';
 
 export function BatchDialog({ 
   productId, 

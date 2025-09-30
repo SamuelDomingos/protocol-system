@@ -39,6 +39,8 @@ export interface StockMovementCreateInput {
   userId: string;
   reason?: string;
   notes?: string;
+  sku?: string;
+  expiryDate?: Date;
   unitPrice?: number;
   totalValue?: number;
 }
@@ -49,6 +51,7 @@ export interface StockMovement extends StockMovementCreateInput {
   updatedAt: string;
   user?: User;
   product?: Product;
+  type: 'entrada' | 'saida' | 'transferencia';
 }
 
 export interface ProductWithStock {
@@ -67,7 +70,6 @@ export interface ProductWithStock {
   };
 }
 
-// Tipos para criação e atualização
 export type ProductCreateInput = Omit<Product, 'id' | 'createdAt' | 'updatedAt'>;
 export type ProductUpdateInput = Partial<ProductCreateInput>;
 
@@ -76,7 +78,6 @@ export type StockLocationUpdateInput = Partial<StockLocationCreateInput>;
 
 export type StockMovementUpdateInput = Partial<StockMovementCreateInput>;
 
-// Interface para resposta paginada
 export interface PaginatedResponse<T> {
   data: T[];
   pagination: {
@@ -87,7 +88,6 @@ export interface PaginatedResponse<T> {
   };
 }
 
-// Tipos específicos para respostas da API
 export type ProductsResponse = PaginatedResponse<Product>;
 export type StockLocationsResponse = PaginatedResponse<StockLocation>;
 export type StockMovementsResponse = PaginatedResponse<StockMovement>;

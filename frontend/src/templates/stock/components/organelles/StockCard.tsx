@@ -3,13 +3,7 @@
 import React from 'react';
 import { Card, CardContent } from "@/src/components/ui/card";
 import { useCardStyles } from '../../hooks/atoms/useCardStyles';
-
-interface StockCardProps {
-  title: string;
-  value: string | number;
-  icon: React.ReactNode;
-  variant?: 'default' | 'warning' | 'success' | 'danger';
-}
+import { StockCardProps } from '../../types/components';
 
 export const StockCard: React.FC<StockCardProps> = ({ 
   title, 
