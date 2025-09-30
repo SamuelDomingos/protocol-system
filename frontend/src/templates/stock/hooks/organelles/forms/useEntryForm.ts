@@ -53,16 +53,22 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
     async (e: React.FormEvent) => {
       e.preventDefault();
 
+      if (!formData.supplier || !formData.unit) {
+        handleError('Fornecedor e estoque são obrigatórios');
+        return;
+      }
+
       setLoading(true);
       try {
         for (const entry of productEntryList.entries) {
           const movementData: StockMovementCreateInput = {
-            type: formData.type as 'entrada' | 'saida',
+            type: 'entrada',
             productId: entry.productId,
             quantity: entry.quantity,
-            fromLocationId: formData.type === 'entrada' ? formData.supplier : formData.unit,
-            toLocationId: formData.type === 'entrada' ? formData.unit : formData.supplier,
-            locationId: formData.unit || '',
+            fromLocationId: formData.supplier,
+            fromLocationType: 'supplier',
+            toLocationId: formData.unit,
+            toLocationType: 'supplier',
             userId: 'user-1',
             reason: `${formData.entryType} - Lote: ${entry.batchNumber}`,
             unitPrice: entry.unitPrice,
@@ -79,11 +85,11 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
           }
         }
 
-        handleSuccess('Movimentação registrada com sucesso!');
+        handleSuccess('Entrada registrada com sucesso!');
         resetForm();
         onSuccess?.();
       } catch (error) {
-        handleError(error, 'Erro ao registrar movimentação');
+        handleError(error, 'Erro ao registrar entrada');
       } finally {
         setLoading(false);
       }

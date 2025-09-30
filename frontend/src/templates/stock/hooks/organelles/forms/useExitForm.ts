@@ -17,7 +17,6 @@ interface ExitFormData {
   notes?: string;
 }
 
-// Dados fictícios para funcionários
 const mockEmployees = [
   { id: 'emp-1', name: 'João Silva', department: 'Enfermagem' },
   { id: 'emp-2', name: 'Maria Santos', department: 'Farmácia' },
@@ -57,6 +56,20 @@ export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
 
   const typesWithoutDestination = ['donation', 'loss', 'expired'];
   const showDestination = !typesWithoutDestination.includes(formData.exitType);
+
+  const getDestinationType = useCallback((exitType: string): 'supplier' | 'user' | 'client' | undefined => {
+    switch (exitType) {
+      case 'employee':
+        return 'user';
+      case 'patient':
+        return 'client';
+      case 'sector':
+      case 'loan_return':
+        return 'supplier';
+      default:
+        return undefined;
+    }
+  }, []);
 
   const originOptions = useMemo(() => {
     return suppliers
@@ -124,13 +137,17 @@ export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
       try {
         setLoading(true);
 
+        const destinationType = getDestinationType(formData.exitType);
+
         for (const product of products) {
           const movementData: StockMovementCreateInput = {
             type: 'saida',
             productId: product.productId,
             quantity: product.quantity,
             fromLocationId: formData.originId,
-            toLocationId: showDestination ? formData.destinationId : undefined,
+            fromLocationType: 'supplier',
+            toLocationId: showDestination && formData.destinationId ? formData.destinationId : undefined,
+            toLocationType: showDestination && formData.destinationId ? destinationType : undefined,
             userId: 'user-1',
             reason: `${formData.exitType} - Lote: ${product.batchNumber}`,
             unitPrice: product.unitPrice,
@@ -148,7 +165,6 @@ export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
         }
 
         handleSuccess('Saída registrada com sucesso!');
-        resetForm();
         onSuccess?.();
         return true;
       } catch (error) {
@@ -158,7 +174,7 @@ export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
         setLoading(false);
       }
     },
-    [formData, showDestination, createMovement, handleError, handleSuccess, onSuccess]
+    [formData, showDestination, getDestinationType, createMovement, handleError, handleSuccess, onSuccess]
   );
 
   const resetForm = useCallback(() => {

@@ -1,15 +1,15 @@
 import * as stockApi from '@/src/lib/api/stock';
+import { PaginationRequestParams } from '@/src/global/pagination/types/pagination';
 import { 
   ProductCreateInput, 
   ProductUpdateInput,
   StockLocationCreateInput,
   StockLocationUpdateInput,
   StockMovementCreateInput,
-  StockMovementUpdateInput,
-  RequestParams
+  StockMovementUpdateInput
 } from '../types';
 
-export const getProducts = async (params: RequestParams = {}) => {
+export const getProducts = async (params?: PaginationRequestParams) => {
   return await stockApi.getProducts(params);
 };
 
@@ -25,8 +25,8 @@ export const getProductBySku = async (sku: string) => {
   return await stockApi.getProductBySku(sku);
 };
 
-export const getLowStockProducts = async (params: RequestParams = {}) => {
-  return await stockApi.getLowStockProducts(params);
+export const getLowStockProducts = async () => {
+  return await stockApi.getLowStockProducts();
 };
 
 export const getProductCategories = async () => {
@@ -53,7 +53,7 @@ export const toggleProductStatus = async (id: string) => {
   return await stockApi.toggleProductStatus(id);
 };
 
-export const getStockLocations = async (params: RequestParams = {}) => {
+export const getStockLocations = async (params?: PaginationRequestParams) => {
   return await stockApi.getStockLocations(params);
 };
 
@@ -81,7 +81,7 @@ export const updateStockLocation = async (id: string, location: StockLocationUpd
   return await stockApi.updateStockLocation(id, location);
 };
 
-export const getStockMovements = async (params: RequestParams = {}) => {
+export const getStockMovements = async (params?: PaginationRequestParams) => {
   return await stockApi.getStockMovements(params);
 };
 

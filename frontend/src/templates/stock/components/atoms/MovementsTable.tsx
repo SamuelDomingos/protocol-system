@@ -74,7 +74,7 @@ export function MovementsTable({
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
-      <div className="rounded-md border">
+      <div className="rounded-md border my-4">
         <Table>
           <TableHeader>
             <TableRow>
@@ -119,18 +119,13 @@ export function MovementsTable({
                     </div>
                   </TableCell>
                   <TableCell>
-                    {movement.type === "entrada" 
-                      ? movement.fromLocation?.name || movement.fromLocationId || "-"
-                      : movement.type === "saida" || movement.type === "transferencia"
-                      ? movement.fromLocation?.name || movement.fromLocationId || "-"
-                      : "-"
-                    }
+                    {/* Coluna Origem - sempre mostra fromLocation quando existe */}
+                    {movement.fromLocation?.name || movement.fromLocationId || "-"}
                   </TableCell>
                   <TableCell>
-                    {movement.type === "entrada" || movement.type === "transferencia"
+                    {/* Coluna Destino - mostra toLocation para entrada, saída e transferência */}
+                    {movement.type === "entrada" || movement.type === "saida" || movement.type === "transferencia"
                       ? movement.toLocation?.name || movement.toLocationId || "-"
-                      : movement.type === "saida"
-                      ? "-"
                       : "-"
                     }
                   </TableCell>

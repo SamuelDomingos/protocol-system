@@ -59,7 +59,6 @@ export function useProductForm({ initialData, onSuccess }: UseProductFormProps =
       initialData || {
         name: '',
         description: '',
-        barcode: '',
         category: '',
         minimumStock: 0,
         status: 'active',

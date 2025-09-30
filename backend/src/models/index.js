@@ -65,20 +65,17 @@ const setupAssociations = () => {
   StockMovement.belongsTo(User, { foreignKey: "userId", as: "user" });
   StockMovement.belongsTo(Product, { foreignKey: "productId", as: "product" });
 
-  // StockLocation associations
   StockLocation.belongsTo(Supplier, {
     foreignKey: "location",
     as: "supplierLocation",
   });
   StockLocation.belongsTo(Product, { foreignKey: "productId", as: "product" });
 
-  // Supplier associations
   Supplier.hasMany(StockLocation, {
     foreignKey: "location",
     as: "stockLocations",
   });
 
-  // Product associations
   Product.hasMany(StockLocation, {
     foreignKey: "productId",
     as: "stockLocations",
@@ -112,7 +109,7 @@ const initDB = async () => {
 
     setupAssociations();
 
-    await syncModelsInOrder({ alter: false });
+    await syncModelsInOrder({ alter: true });
 
     console.log("🎉 Database initialized successfully");
     return true;

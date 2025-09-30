@@ -42,11 +42,6 @@ export function useExitProductList({
 
   // Buscar produtos disponíveis no local
   const fetchProducts = useCallback(async () => {
-    if (!locationId) {
-      setFilteredProducts([]);
-      setStockData([]);
-      return;
-    }
 
     setLoading(true);
     try {
@@ -70,7 +65,6 @@ export function useExitProductList({
   }, [locationId]);
 
   const fetchBatchesForProduct = useCallback(async (productId: string) => {
-    if (!productId || !locationId) return;
 
     try {
       const batches = await getBatchesByProductAndLocation(productId, locationId);

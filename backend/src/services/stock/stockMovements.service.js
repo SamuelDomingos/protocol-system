@@ -1,7 +1,7 @@
 const BaseService = require('../base.service');
 const { StockMovement } = require('../../models/stock/StockMovement');
 const StockLocation = require('../../models/stock/StockLocation');
-const { Product, Supplier, User } = require('../../models');
+const { Product, Supplier, User, Client } = require('../../models');
 const { stockMovementSchema } = require('../../validation/stockMovementSchema');
 
 class StockMovementsService extends BaseService {
@@ -18,6 +18,165 @@ class StockMovementsService extends BaseService {
         attributes: ['id', 'name']
       }
     ]);
+  }
+
+  async createMovement(movementData) {
+    return this.transaction(async (transaction) => {
+      await this.validateLocations(movementData, transaction);
+
+      const movement = await this.model.create(movementData, { transaction });
+
+      await this.processStock(movementData, transaction);
+
+      return movement;
+    });
+  }
+
+  async validateLocations(movementData, transaction) {
+    const { type, fromLocationId, fromLocationType, toLocationId, toLocationType } = movementData;
+
+    if (fromLocationId && fromLocationType) {
+      await this.validateLocationExists(fromLocationId, fromLocationType, transaction);
+    }
+
+    if (toLocationId && toLocationType) {
+      await this.validateLocationExists(toLocationId, toLocationType, transaction);
+    }
+  }
+
+  async validateLocationExists(locationId, locationType, transaction) {
+    const models = {
+      supplier: Supplier,
+      user: User,
+      client: Client
+    };
+
+    const model = models[locationType];
+    if (!model) {
+      throw new Error(`Tipo de localização inválido: ${locationType}`);
+    }
+
+    const location = await model.findByPk(locationId, { transaction });
+    if (!location) {
+      throw new Error(`${locationType} com ID ${locationId} não foi encontrado`);
+    }
+
+    return location;
+  }
+
+  async processStock(movementData, transaction) {
+    const { type } = movementData;
+
+    switch (type) {
+      case 'entrada':
+        await this.processEntrada(movementData, transaction);
+        break;
+      case 'saida':
+        await this.processSaida(movementData, transaction);
+        break;
+      case 'transferencia':
+        await this.processTransferencia(movementData, transaction);
+        break;
+    }
+  }
+
+  async processEntrada(movementData, transaction) {
+    const { productId, quantity, sku, expiryDate, unitPrice, toLocationId } = movementData;
+
+    const [stockLocation] = await StockLocation.findOrCreate({
+      where: { 
+        productId, 
+        location: toLocationId 
+      },
+      defaults: { 
+        quantity: 0, 
+        price: unitPrice || 0,
+        sku: sku || null,
+        expiryDate: expiryDate || null
+      },
+      transaction
+    });
+
+    await stockLocation.update({
+      quantity: stockLocation.quantity + quantity,
+      price: unitPrice || stockLocation.price,
+      sku: sku || stockLocation.sku,
+      expiryDate: expiryDate || stockLocation.expiryDate
+    }, { transaction });
+  }
+
+  async processSaida(movementData, transaction) {
+    const { productId, quantity, fromLocationId } = movementData;
+    
+    // Para saída, precisamos de um local de origem (supplier)
+    const stockLocation = await StockLocation.findOne({
+      where: { 
+        productId, 
+        location: fromLocationId 
+      },
+      transaction
+    });
+
+    if (!stockLocation || stockLocation.quantity < quantity) {
+      throw new Error('Estoque insuficiente');
+    }
+
+    await stockLocation.update({
+      quantity: stockLocation.quantity - quantity
+    }, { transaction });
+  }
+
+  async processTransferencia(movementData, transaction) {
+    const { productId, quantity, fromLocationId, toLocationId } = movementData;
+    
+    // Origem
+    const fromLocation = await StockLocation.findOne({
+      where: { 
+        productId, 
+        location: fromLocationId 
+      },
+      transaction
+    });
+
+    if (!fromLocation || fromLocation.quantity < quantity) {
+      throw new Error('Estoque insuficiente no local de origem');
+    }
+
+    // Reduzir estoque da origem
+    await fromLocation.update({
+      quantity: fromLocation.quantity - quantity
+    }, { transaction });
+
+    // Destino
+    const [toLocation] = await StockLocation.findOrCreate({
+      where: { 
+        productId, 
+        location: toLocationId 
+      },
+      defaults: { 
+        quantity: 0, 
+        price: fromLocation.price,
+        sku: fromLocation.sku,
+        expiryDate: fromLocation.expiryDate
+      },
+      transaction
+    });
+
+    // Aumentar estoque do destino
+    await toLocation.update({
+      quantity: toLocation.quantity + quantity
+    }, { transaction });
+  }
+
+  async getLocationByTypeAndId(locationId, locationType) {
+    const models = {
+      supplier: Supplier,
+      user: User,
+      client: Client
+    };
+
+    const model = models[locationType];
+    return model ? await model.findByPk(locationId) : null;
   }
 
   async findAllPaginated(query) {
@@ -40,27 +199,20 @@ class StockMovementsService extends BaseService {
     };
 
     const result = await super.findAllPaginated(query, filterOptions);
-    
-    // Buscar localizações e formatar como arrays
+
     const simplifiedRows = await Promise.all(
       result.rows.map(async (movement) => {
         const data = movement.toJSON();
-        
-        // Buscar localização de origem
+
         let fromLocation = null;
-        if (data.fromLocationId) {
-          const location = await Supplier.findByPk(data.fromLocationId, {
-            attributes: ['id', 'name']
-          });
+        if (data.fromLocationId && data.fromLocationType) {
+          const location = await this.getLocationByTypeAndId(data.fromLocationId, data.fromLocationType);
           fromLocation = location ? { id: location.id, name: location.name } : null;
         }
-        
-        // Buscar localização de destino
+
         let toLocation = null;
-        if (data.toLocationId) {
-          const location = await Supplier.findByPk(data.toLocationId, {
-            attributes: ['id', 'name']
-          });
+        if (data.toLocationId && data.toLocationType) {
+          const location = await this.getLocationByTypeAndId(data.toLocationId, data.toLocationType);
           toLocation = location ? { id: location.id, name: location.name } : null;
         }
 
@@ -82,127 +234,6 @@ class StockMovementsService extends BaseService {
       count: result.count,
       rows: simplifiedRows
     };
-  }
-
-  async createMovement(movementData) {
-    return this.transaction(async (transaction) => {
-      const movement = await this.model.create(movementData, { transaction });
-
-      switch (movementData.type) {
-        case 'entrada':
-          await this.processEntrada(movementData, transaction);
-          break;
-        case 'saida':
-          await this.processSaida(movementData, transaction);
-          break;
-        case 'transferencia':
-          await this.processTransferencia(movementData, transaction);
-          break;
-      }
-
-      return movement;
-    });
-  }
-
-  async processEntrada(movementData, transaction) {
-    const { productId, quantity, sku, expiryDate, unitPrice } = movementData;
-    
-    const internalSupplier = await Supplier.findOne({ 
-      where: { type: 'unit' }, 
-      transaction 
-    });
-    
-    if (!internalSupplier) {
-      throw new Error('Fornecedor interno não encontrado');
-    }
-
-    const [stockLocation] = await StockLocation.findOrCreate({
-      where: { 
-        productId, 
-        location: internalSupplier.id 
-      },
-      defaults: { 
-        quantity: 0, 
-        price: unitPrice || 0,
-        sku: sku || null,
-        expiryDate: expiryDate || null
-      },
-      transaction
-    });
-
-    await stockLocation.update({
-      quantity: stockLocation.quantity + quantity,
-      price: unitPrice || stockLocation.price,
-      sku: sku || stockLocation.sku,
-      expiryDate: expiryDate || stockLocation.expiryDate
-    }, { transaction });
-  }
-
-  async processSaida(movementData, transaction) {
-    const { productId, quantity } = movementData;
-    
-    const internalSupplier = await Supplier.findOne({ 
-      where: { type: 'unit' }, 
-      transaction 
-    });
-    
-    if (!internalSupplier) {
-      throw new Error('Fornecedor interno não encontrado');
-    }
-
-    const stockLocation = await StockLocation.findOne({
-      where: { 
-        productId, 
-        location: internalSupplier.id 
-      },
-      transaction
-    });
-
-    if (!stockLocation || stockLocation.quantity < quantity) {
-      throw new Error('Estoque insuficiente');
-    }
-
-    await stockLocation.update({
-      quantity: stockLocation.quantity - quantity
-    }, { transaction });
-  }
-
-  async processTransferencia(movementData, transaction) {
-    const { productId, quantity, fromLocationId, toLocationId } = movementData;
-    
-    const fromLocation = await StockLocation.findOne({
-      where: { 
-        productId, 
-        location: fromLocationId 
-      },
-      transaction
-    });
-
-    if (!fromLocation || fromLocation.quantity < quantity) {
-      throw new Error('Estoque insuficiente no local de origem');
-    }
-
-    await fromLocation.update({
-      quantity: fromLocation.quantity - quantity
-    }, { transaction });
-
-    const [toLocation] = await StockLocation.findOrCreate({
-      where: { 
-        productId, 
-        location: toLocationId 
-      },
-      defaults: { 
-        quantity: 0, 
-        price: fromLocation.price,
-        sku: fromLocation.sku,
-        expiryDate: fromLocation.expiryDate
-      },
-      transaction
-    });
-
-    await toLocation.update({
-      quantity: toLocation.quantity + quantity
-    }, { transaction });
   }
 
   async findByProduct(productId, options = {}) {

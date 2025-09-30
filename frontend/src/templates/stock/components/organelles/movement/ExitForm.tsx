@@ -45,7 +45,9 @@ export function ExitForm({ onSuccess, open, onOpenChange }: ExitFormProps) {
   };
 
   const onSubmit = async (e: React.FormEvent) => {
-    await handleSubmit(e, products);
+    e.preventDefault();
+    const success = await handleSubmit(products);
+    return success;
   };
 
   return (
@@ -80,8 +82,8 @@ export function ExitForm({ onSuccess, open, onOpenChange }: ExitFormProps) {
               <Label htmlFor="origin">Origem *</Label>
               <Combobox
                 options={originOptions}
-                value={formData.unit || formData.originId}
-                onValueChange={(value) => handleChange('unit', value)}
+                value={formData.originId}
+                onValueChange={(value) => handleChange('originId', value)}
                 placeholder="Selecionar origem"
               />
             </div>
@@ -91,18 +93,18 @@ export function ExitForm({ onSuccess, open, onOpenChange }: ExitFormProps) {
                 <Label htmlFor="destination">Destino</Label>
                 <Combobox
                   options={destinationOptions}
-                  value={formData.supplier || formData.destinationId}
-                  onValueChange={(value) => handleChange('supplier', value)}
+                  value={formData.destinationId}
+                  onValueChange={(value) => handleChange('destinationId', value)}
                   placeholder="Selecionar destino"
                 />
               </div>
             )}
           </div>
           
-          {(formData.unit || formData.originId) && (
+          {formData.originId && (
             <div className="border-t pt-6">
               <ProductExitList
-                locationId={formData.unit || formData.originId}
+                locationId={formData.originId}
                 entries={products}
                 onEntriesChange={setProducts}
                 exitType={exitType}

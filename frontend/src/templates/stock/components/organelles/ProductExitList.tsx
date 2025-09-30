@@ -35,7 +35,6 @@ export function ProductExitList({
 }: ExitProductListProps) {
   const {
     filteredProducts,
-    destinationOptions,
     getMaxQuantityForProduct,
     getBatchesForProduct,
     loading,
@@ -86,7 +85,7 @@ export function ProductExitList({
 
             return (
               <div key={entry.id} className="border rounded-lg p-4 bg-card">
-                <div className={`grid gap-4 ${showDestination ? 'grid-cols-1 md:grid-cols-7' : 'grid-cols-1 md:grid-cols-6'}`}>
+                <div className={`grid gap-4 ${showDestination ? 'grid-cols-1 md:grid-cols-8' : 'grid-cols-1 md:grid-cols-7'}`}>
                   <div className="col-span-1 md:col-span-2">
                     <Label htmlFor={`product-${entry.id}`}>Produto *</Label>
                     <Combobox
@@ -123,7 +122,7 @@ export function ProductExitList({
                     )}
                   </div>
 
-                  <div className="col-span-1 md:col-span-1">
+                  <div className="col-span-1 md:col-span-2">
                     <Label>Lote</Label>
                     <div className="flex gap-2">
                       <Input
@@ -150,28 +149,15 @@ export function ProductExitList({
                     </div>
                   </div>
 
-                  {showDestination && (
-                    <div className="col-span-1 md:col-span-1">
-                      <Label htmlFor={`destination-${entry.id}`}>Destino</Label>
-                      <Combobox
-                        options={destinationOptions}
-                        value={entry.destinationId || ''}
-                        onValueChange={(value) => updateEntry(index, 'destinationId', value)}
-                        placeholder="Selecionar destino"
-                        disabled={loading}
-                      />
-                    </div>
-                  )}
-
-                  <div className="col-span-1 md:col-span-1 flex items-end">
+                  <div className="flex items-end justify-center">
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
                       onClick={() => removeEntry(index)}
-                      className="w-full"
+                      className="h-8 w-8 p-0"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
                   </div>
                 </div>

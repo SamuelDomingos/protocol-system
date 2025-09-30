@@ -18,12 +18,9 @@ import {
 } from "@/src/components/ui/table"
 import { 
   Package, 
-  Truck, 
   Banknote, 
   Calendar, 
   Tag, 
-  Barcode, 
-  Building, 
   Info, 
   ArrowUp, 
   ArrowDown, 
@@ -52,7 +49,6 @@ export function ProductDetailsDialog({
   const { 
     totalValue, 
     productMovements, 
-    productLocations, 
     movementsByMonth, 
     hasData 
   } = useProductDetails(product, locations, movements)

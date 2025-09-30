@@ -11,7 +11,7 @@ export function useProductDetails(
   // Calcular o valor total do produto
   const totalValue = useMemo(() => {
     if (!product) return 0
-    return product.unitPrice * (product.quantity || 0)
+    return product.unitPrice ? product.unitPrice * (product.quantity || 0) : 0
   }, [product])
 
   const productMovements = useMemo(() => {
