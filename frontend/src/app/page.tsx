@@ -8,6 +8,9 @@ import Image from "next/image"
 export default function Home() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
+
+  console.log(user);
+  
   
   useEffect(() => {
     if (!isLoading) {

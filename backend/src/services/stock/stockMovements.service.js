@@ -264,14 +264,11 @@ class StockMovementsService extends BaseService {
     const userIds = users.map(u => u.id);
     const clientIds = clients.map(c => c.id);
 
-    // Construir condições de busca
     const searchConditions = [
-      // Busca nos campos diretos da movimentação
       { type: { [Op.like]: `%${search}%` } },
       { reason: { [Op.like]: `%${search}%` } },
       { notes: { [Op.like]: `%${search}%` } },
       
-      // Busca por localização de origem
       ...(supplierIds.length > 0 ? [{ 
         fromLocationId: { [Op.in]: supplierIds },
         fromLocationType: 'supplier'
@@ -378,8 +375,42 @@ class StockMovementsService extends BaseService {
       offset: parseInt(offset)
     });
 
+    const processedMovements = await Promise.all(
+      rows.map(async (movement) => {
+        const data = movement.toJSON();
+
+        let fromLocation = null;
+        if (data.fromLocationId && data.fromLocationType) {
+          const location = await this.getLocationByTypeAndId(data.fromLocationId, data.fromLocationType);
+          fromLocation = location ? { id: location.id, name: location.name } : null;
+        }
+
+        let toLocation = null;
+        if (data.toLocationId && data.toLocationType) {
+          const location = await this.getLocationByTypeAndId(data.toLocationId, data.toLocationType);
+          toLocation = location ? { id: location.id, name: location.name } : null;
+        }
+
+        return {
+          id: data.id,
+          type: data.type,
+          quantity: data.quantity,
+          reason: data.reason,
+          notes: data.notes,
+          totalValue: data.totalValue,
+          unitPrice: data.unitPrice,
+          createdAt: data.createdAt,
+          updatedAt: data.updatedAt,
+          fromLocation: fromLocation,
+          toLocation: toLocation,
+          product: data.product,
+          user: data.user
+        };
+      })
+    );
+
     return {
-      movements: rows,
+      movements: processedMovements,
       totalCount: count,
       totalPages: Math.ceil(count / limit),
       currentPage: parseInt(page)

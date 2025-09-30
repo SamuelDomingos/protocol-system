@@ -85,6 +85,10 @@ export const getStockMovements = async (params?: PaginationRequestParams) => {
   return await stockApi.getStockMovements(params);
 };
 
+export const getStockMovementsByProduct = async (productId: string, params?: PaginationRequestParams) => {
+  return await stockApi.getStockMovementsByProduct(productId, params);
+};
+
 export const getStockMovementById = async (id: string) => {
   return await stockApi.getStockMovementById(id);
 };

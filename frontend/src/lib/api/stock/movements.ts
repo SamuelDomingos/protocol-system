@@ -9,6 +9,13 @@ export const getStockMovements = async (params?: PaginationRequestParams): Promi
   });
 };
 
+export const getStockMovementsByProduct = async (productId: string, params?: PaginationRequestParams): Promise<any> => {
+  return apiRequest<any>(`/api/stock-movements/product/${productId}`, {
+    method: 'GET',
+    params
+  });
+};
+
 export const getStockMovementById = async (id: string): Promise<StockMovement> => {
   return apiRequest<StockMovement>(`/api/stock-movements/${id}`);
 };

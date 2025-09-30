@@ -31,3 +31,13 @@ exports.update = async (req, res) => {
     res.status(500).json({ message: 'Update failed', error: err.message });
   }
 }
+
+exports.logout = async (req, res) => {
+  try {
+    await authService.logout(req.user.id);
+    res.json({ message: 'desconectado' });
+  } catch (err) {
+    console.error('Erro no logout:', err);
+    res.status(500).json({ message: 'Logout failed', error: err.message });
+  }
+}

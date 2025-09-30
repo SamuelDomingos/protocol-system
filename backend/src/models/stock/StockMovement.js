@@ -25,7 +25,6 @@ const StockMovement = sequelize.define('StockMovement', {
     type: DataTypes.INTEGER,
     allowNull: false,
   },
-  // Campos polimórficos para origem
   fromLocationId: {
     type: DataTypes.UUID,
     allowNull: true,
@@ -34,7 +33,6 @@ const StockMovement = sequelize.define('StockMovement', {
     type: DataTypes.ENUM('supplier', 'user', 'client'),
     allowNull: true,
   },
-  // Campos polimórficos para destino
   toLocationId: {
     type: DataTypes.UUID,
     allowNull: true,

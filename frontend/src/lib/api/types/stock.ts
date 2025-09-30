@@ -10,6 +10,8 @@ export interface Product {
   status: 'active' | 'inactive';
   unit: string;
   unitPrice?: number;
+  totalQuantity?: number;
+  totalPrice?: number;
   createdAt?: string;
   updatedAt?: string;
 }

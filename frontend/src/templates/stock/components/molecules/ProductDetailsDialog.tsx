@@ -9,51 +9,41 @@ import {
 } from "@/src/components/ui/dialog"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/src/components/ui/tabs"
 import { 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableHead, 
-  TableHeader, 
-  TableRow 
-} from "@/src/components/ui/table"
-import { 
   Package, 
   Banknote, 
   Calendar, 
   Tag, 
-  Info, 
-  ArrowUp, 
-  ArrowDown, 
-  ArrowLeftRight,
-  User
+  Info
 } from "lucide-react"
-import { Product, StockLocation, StockMovement } from '@/src/lib/api/types/stock'
-import { useProductDetails } from '../../hooks/organelles/useProductDetails'
+import { Product } from '@/src/lib/api/types/stock'
+import { useProductDetailsData } from '../../hooks/atoms/useProductDetailsData'
 import { formatCurrency, formatDate } from '@/src/lib/utils'
+import { ProductLocationTab } from '../organelles/ProductDetailsDialog/ProductLocationTab'
+import { ProductMovementTab } from '../organelles/ProductDetailsDialog/ProductMovementTab'
+import { ProductConsumptionHistoryTab } from '../organelles/ProductDetailsDialog/ProductConsumptionHistoryTab'
 
 interface ProductDetailsDialogProps {
   product: Product | null
-  locations: StockLocation[]
-  movements: StockMovement[]
   isOpen: boolean
   onClose: () => void
 }
 
 export function ProductDetailsDialog({ 
   product, 
-  locations, 
-  movements, 
   isOpen, 
   onClose 
 }: ProductDetailsDialogProps) {
   const { 
-    totalValue, 
-    productMovements, 
-    movementsByMonth, 
-    hasData 
-  } = useProductDetails(product, locations, movements)
+    locations,
+    movements,
+    loading,
+    movementsLoading,
+    movementsPagination
+  } = useProductDetailsData(product?.id)
 
-  if (!hasData) return null
+  const totalValue = product?.totalPrice || 0
+
+  if (!product) return null
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -61,7 +51,7 @@ export function ProductDetailsDialog({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Package className="h-5 w-5" />
-            {product.name}
+            {product?.name}
           </DialogTitle>
         </DialogHeader>
 
@@ -73,13 +63,7 @@ export function ProductDetailsDialog({
             <div className="flex items-center gap-2">
               <Tag className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Categoria:</span>
-              <span>{product.category}</span>
-            </div>
-            
-            <div className="flex items-center gap-2">
-              <Banknote className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Preço Unitário:</span>
-              <span>{formatCurrency(product.unitPrice)}</span>
+              <span>{product?.category}</span>
             </div>
             
             <div className="flex items-center gap-2">
@@ -89,177 +73,46 @@ export function ProductDetailsDialog({
             </div>
             
             <div className="flex items-center gap-2">
-              <Package className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Estoque Mínimo:</span>
-              <span>{product.minimumStock}</span>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm text-muted-foreground">Criado em:</span>
+              <span>{formatDate(product?.createdAt)}</span>
             </div>
             
             <div className="flex items-center gap-2">
               <Info className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm text-muted-foreground">Status:</span>
-              <span className={product.status === 'active' ? 'text-green-500' : 'text-red-500'}>
-                {product.status === 'active' ? 'Ativo' : 'Inativo'}
+              <span className={`px-2 py-1 rounded-full text-xs ${
+                product?.status === 'active' 
+                  ? 'bg-green-100 text-green-800' 
+                  : 'bg-red-100 text-red-800'
+              }`}>
+                {product?.status === 'active' ? 'Ativo' : 'Inativo'}
               </span>
-            </div>
-
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm text-muted-foreground">Data de Criação:</span>
-              <span>{formatDate(product.createdAt || '')}</span>
             </div>
           </div>
 
           <div className="mt-6">
-            <Tabs defaultValue="estoque">
+            <Tabs defaultValue="estoque" className="w-full">
               <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="estoque">Estoque</TabsTrigger>
                 <TabsTrigger value="movimentacao">Movimentação</TabsTrigger>
-                <TabsTrigger value="historico">Histórico de Consumo</TabsTrigger>
+                <TabsTrigger value="historico">Histórico</TabsTrigger>
               </TabsList>
               
               <TabsContent value="estoque" className="mt-4">
-                <h4 className="text-sm font-medium mb-2">Quantidade por Localização</h4>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Localização</TableHead>
-                        <TableHead>Quantidade</TableHead>
-                        <TableHead>SKU</TableHead>
-                        <TableHead>Preço</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {locations.filter(loc => loc.productId === product.id).length > 0 ? (
-                        locations
-                          .filter(loc => loc.productId === product.id)
-                          .map(location => (
-                            <TableRow key={location.id}>
-                              <TableCell>{location.location}</TableCell>
-                              <TableCell>{location.quantity}</TableCell>
-                              <TableCell>{location.sku}</TableCell>
-                              <TableCell>{formatCurrency(location.price)}</TableCell>
-                            </TableRow>
-                          ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center">
-                            Nenhuma localização encontrada
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
+                <ProductLocationTab product={product} locations={locations} />
               </TabsContent>
               
               <TabsContent value="movimentacao" className="mt-4">
-                <h4 className="text-sm font-medium mb-2">Movimentações</h4>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Data</TableHead>
-                        <TableHead>Descrição</TableHead>
-                        <TableHead>Quantidade</TableHead>
-                        <TableHead>Tipo</TableHead>
-                        <TableHead>Localização</TableHead>
-                        <TableHead>Usuário</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {productMovements.length > 0 ? (
-                        productMovements.map(movement => (
-                          <TableRow key={movement.id}>
-                            <TableCell>{formatDate(movement.createdAt || '')}</TableCell>
-                            <TableCell>{movement.reason}</TableCell>
-                            <TableCell>{movement.quantity}</TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-1">
-                                {movement.type === 'entrada' ? (
-                                  <>
-                                    <ArrowUp className="h-4 w-4 text-green-500" />
-                                    <span className="text-green-500">Entrada</span>
-                                  </>
-                                ) : movement.type === 'saida' ? (
-                                  <>
-                                    <ArrowDown className="h-4 w-4 text-red-500" />
-                                    <span className="text-red-500">Saída</span>
-                                  </>
-                                ) : (
-                                  <>
-                                    <ArrowLeftRight className="h-4 w-4 text-blue-500" />
-                                    <span className="text-blue-500">Transferência</span>
-                                  </>
-                                )}
-                              </div>
-                            </TableCell>
-                            <TableCell>{movement.location?.location || '-'}</TableCell>
-                            <TableCell>
-                              <div className="flex items-center gap-1">
-                                <User className="h-4 w-4 text-muted-foreground" />
-                                {movement.user?.name || '-'}
-                              </div>
-                            </TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={6} className="text-center">
-                            Nenhuma movimentação encontrada
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
+                <ProductMovementTab 
+                  movements={movements} 
+                  loading={movementsLoading}
+                  pagination={movementsPagination}
+                />
               </TabsContent>
               
               <TabsContent value="historico" className="mt-4">
-                <h4 className="text-sm font-medium mb-2">Histórico de Consumo</h4>
-                
-                <div className="mb-6">
-                  <div className="h-64 w-full">
-                    {/* Aqui seria implementado o gráfico de barras */}
-                    <div className="flex h-full items-center justify-center border rounded-md bg-muted/20">
-                      <p className="text-muted-foreground">
-                        Gráfico de histórico de consumo será implementado aqui
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                
-                <h4 className="text-sm font-medium mb-2">Resumo por Período</h4>
-                <div className="rounded-md border">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Período</TableHead>
-                        <TableHead>Entradas</TableHead>
-                        <TableHead>Saídas</TableHead>
-                        <TableHead>Saldo</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {Object.keys(movementsByMonth).length > 0 ? (
-                        Object.entries(movementsByMonth).map(([monthYear, data]) => (
-                          <TableRow key={monthYear}>
-                            <TableCell>{monthYear}</TableCell>
-                            <TableCell className="text-green-500">{data.entries}</TableCell>
-                            <TableCell className="text-red-500">{data.exits}</TableCell>
-                            <TableCell>{data.entries - data.exits}</TableCell>
-                          </TableRow>
-                        ))
-                      ) : (
-                        <TableRow>
-                          <TableCell colSpan={4} className="text-center">
-                            Nenhum histórico encontrado
-                          </TableCell>
-                        </TableRow>
-                      )}
-                    </TableBody>
-                  </Table>
-                </div>
+                <ProductConsumptionHistoryTab product={product} movements={movements} />
               </TabsContent>
             </Tabs>
           </div>

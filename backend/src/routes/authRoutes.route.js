@@ -6,6 +6,7 @@ const { checkUserExists, validateSignupFields, validateLoginFields, validateUpda
 router.post('/signup', validateSignupFields, checkUserExists, authController.signup);
 router.post('/login', validateLoginFields, authController.login);
 router.put('/update', validateUpdateFields, authController.update);
+router.post('/logout', authController.logout);
 
 
 module.exports = router;

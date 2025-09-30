@@ -3,21 +3,26 @@
 import { Header } from "@/src/components/header"
 import { Sidebar } from "@/src/components/sidebar"
 import { useAuth } from "@/src/contexts/auth-context"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
-import { useMediaQuery } from "@/src/hooks/use-media-query"
 
 export function AppLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setSidebarOpen] = useState(true)
   const [isMobile, setIsMobile] = useState(false)
   const { user, isLoading } = useAuth()
   const pathname = usePathname()
+  const router = useRouter()
 
-  // Detectar tela móvel
+  useEffect(() => {
+    if (!isLoading && !user && pathname !== "/auth") {
+      router.push("/auth")
+    }
+  }, [isLoading, user, pathname, router])
+
   useEffect(() => {
     const checkIsMobile = () => {
       setIsMobile(window.innerWidth < 768)
-      // Fechar sidebar automaticamente em dispositivos móveis
+
       if (window.innerWidth < 768) {
         setSidebarOpen(false)
       } else {
@@ -34,7 +39,10 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
     setSidebarOpen(!isSidebarOpen)
   }
 
-  // Mostrar estado de carregamento
+  if (pathname === "/auth") {
+    return <>{children}</>
+  }
+
   if (isLoading) {
     return (
       <div className="flex h-screen w-full items-center justify-center">
@@ -42,10 +50,9 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
     )
   }
-
-  // Se não estiver autenticado ou estiver na página de login, apenas renderizar os filhos
-  if (!user || pathname === "/login") {
-    return <>{children}</>
+  
+  if (!user) {
+    return null
   }
 
   return (
@@ -61,4 +68,4 @@ export function AppLayout({ children }: { children: React.ReactNode }) {
       </div>
     </div>
   )
-} 
+}

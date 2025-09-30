@@ -2,6 +2,7 @@ const BaseService = require('../base.service');
 const Product = require('../../models/stock/Product');
 const { Op } = require('sequelize');
 const productSchema = require('../../validation/products.schema');
+const stockLocationsService = require('./stockLocations.service');
 
 class ProductsService extends BaseService {
   constructor() {
@@ -44,8 +45,14 @@ class ProductsService extends BaseService {
       order: [['createdAt', 'DESC']]
     });
 
+    const productsWithStock = await Promise.all(rows.map(async (product) => {
+      const totalQuantity = await stockLocationsService.getTotalQuantityByProduct(product.id);
+      const totalPrice = totalQuantity * product.unitPrice;
+      return { ...product.toJSON(), totalQuantity, totalPrice };
+    }));
+
     return {
-      data: rows,
+      data: productsWithStock,
       pagination: {
         currentPage: parseInt(page),
         totalPages: Math.ceil(count / limit),

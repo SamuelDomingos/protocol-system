@@ -14,11 +14,10 @@ import { useStockTemplate } from "./hooks/atoms/useStockTemplate";
 
 export const StockTemplate: React.FC = () => {
   const {
-    // Estado das abas
+
     activeTab,
     handleTabChange,
-    
-    // Dados dos produtos
+
     products,
     productsLoading,
     productsPagination,
@@ -26,11 +25,9 @@ export const StockTemplate: React.FC = () => {
     setSearchTerm,
     fetchData,
     deleteProduct,
-    
-    // Dados das localizações
+
     locations,
-    
-    // Dados das movimentações
+
     movements,
     movementsLoading,
     movementsPagination,
@@ -41,7 +38,6 @@ export const StockTemplate: React.FC = () => {
     stockStats,
     
     selectedProduct,
-    selectedMovement,
     isDialogOpen,
     handleProductClick,
     handleMovementClick,

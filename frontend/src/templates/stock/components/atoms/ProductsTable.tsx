@@ -39,7 +39,7 @@ export function ProductsTable({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
-
+  
   const handleFormClose = () => {
     setIsFormOpen(false);
     setSelectedProduct(null);
@@ -106,7 +106,8 @@ export function ProductsTable({
                       <Package className="h-4 w-4 text-muted-foreground" />
                       <span>{product.name}</span>
                       {product.minimumStock > 0 &&
-                        product.quantity < product.minimumStock && (
+                        product.totalQuantity !== undefined &&
+                        product.totalQuantity < product.minimumStock && (
                           <AlertTriangle className="h-4 w-4 text-destructive" />
                         )}
                     </div>
@@ -114,17 +115,18 @@ export function ProductsTable({
                   <TableCell
                     className={
                       product.minimumStock > 0 &&
-                      product.quantity < product.minimumStock
+                      product.totalQuantity !== undefined &&
+                      product.totalQuantity < product.minimumStock
                         ? "text-destructive font-medium"
                         : ""
                     }
                   >
-                    {product.quantity}
+                    {product.totalQuantity}
                   </TableCell>
                   <TableCell>{product.unit}</TableCell>
                   <TableCell>{product.minimumStock}</TableCell>
                   <TableCell>
-                    {formatCurrency(product.unitPrice * product.quantity)}
+                    {formatCurrency(product.totalPrice || 0)}
                   </TableCell>
                   <TableCell>{formatDate(product.createdAt || "")}</TableCell>
                   <TableCell className="text-right">
@@ -202,7 +204,7 @@ export function ProductsTable({
       <ProductForm
         isOpen={isFormOpen}
         onOpenChange={setIsFormOpen}
-        initialData={selectedProduct}
+        initialData={selectedProduct || undefined}
         onSuccess={handleFormClose}
         onCancel={handleFormClose}
       />

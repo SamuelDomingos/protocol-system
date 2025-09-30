@@ -2,6 +2,7 @@ const BaseService = require('../base.service');
 const StockLocation = require('../../models/stock/StockLocation');
 const Product = require('../../models/stock/Product');
 const stockLocationSchema = require('../../validation/stockLocationSchema');
+const Supplier = require('../../models/stock/Supplier');
 
 class StockLocationsService extends BaseService {
   constructor() {
@@ -20,6 +21,11 @@ class StockLocationsService extends BaseService {
   async findByProductId(productId) {
     return await this.model.findAll({
       where: { productId },
+      include: [{
+        model: Supplier,
+        as: 'supplierLocation',
+        attributes: ['id', 'name']
+      }],
       order: [['location', 'ASC']]
     });
   }
@@ -71,11 +77,18 @@ class StockLocationsService extends BaseService {
         productId,
         quantity: { [require('sequelize').Op.gt]: 0 }
       },
-      include: [{
-        model: Product,
-        as: 'product',
-        attributes: ['id', 'name', 'unit', 'unitPrice']
-      }],
+      include: [
+        {
+          model: Product,
+          as: 'product',
+          attributes: ['id', 'name', 'unit', 'unitPrice']
+        },
+        {
+          model: Supplier,
+          as: 'supplierLocation',
+          attributes: ['id', 'name']
+        }
+      ],
       order: [['location', 'ASC'], ['expiryDate', 'ASC'], ['sku', 'ASC']]
     });
   }
