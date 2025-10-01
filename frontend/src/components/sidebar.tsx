@@ -23,11 +23,11 @@ export function Sidebar({ isOpen, onToggle, isMobile }: SidebarProps) {
   const pathname = usePathname()
 
   const navLinks: NavLink[] = [
-    {
-      href: "/dashboard",
-      label: "Dashboard",
-      icon: Home,
-    },
+    // {
+    //   href: "/dashboard",
+    //   label: "Dashboard",
+    //   icon: Home,
+    // },
     {
       href: "/pascients",
       label: "Pascientes",
@@ -38,11 +38,11 @@ export function Sidebar({ isOpen, onToggle, isMobile }: SidebarProps) {
       label: "Protocolos",
       icon: ClipboardList,
     },
-    {
-      href: "/my-protocols",
-      label: "Meus Protocolos",
-      icon: FileText,
-    },
+    // {
+    //   href: "/my-protocols",
+    //   label: "Meus Protocolos",
+    //   icon: FileText,
+    // },
     {
       href: "/stock",
       label: "Estoque",
