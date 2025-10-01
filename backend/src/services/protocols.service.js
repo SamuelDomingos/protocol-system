@@ -5,7 +5,7 @@ const protocolSchema = require('../validation/protocol.schema');
 
 class ProtocolService extends BaseService {
   constructor() {
-    super(Protocol, protocolSchema, []);
+    super(Protocol, protocolSchema);
   }
 
   _prepareStagesWithOrder(stages, protocolId) {
@@ -20,7 +20,7 @@ class ProtocolService extends BaseService {
     const config = {
       attributes: {
         include: [
-          [Sequelize.literal(`(SELECT SUM(value) FROM Stages WHERE Stages.protocolId = Protocol.id)`), 'totalValue']
+          [Sequelize.literal(`(SELECT SUM(value) FROM stages WHERE stages.protocolId = Protocol.id)`), 'totalValue']
         ]
       },
       include: [
