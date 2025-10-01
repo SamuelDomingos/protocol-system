@@ -109,7 +109,7 @@ const initDB = async () => {
 
     setupAssociations();
 
-    await syncModelsInOrder({ alter: false });
+    await syncModelsInOrder({ alter: true });
 
     console.log("🎉 Database initialized successfully");
     return true;
