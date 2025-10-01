@@ -36,7 +36,6 @@ export function ProductDetailsDialog({
   const { 
     locations,
     movements,
-    loading,
     movementsLoading,
     movementsPagination
   } = useProductDetailsData(product?.id)

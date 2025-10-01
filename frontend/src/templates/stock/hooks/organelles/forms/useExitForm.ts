@@ -4,6 +4,7 @@ import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
 import { StockMovementCreateInput } from '@/src/lib/api/types/stock';
 import { useSuppliers } from '@/src/templates/config/hooks/useSuppliers';
 import { useClients } from '@/src/templates/clients/hooks/useClients';
+import { useUsers } from '@/src/templates/users/hooks/atoms/useUsers';
 
 interface UseExitFormProps {
   onSuccess?: () => void;
@@ -17,14 +18,6 @@ interface ExitFormData {
   notes?: string;
 }
 
-const mockEmployees = [
-  { id: 'emp-1', name: 'João Silva', department: 'Enfermagem' },
-  { id: 'emp-2', name: 'Maria Santos', department: 'Farmácia' },
-  { id: 'emp-3', name: 'Pedro Costa', department: 'Administração' },
-  { id: 'emp-4', name: 'Ana Oliveira', department: 'Laboratório' },
-  { id: 'emp-5', name: 'Carlos Ferreira', department: 'Manutenção' },
-];
-
 export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
   const [formData, setFormData] = useState<ExitFormData>({
     exitType: '',
@@ -36,13 +29,13 @@ export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
 
   const [exitDate, setExitDate] = useState(new Date());
   const [loading, setLoading] = useState(false);
-  const [employees] = useState(mockEmployees);
 
   const { createMovement } = useMovements();
   const { handleError, handleSuccess } = useFeedbackHandler();
 
   const { suppliers, loading: suppliersLoading } = useSuppliers();
   const { clients, isLoading: clientsLoading } = useClients();
+  const { users, isLoading: usersLoading } = useUsers();
 
   const exitTypeOptions = [
     { value: 'employee', label: 'Consumo do Funcionário' },
@@ -82,9 +75,9 @@ export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
 
   const destinationOptions = useMemo(() => {
     if (formData.exitType === 'employee') {
-      return employees.map(employee => ({
-        value: employee.id,
-        label: `${employee.name} - ${employee.department}`,
+      return users.map(user => ({
+        value: user.id,
+        label: `${user.name}`,
       }));
     }
     
@@ -113,7 +106,7 @@ export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
     }
 
     return [];
-  }, [formData.exitType, employees, clients, suppliers]);
+  }, [formData.exitType, users, clients, suppliers]);
 
   const handleChange = useCallback((field: keyof ExitFormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -192,7 +185,7 @@ export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
     formData,
     exitDate,
     setExitDate,
-    loading: loading || suppliersLoading || clientsLoading,
+    loading: loading || suppliersLoading || clientsLoading || usersLoading,
     exitType: formData.exitType,
     exitTypeOptions,
     originOptions,

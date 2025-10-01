@@ -10,7 +10,7 @@ exports.createApplication = async (req, res) => {
       appliedAt: req.body.appliedAt,
       clientSignature: req.body.clientSignature,
       nurseSignature: req.body.nurseSignature,
-      clientPhoto: req.file?.buffer?.toString('base64') // if using multer
+      clientPhoto: req.file?.buffer?.toString('base64')
     } : req.body;
 
     const { error, value } = applicationSchema.validate(data);

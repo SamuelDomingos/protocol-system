@@ -1,5 +1,4 @@
 const authService = require('../services/auth.service');
-const permissionService = require('../services/permission.service');
 
 exports.signup = async (req, res) => {
   try {

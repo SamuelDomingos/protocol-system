@@ -239,23 +239,23 @@ class StockMovementsService extends BaseService {
     };
   }
 
-  async searchMovements(query) {
+  async search(term) {
+    if (!term?.trim()) return [];
+
     const { Op } = require('sequelize');
-    const { search, page = 1, limit = 10 } = query;
-    const offset = (parseInt(page) - 1) * parseInt(limit);
 
     // Primeiro, buscar IDs de localizações que correspondem ao termo de busca
     const [suppliers, users, clients] = await Promise.all([
       Supplier.findAll({
-        where: { name: { [Op.like]: `%${search}%` } },
+        where: { name: { [Op.like]: `%${term}%` } },
         attributes: ['id']
       }),
       User.findAll({
-        where: { name: { [Op.like]: `%${search}%` } },
+        where: { name: { [Op.like]: `%${term}%` } },
         attributes: ['id']
       }),
       Client.findAll({
-        where: { name: { [Op.like]: `%${search}%` } },
+        where: { name: { [Op.like]: `%${term}%` } },
         attributes: ['id']
       })
     ]);
@@ -265,9 +265,12 @@ class StockMovementsService extends BaseService {
     const clientIds = clients.map(c => c.id);
 
     const searchConditions = [
-      { type: { [Op.like]: `%${search}%` } },
-      { reason: { [Op.like]: `%${search}%` } },
-      { notes: { [Op.like]: `%${search}%` } },
+      { type: { [Op.like]: `%${term}%` } },
+      { reason: { [Op.like]: `%${term}%` } },
+      { notes: { [Op.like]: `%${term}%` } },
+      
+      // Busca por usuário que fez a movimentação
+      ...(userIds.length > 0 ? [{ userId: { [Op.in]: userIds } }] : []),
       
       ...(supplierIds.length > 0 ? [{ 
         fromLocationId: { [Op.in]: supplierIds },
@@ -297,7 +300,7 @@ class StockMovementsService extends BaseService {
       }] : [])
     ];
 
-    const { count, rows } = await this.model.findAndCountAll({
+    const movements = await this.model.findAll({
       where: {
         [Op.or]: searchConditions
       },
@@ -307,7 +310,7 @@ class StockMovementsService extends BaseService {
           as: 'product',
           attributes: ['id', 'name', 'unit'],
           where: {
-            name: { [Op.like]: `%${search}%` }
+            name: { [Op.like]: `%${term}%` }
           },
           required: false
         },
@@ -316,19 +319,18 @@ class StockMovementsService extends BaseService {
           as: 'user',
           attributes: ['id', 'name'],
           where: {
-            name: { [Op.like]: `%${search}%` }
+            name: { [Op.like]: `%${term}%` }
           },
           required: false
         }
       ],
       order: [['createdAt', 'DESC']],
-      limit: parseInt(limit),
-      offset: parseInt(offset)
+      limit: 50
     });
 
     // Processar os resultados para incluir informações de localização
     const simplifiedRows = await Promise.all(
-      rows.map(async (movement) => {
+      movements.map(async (movement) => {
         const data = movement.toJSON();
 
         let fromLocation = null;
@@ -357,10 +359,7 @@ class StockMovementsService extends BaseService {
       })
     );
 
-    return {
-      count,
-      rows: simplifiedRows
-    };
+    return simplifiedRows;
   }
 
   async findByProduct(productId, options = {}) {

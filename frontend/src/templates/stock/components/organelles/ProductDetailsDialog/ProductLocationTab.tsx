@@ -29,7 +29,6 @@ export function ProductLocationTab({ product, locations }: ProductLocationTabPro
             <TableRow>
               <TableHead>Localização</TableHead>
               <TableHead>Quantidade</TableHead>
-              <TableHead>Lote</TableHead>
               <TableHead>Preço</TableHead>
             </TableRow>
           </TableHeader>
@@ -39,7 +38,6 @@ export function ProductLocationTab({ product, locations }: ProductLocationTabPro
                 <TableRow key={location.id}>
                   <TableCell>{location.supplierLocation?.name}</TableCell>
                   <TableCell>{location.quantity}</TableCell>
-                  <TableCell>{location.sku}</TableCell>
                   <TableCell>{formatCurrency(location.price || 0)}</TableCell>
                 </TableRow>
               ))

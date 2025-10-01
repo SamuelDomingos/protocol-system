@@ -7,7 +7,6 @@ class StockMovementsController extends BaseController {
     super(stockMovementsService, 'data');
   }
 
-  // Override create para adicionar userId do usuário autenticado
   create = asyncHandler(async (req, res) => {
     const userId = req.user?.id;
     if (!userId) {
@@ -19,14 +18,12 @@ class StockMovementsController extends BaseController {
     res.status(201).json(stockMovement);
   });
 
-  // Método específico para buscar por produto
   getByProduct = asyncHandler(async (req, res) => {
     const { productId } = req.params;
     const result = await this.service.findByProduct(productId, req.query);
     res.json(result);
   });
 
-  // Método para retornar tipos de movimentação
   getMovementTypes = asyncHandler(async (req, res) => {
     const types = ['entrada', 'saida', 'transferencia'];
     res.json(types);

@@ -1,20 +1,21 @@
 const BaseService = require('./base.service');
 const User = require('../models/User');
+const userSchema = require('../validation/usersSchema');
 
 class UsersService extends BaseService {
   constructor() {
-    super(User);
+    super(User, userSchema);
   }
 
   async findAllUsers() {
     return await this.model.findAll({
-      attributes: ['id', 'name', 'role', 'createdAt']
+      attributes: ['id', 'name', 'email', 'role', 'createdAt']
     });
   }
 
   async findById(id) {
     const user = await this.model.findByPk(id, {
-      attributes: ['id', 'name', 'role', 'createdAt']
+      attributes: ['id', 'name', 'email', 'role', 'createdAt']
     });
     
     if (!user) {

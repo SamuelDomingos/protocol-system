@@ -9,6 +9,14 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
   });
 };
 
+export const register = async (credentials: LoginRequest): Promise<LoginResponse> => {
+  return apiRequest<LoginResponse>('api/auth/signup', {
+    method: 'POST',
+    body: credentials,
+    requiresAuth: false,
+  });
+};
+
 export const logout = async (): Promise<void> => {
   await apiRequest<void>('auth/logout', {
     method: 'POST',

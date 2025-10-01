@@ -7,13 +7,9 @@ export interface User {
   updatedAt: string;
 }
 
-export interface CreateUserRequest {
+export interface UpdateUserRequest {
   email: string;
   name: string;
-  password: string;
-  role: string;
-}
-
-export interface UpdateUserRequest extends Partial<Omit<CreateUserRequest, 'password'>> {
   password?: string;
+  role: string;
 }
