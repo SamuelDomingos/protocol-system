@@ -9,15 +9,12 @@ export default function Home() {
   const { user, isLoading } = useAuth()
   const router = useRouter()
 
-  console.log(user);
-  
-  
   useEffect(() => {
     if (!isLoading) {
       if (user) {
         switch (user.role) {
           case "admin":
-            router.push("/dashboard")
+            router.push("/stock")
             break
           case "doctor":
             router.push("/appointments")
