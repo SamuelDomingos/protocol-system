@@ -79,11 +79,11 @@ class StockLocationsService extends BaseService {
         'location',
         [fn('SUM', col('quantity')), 'totalQuantity'],
         [literal(`(
-          SELECT COALESCE(SUM(sm.totalValue), 0)
-          FROM stock_movements sm
-          WHERE sm.productId = StockLocation.productId
-          AND sm.type = 'entrada'
-          AND sm.toLocationId = StockLocation.location
+          SELECT COALESCE(SUM("sm"."totalValue"), 0)
+          FROM "stock_movements" "sm"
+          WHERE "sm"."productId" = "StockLocation"."productId"
+          AND "sm"."type" = 'entrada'
+          AND "sm"."toLocationId" = "StockLocation"."location"
         )`), 'totalPrice'],
         [col('supplierLocation.name'), 'locationName']
       ],

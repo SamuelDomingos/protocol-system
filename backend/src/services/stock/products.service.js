@@ -51,10 +51,10 @@ class ProductsService extends BaseService {
         const totalQuantity =
           await stockLocationsService.getTotalQuantityByProduct(product.id);
         const [result] = await this.model.sequelize.query(
-          `SELECT COALESCE(SUM(sm.totalValue), 0) AS totalPrice
-           FROM stock_movements sm
-           WHERE sm.productId = :productId
-           AND sm.type = 'entrada'`,
+          `SELECT COALESCE(SUM("sm"."totalValue"), 0) AS "totalPrice"
+           FROM "stock_movements" "sm"
+           WHERE "sm"."productId" = :productId
+           AND "sm"."type" = 'entrada'`,
           {
             replacements: { productId: product.id },
             type: this.model.sequelize.QueryTypes.SELECT,
