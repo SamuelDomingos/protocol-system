@@ -142,7 +142,7 @@ export function useExitForm({ onSuccess }: UseExitFormProps = {}) {
             toLocationId: showDestination && formData.destinationId ? formData.destinationId : undefined,
             toLocationType: showDestination && formData.destinationId ? destinationType : undefined,
             userId: 'user-1',
-            reason: `${formData.exitType} - Lote: ${product.batchNumber}`,
+            reason: exitTypeOptions.find(option => option.value === formData.exitType)?.label || formData.exitType,
             unitPrice: product.unitPrice,
             totalValue: product.totalValue,
             notes: formData.notes,

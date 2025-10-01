@@ -2,6 +2,7 @@ import { useState, useCallback, useEffect, useRef } from "react";
 import { useProducts } from "../molecules/useProducts";
 import { useLocations } from "../molecules/useLocations";
 import { useMovements } from "../molecules/useMovements";
+import { useFeedbackHandler } from "@/src/hooks/useFeedbackHandler";
 
 interface TabCache {
   produtos: boolean;
@@ -20,8 +21,13 @@ export function useStockTemplate() {
   const [stockStats, setStockStats] = useState({
     totalProducts: 0,
     lowStockProducts: 0,
-    nearExpiryProducts: 0
+    nearExpiryProducts: 0,
   });
+
+  const [lowStockProductsData, setLowStockProductsData] = useState<any[]>([]);
+  const [nearExpiryProductsData, setNearExpiryProductsData] = useState<any[]>([]);
+
+  const { handleError } = useFeedbackHandler();
 
   const initializedRef = useRef(false);
 
@@ -52,34 +58,40 @@ export function useStockTemplate() {
     fetchMovements,
   } = useMovements();
 
-  // Atualizar o número total de produtos quando products mudar
-  useEffect(() => {
-    setStockStats(prev => ({
-      ...prev,
-      totalProducts: products?.length || 0
-    }));
-  }, [products]);
+  const fetchLowStockProductsData = useCallback(async () => {
+    try {
+      const lowStock = await getLowStockProducts();
+      setLowStockProductsData(lowStock?.data || []);
+      return lowStock?.data || [];
+    } catch (error) {
+      handleError(error);
+      return [];
+    }
+  }, [getLowStockProducts]);
+
+  const fetchNearExpiryProductsData = useCallback(async () => {
+    try {
+      const nearExpiry = await getNearExpiryProducts();
+      setNearExpiryProductsData(nearExpiry?.data || []);
+      return nearExpiry?.data || [];
+    } catch (error) {
+      handleError(error);
+      return [];
+    }
+  }, [getNearExpiryProducts]);
 
   useEffect(() => {
-    async function loadStockStats() {
-      try {
-        const lowStock = await getLowStockProducts();
-        const nearExpiry = await getNearExpiryProducts();
+    fetchLowStockProductsData();
+    fetchNearExpiryProductsData();
+  }, [fetchLowStockProductsData, fetchNearExpiryProductsData]);
 
-        setStockStats(prev => ({
-          ...prev,
-          lowStockProducts: lowStock?.data?.length || 0,
-          nearExpiryProducts: nearExpiry?.data?.length || 0
-        }));
-      } catch (error) {
-        console.error("Erro ao carregar estatísticas de estoque:", error);
-      }
-    }
-    
-    if (products?.length > 0) {
-      loadStockStats();
-    }
-  }, [getLowStockProducts, getNearExpiryProducts, products]);
+  useEffect(() => {
+    setStockStats({
+      totalProducts: products?.length || 0,
+      lowStockProducts: lowStockProductsData?.length || 0,
+      nearExpiryProducts: nearExpiryProductsData?.length || 0,
+    });
+  }, [products, lowStockProductsData, nearExpiryProductsData]);
 
   const handleTabChange = useCallback((newTab: string) => {
     setActiveTab(newTab);
@@ -163,6 +175,8 @@ export function useStockTemplate() {
     movementsSearchTerm,
     setMovementsSearchTerm,
     fetchMovements,
+    lowStockProductsData,
+    nearExpiryProductsData,
 
     stockStats,
 

@@ -99,7 +99,7 @@ export function ProductDetailsDialog({
               </TabsList>
               
               <TabsContent value="estoque" className="mt-4">
-                <ProductLocationTab product={product} locations={locations} />
+                <ProductLocationTab locations={locations} />
               </TabsContent>
               
               <TabsContent value="movimentacao" className="mt-4">
@@ -111,7 +111,7 @@ export function ProductDetailsDialog({
               </TabsContent>
               
               <TabsContent value="historico" className="mt-4">
-                <ProductConsumptionHistoryTab product={product} movements={movements} />
+                <ProductConsumptionHistoryTab movements={movements} />
               </TabsContent>
             </Tabs>
           </div>

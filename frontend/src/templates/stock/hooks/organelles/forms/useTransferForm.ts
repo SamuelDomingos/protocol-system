@@ -80,7 +80,7 @@ export function useTransferForm({ onSuccess }: UseTransferFormProps = {}) {
             toLocationId: formData.destinationId,
             toLocationType: 'supplier',
             userId: 'user-1',
-            reason: `Transferência - Lote: ${product.batchNumber}`,
+            reason: `Transferência`,
             unitPrice: product.unitPrice,
             totalValue: product.totalValue,
             notes: formData.notes,

@@ -8,7 +8,7 @@ import {
   TabsTrigger,
   TabsContent,
 } from "@/src/components/ui/tabs";
-import { Loader2, Package, AlertTriangle, MapPin, Repeat } from "lucide-react";
+import { Loader2, Package, AlertTriangle, Repeat } from "lucide-react";
 import ProductsTable from "./components/atoms/ProductsTable";
 import MovementsTable from "./components/atoms/MovementsTable";
 import ProductDetailsDialog from "./components/molecules/ProductDetailsDialog";
@@ -27,15 +27,14 @@ export const StockTemplate: React.FC = () => {
     setSearchTerm,
     fetchData,
     deleteProduct,
-
-    locations,
-
     movements,
     movementsLoading,
     movementsPagination,
     movementsSearchTerm,
     setMovementsSearchTerm,
     fetchMovements,
+    lowStockProductsData,
+    nearExpiryProductsData,
 
     stockStats,
     
@@ -60,12 +59,14 @@ export const StockTemplate: React.FC = () => {
         <StockCard
           title="Estoque Baixo"
           value={stockStats.lowStockProducts}
+          data={lowStockProductsData}
           icon={<AlertTriangle className="h-6 w-6" />}
           variant="danger"
         />
         <StockCard
           title="Produtos Próximos do Vencimento"
           value={stockStats.nearExpiryProducts}
+          data={nearExpiryProductsData}
           icon={<Repeat className="h-6 w-6" />}
           variant="warning"
         />
@@ -128,8 +129,6 @@ export const StockTemplate: React.FC = () => {
 
       <ProductDetailsDialog
         product={selectedProduct}
-        locations={locations}
-        movements={movements}
         isOpen={isDialogOpen}
         onClose={handleCloseDialog}
       />

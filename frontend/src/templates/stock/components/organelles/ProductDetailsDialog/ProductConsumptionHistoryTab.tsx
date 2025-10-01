@@ -12,38 +12,10 @@ import {
 import { Product, StockMovement } from '@/src/lib/api/types/stock'
 
 interface ProductConsumptionHistoryTabProps {
-  product: Product | null
   movements: StockMovement[]
 }
 
-export function ProductConsumptionHistoryTab({ product, movements }: ProductConsumptionHistoryTabProps) {
-  const productMovements = useMemo(() => {
-    if (!product) return []
-    return movements.filter(m => m.productId === product.id)
-  }, [product, movements])
-
-  const movementsByMonth = useMemo(() => {
-    const result: Record<string, { entries: number, exits: number }> = {}
-    
-    productMovements.forEach(movement => {
-      if (!movement.createdAt) return
-      
-      const date = new Date(movement.createdAt)
-      const monthYear = `${date.getMonth() + 1}/${date.getFullYear()}`
-      
-      if (!result[monthYear]) {
-        result[monthYear] = { entries: 0, exits: 0 }
-      }
-      
-      if (movement.type === 'entrada') {
-        result[monthYear].entries += movement.quantity
-      } else {
-        result[monthYear].exits += movement.quantity
-      }
-    })
-
-    return result
-  }, [productMovements])
+export function ProductConsumptionHistoryTab({ movements }: ProductConsumptionHistoryTabProps) {
 
   return (
     <div>
@@ -72,7 +44,7 @@ export function ProductConsumptionHistoryTab({ product, movements }: ProductCons
             </TableRow>
           </TableHeader>
           <TableBody>
-            {Object.keys(movementsByMonth).length > 0 ? (
+            {/* {Object.keys(movementsByMonth).length > 0 ? (
               Object.entries(movementsByMonth).map(([monthYear, data]) => (
                 <TableRow key={monthYear}>
                   <TableCell>{monthYear}</TableCell>
@@ -87,7 +59,7 @@ export function ProductConsumptionHistoryTab({ product, movements }: ProductCons
                   Nenhum histórico encontrado
                 </TableCell>
               </TableRow>
-            )}
+            )} */}
           </TableBody>
         </Table>
       </div>

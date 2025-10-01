@@ -86,7 +86,6 @@ export function useExitProductList({
     return batchesData[productId] || [];
   }, [batchesData]);
 
-  // Adicionar nova entrada
   const addNewEntry = useCallback(() => {
     const newEntry: ProductEntry = {
       id: `entry-${Date.now()}`,
@@ -103,13 +102,11 @@ export function useExitProductList({
     onEntriesChange(newEntries);
   }, [entries, onEntriesChange]);
 
-  // Remover entrada
   const removeEntry = useCallback((index: number) => {
     const newEntries = entries.filter((_, i) => i !== index);
     onEntriesChange(newEntries);
   }, [entries, onEntriesChange]);
 
-  // Atualizar entrada
   const updateEntry = useCallback((index: number, field: keyof ProductEntry, value: any) => {
     const newEntries = [...entries];
     newEntries[index] = {
@@ -117,7 +114,6 @@ export function useExitProductList({
       [field]: value,
     };
 
-    // Recalcular valor total quando quantidade ou preço unitário mudar
     if (field === 'quantity' || field === 'unitPrice') {
       newEntries[index].totalValue = newEntries[index].quantity * newEntries[index].unitPrice;
     }
@@ -125,7 +121,6 @@ export function useExitProductList({
     onEntriesChange(newEntries);
   }, [entries, onEntriesChange]);
 
-  // Selecionar produto
   const selectProduct = useCallback(async (index: number, productId: string) => {
     const product = stockData.find(p => p.productId === productId);
     if (product) {
@@ -146,7 +141,6 @@ export function useExitProductList({
     }
   }, [stockData, entries, onEntriesChange, fetchBatchesForProduct]);
 
-  // Selecionar lote
   const selectBatch = useCallback((index: number, batchInfo: BatchInfo) => {
     const newEntries = [...entries];
     newEntries[index] = {

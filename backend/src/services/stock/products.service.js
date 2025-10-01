@@ -50,8 +50,17 @@ class ProductsService extends BaseService {
       rows.map(async (product) => {
         const totalQuantity =
           await stockLocationsService.getTotalQuantityByProduct(product.id);
-        const totalPrice = totalQuantity * product.unitPrice;
-        return { ...product.toJSON(), totalQuantity, totalPrice };
+        const [result] = await this.model.sequelize.query(
+          `SELECT COALESCE(SUM(sm.totalValue), 0) AS totalPrice
+           FROM stock_movements sm
+           WHERE sm.productId = :productId
+           AND sm.type = 'entrada'`,
+          {
+            replacements: { productId: product.id },
+            type: this.model.sequelize.QueryTypes.SELECT,
+          }
+        );
+        return { ...product.toJSON(), totalQuantity, totalPrice: result.totalPrice };
       })
     );
 

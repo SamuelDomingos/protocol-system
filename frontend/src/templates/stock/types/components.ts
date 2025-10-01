@@ -37,6 +37,7 @@ export interface StockCardProps {
   value: string | number;
   icon: React.ReactNode;
   variant?: 'default' | 'warning' | 'success' | 'danger';
+  data?: ProductEntry[];
 }
 
 export interface EntryFormProps {

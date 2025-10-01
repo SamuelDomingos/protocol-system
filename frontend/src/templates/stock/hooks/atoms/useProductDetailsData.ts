@@ -56,8 +56,7 @@ export function useProductDetailsData(productId?: string) {
       if (response) {
         setMovements(response.movements || []);
         setTotalMovements(response.totalCount || 0);
-        
-        // Atualizar informações de paginação
+
         movementsPagination.updateFromResponse({
           data: response.movements || [],
           pagination: {

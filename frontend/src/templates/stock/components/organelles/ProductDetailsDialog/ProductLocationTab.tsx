@@ -9,17 +9,15 @@ import {
   TableHeader, 
   TableRow 
 } from "@/src/components/ui/table"
-import { Product, StockLocation } from '@/src/lib/api/types/stock'
+import {StockLocation } from '@/src/lib/api/types/stock'
 import { formatCurrency } from '@/src/lib/utils'
 
 interface ProductLocationTabProps {
-  product: Product | null
   locations: StockLocation[]
 }
 
-export function ProductLocationTab({ product, locations }: ProductLocationTabProps) {
-  const productLocations = locations.filter(loc => loc.productId === product?.id)
-  
+export function ProductLocationTab({ locations }: ProductLocationTabProps) {
+
   return (
     <div>
       <h4 className="text-sm font-medium mb-2">Quantidade por Localização</h4>
@@ -33,12 +31,12 @@ export function ProductLocationTab({ product, locations }: ProductLocationTabPro
             </TableRow>
           </TableHeader>
           <TableBody>
-            {productLocations.length > 0 ? (
-              productLocations.map(location => (
+            {locations.length > 0 ? (
+              locations.map(location => (
                 <TableRow key={location.id}>
-                  <TableCell>{location.supplierLocation?.name}</TableCell>
-                  <TableCell>{location.quantity}</TableCell>
-                  <TableCell>{formatCurrency(location.price || 0)}</TableCell>
+                  <TableCell>{location.locationName}</TableCell>
+                  <TableCell>{location.totalQuantity}</TableCell>
+                  <TableCell>{formatCurrency(location.totalPrice || 0)}</TableCell>
                 </TableRow>
               ))
             ) : (

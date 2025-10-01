@@ -39,7 +39,7 @@ export function ProductsTable({
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
-  
+
   const handleFormClose = () => {
     setIsFormOpen(false);
     setSelectedProduct(null);

@@ -72,24 +72,35 @@ class StockLocationsService extends BaseService {
   }
 
   async findAllBatchesByProduct(productId) {
+    const { Op, literal, fn, col } = require('sequelize');
+    
     return await this.model.findAll({
+      attributes: [
+        'location',
+        [fn('SUM', col('quantity')), 'totalQuantity'],
+        [literal(`(
+          SELECT COALESCE(SUM(sm.totalValue), 0)
+          FROM stock_movements sm
+          WHERE sm.productId = StockLocation.productId
+          AND sm.type = 'entrada'
+          AND sm.toLocationId = StockLocation.location
+        )`), 'totalPrice'],
+        [col('supplierLocation.name'), 'locationName']
+      ],
       where: { 
         productId,
-        quantity: { [require('sequelize').Op.gt]: 0 }
+        quantity: { [Op.gt]: 0 }
       },
       include: [
         {
-          model: Product,
-          as: 'product',
-          attributes: ['id', 'name', 'unit', 'unitPrice']
-        },
-        {
           model: Supplier,
           as: 'supplierLocation',
-          attributes: ['id', 'name']
+          attributes: [],
+          required: true
         }
       ],
-      order: [['location', 'ASC'], ['expiryDate', 'ASC'], ['sku', 'ASC']]
+      group: ['location', 'supplierLocation.id'],
+      order: [['location', 'ASC']]
     });
   }
 

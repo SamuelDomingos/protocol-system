@@ -70,7 +70,7 @@ export function useMovementForm({ onSuccess, initialType }: UseMovementFormProps
             toLocationId: formData.unit,
             toLocationType: 'supplier',
             userId: 'user-1',
-            reason: `${formData.entryType} - Lote: ${entry.batchNumber}`,
+            reason: entryTypeOptions.find(option => option.value === formData.entryType)?.label || formData.entryType,
             unitPrice: entry.unitPrice,
             totalValue: entry.totalValue,
             notes: formData.notes,
