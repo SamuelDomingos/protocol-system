@@ -92,79 +92,96 @@ export const StockCard: React.FC<StockCardProps> = ({
           </DialogHeader>
           
           <div className="space-y-4">
-            {data?.map((item, index) => (
-              <div key={item.id || index} className="border rounded-lg p-4 space-y-3">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <h4 className="font-semibold text-lg flex items-center gap-2">
-                      <Package className="h-4 w-4" />
-                      {item.product?.name || 'Produto sem nome'}
-                    </h4>
-                    <p className="text-sm text-muted-foreground">
-                      Lote: {item.sku} | Categoria: {item.product?.category || 'N/A'}
-                    </p>
-                  </div>
-                  {item.urgencyLevel && (
-                    <Badge variant={getUrgencyBadgeVariant(item.urgencyLevel)}>
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      {getUrgencyLabel(item.urgencyLevel)}
-                    </Badge>
-                  )}
-                </div>
+            {data?.map((item, index) => {
+              const isStockItem = (item as any).product !== undefined;
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div className="space-y-1">
-                    <p className="font-medium text-muted-foreground">Quantidade</p>
-                    <p className="font-semibold">{item.quantity} {item.product?.unit || 'unidades'}</p>
-                  </div>
-                  
-                  <div className="space-y-1">
-                    <p className="font-medium text-muted-foreground">Estoque Mínimo</p>
-                    <p className="font-semibold">{item.product?.minimumStock || 'N/A'}</p>
-                  </div>
+              const productName = isStockItem ? (item as any).product?.name : (item as any).name;
+              const productCategory = isStockItem ? (item as any).product?.category : (item as any).category;
+              const productMinimumStock = isStockItem ? (item as any).product?.minimumStock : (item as any).minimumStock;
+              const productUnit = isStockItem ? (item as any).product?.unit : (item as any).unit;
 
-                  {item.expiryDate && (
-                    <div className="space-y-1">
-                      <p className="font-medium text-muted-foreground flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        Data de Vencimento
+              const sku = isStockItem ? (item as any).sku : undefined;
+              const quantity = isStockItem ? (item as any).quantity : (item as any).currentStock;
+              const urgencyLevel = isStockItem ? (item as any).urgencyLevel : undefined;
+              const expiryDate = isStockItem ? (item as any).expiryDate : undefined;
+              const daysUntilExpiry = isStockItem ? (item as any).daysUntilExpiry : undefined;
+              const totalValue = isStockItem ? (item as any).totalValue : (item as any).totalValue;
+              const isExpired = isStockItem ? (item as any).isExpired : undefined;
+
+              return (
+                <div key={item.id || index} className="border rounded-lg p-4 space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-lg flex items-center gap-2">
+                        <Package className="h-4 w-4" />
+                        {productName || 'Produto sem nome'}
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        {sku && `Lote: ${sku} | `}Categoria: {productCategory || 'N/A'}
                       </p>
-                      <p className="font-semibold">{formatDate(item.expiryDate)}</p>
+                    </div>
+                    {urgencyLevel && (
+                      <Badge variant={getUrgencyBadgeVariant(urgencyLevel)}>
+                        <AlertTriangle className="h-3 w-3 mr-1" />
+                        {getUrgencyLabel(urgencyLevel)}
+                      </Badge>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                    <div className="space-y-1">
+                      <p className="font-medium text-muted-foreground">Quantidade</p>
+                      <p className="font-semibold">{quantity} {productUnit || 'unidades'}</p>
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <p className="font-medium text-muted-foreground">Estoque Mínimo</p>
+                      <p className="font-semibold">{productMinimumStock || 'N/A'}</p>
+                    </div>
+
+                    {expiryDate && (
+                      <div className="space-y-1">
+                        <p className="font-medium text-muted-foreground flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Data de Vencimento
+                        </p>
+                        <p className="font-semibold">{formatDate(expiryDate)}</p>
+                      </div>
+                    )}
+
+                    {daysUntilExpiry !== undefined && (
+                      <div className="space-y-1">
+                        <p className="font-medium text-muted-foreground flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          Dias até Vencer
+                        </p>
+                        <p className={`font-semibold ${daysUntilExpiry <= 30 ? 'text-red-600' : daysUntilExpiry <= 60 ? 'text-yellow-600' : 'text-green-600'}`}>
+                          {daysUntilExpiry} dias
+                        </p>
+                      </div>
+                    )}
+                  </div>
+
+                  {totalValue !== undefined && totalValue > 0 && (
+                    <div className="pt-2 border-t">
+                      <p className="text-sm">
+                        <span className="font-medium text-muted-foreground">Valor Total: </span>
+                        <span className="font-semibold">R$ {totalValue.toFixed(2)}</span>
+                      </p>
                     </div>
                   )}
 
-                  {item.daysUntilExpiry !== undefined && (
-                    <div className="space-y-1">
-                      <p className="font-medium text-muted-foreground flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        Dias até Vencer
-                      </p>
-                      <p className={`font-semibold ${item.daysUntilExpiry <= 30 ? 'text-red-600' : item.daysUntilExpiry <= 60 ? 'text-yellow-600' : 'text-green-600'}`}>
-                        {item.daysUntilExpiry} dias
-                      </p>
+                  {isExpired && (
+                    <div className="pt-2">
+                      <Badge variant="destructive" className="w-full justify-center">
+                        <AlertTriangle className="h-3 w-3 mr-1" />
+                        PRODUTO VENCIDO
+                      </Badge>
                     </div>
                   )}
                 </div>
-
-                {item.totalValue !== undefined && item.totalValue > 0 && (
-                  <div className="pt-2 border-t">
-                    <p className="text-sm">
-                      <span className="font-medium text-muted-foreground">Valor Total: </span>
-                      <span className="font-semibold">R$ {item.totalValue.toFixed(2)}</span>
-                    </p>
-                  </div>
-                )}
-
-                {item.isExpired && (
-                  <div className="pt-2">
-                    <Badge variant="destructive" className="w-full justify-center">
-                      <AlertTriangle className="h-3 w-3 mr-1" />
-                      PRODUTO VENCIDO
-                    </Badge>
-                  </div>
-                )}
-              </div>
-            ))}
+              );
+            })}
 
             {(!data || data.length === 0) && (
               <div className="text-center py-8 text-muted-foreground">

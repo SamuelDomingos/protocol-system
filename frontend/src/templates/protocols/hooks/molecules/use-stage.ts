@@ -11,7 +11,7 @@ export function useStage(initialStages: ProtocolStageFormData[] = []) {
         order: prevStages.length + 1,
         value: 0,
         intervalDays: 0,
-        kitId: undefined,
+        // kitId: undefined,
       };
       return [...prevStages, newStage];
     });

@@ -81,7 +81,7 @@ export const SortableStage = ({
               />
             </div>
 
-            {showKitSelection && (
+            {/* {showKitSelection && (
               <div>
                 <Label htmlFor={`stage-kit-${index}`}>Kit</Label>
                 <Select
@@ -100,7 +100,7 @@ export const SortableStage = ({
                   </SelectContent>
                 </Select>
               </div>
-            )}
+            )} */}
           </div>
 
           <Button

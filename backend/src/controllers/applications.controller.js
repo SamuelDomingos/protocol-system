@@ -1,183 +1,56 @@
-const { Application, Stage, User } = require('../models');
-const applicationSchema = require('../validation/applicationSchema');
+const BaseController = require('./base.controller');
+const applicationService = require('../services/applications.service');
+const asyncHandler = require('../utils/asyncHandler');
 
-exports.createApplication = async (req, res) => {
-  try {
+class ApplicationController extends BaseController {
+  constructor() {
+    super(applicationService, 'applications');
+  }
+
+  create = asyncHandler(async (req, res) => {
     const isMultipart = req.headers['content-type']?.includes('multipart/form-data');
-
-    const data = isMultipart ? {
-      stageId: req.body.stageId,
-      appliedAt: req.body.appliedAt,
-      clientSignature: req.body.clientSignature,
-      nurseSignature: req.body.nurseSignature,
-      clientPhoto: req.file?.buffer?.toString('base64')
-    } : req.body;
-
-    const { error, value } = applicationSchema.validate(data);
-    if (error) return res.status(400).json({ message: error.details[0].message });
-
-    const stage = await Stage.findByPk(value.stageId);
-    if (!stage) return res.status(400).json({ message: 'Stage not found or already applied' });
-
-    // Salvar aplicação
-    const application = await Application.create({
-      stageId: value.stageId,
-      nurseId: req.user.id,
-      appliedAt: value.appliedAt,
-      clientPhoto: value.clientPhoto,
-      clientSignature: value.clientSignature,
-      nurseSignature: value.nurseSignature,
-      status: 'applied'
-    });
-
-    res.status(201).json(application);
-  } catch (err) {
-    console.error('❌ Error creating application:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-exports.updateApplication = async (req, res) => {
-  try {
-    const { id } = req.params;
-
-    const application = await Application.findByPk(id);
-    if (!application) return res.status(404).json({ message: 'Application not found' });
     
-    res.status(200).json({ message: 'Application updated', application });
-  } catch (err) {
-    console.error('❌ Error updating application:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-exports.deleteApplication = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const application = await Application.findByPk(id);
-
-    if (!application) return res.status(404).json({ message: 'Application not found' });
-
-    await application.destroy();
-    res.status(200).json({ message: 'Application deleted successfully' });
-  } catch (err) {
-    console.error('❌ Error deleting application:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-exports.getApplicationsByStage = async (req, res) => {
-  try {
-    const { stageId } = req.params;
-
-    const applications = await Application.findAll({
-      where: { stageId },
-      include: [
-        {
-          model: User,
-          as: 'nurse',
-          attributes: ['id', 'name', 'role']
-        },
-        {
-          model: Stage,
-          attributes: ['id', 'name', 'order', 'protocolId']
-        }
-      ]
-    });
-
-    res.status(200).json(applications);
-  } catch (err) {
-    console.error('❌ Error fetching applications by stage:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-exports.completeApplication = async (req, res) => {
-  try {
-    const { id } = req.params;
-    
-    const application = await Application.findByPk(id);
-    if (!application) return res.status(404).json({ message: 'Application not found' });
-
-    // Atualizar status e dados
-    await application.update({
-      status: 'completed',
-      completedAt: new Date(),
-      completedBy: req.user.id
-    });
-
-    res.status(200).json({ message: 'Application completed', application });
-  } catch (err) {
-    console.error('❌ Error completing application:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
-
-exports.getAllApplications = async (req, res) => {
-  try {
-    const { page = 1, limit = 10 } = req.query;
-    
-    const filterOptions = {
-      searchFields: [],
-      filterFields: ['status', 'userId', 'stageId'],
-      includes: [
-        {
-          model: User,
-          attributes: ['id', 'name', 'email']
-        },
-        {
-          model: Stage,
-          attributes: ['id', 'title', 'description'],
-          include: [{
-            model: Protocol,
-            attributes: ['id', 'title']
-          }]
-        }
-      ],
-      defaultSort: [['createdAt', 'DESC']]
-    };
-
-    const { where, order, limit: queryLimit, offset, include } = buildAdvancedFilters(
-      req.query, 
-      filterOptions
-    );
-
-    // Busca adicional em User e Stage se houver search
-    if (req.query.search) {
-      include.forEach(inc => {
-        if (inc.model === User) {
-          inc.where = {
-            [Op.or]: [
-              { name: { [Op.like]: `%${req.query.search}%` } },
-              { email: { [Op.like]: `%${req.query.search}%` } }
-            ]
-          };
-          inc.required = false;
-        }
-        if (inc.model === Stage) {
-          inc.where = {
-            [Op.or]: [
-              { title: { [Op.like]: `%${req.query.search}%` } },
-              { description: { [Op.like]: `%${req.query.search}%` } }
-            ]
-          };
-          inc.required = false;
-        }
-      });
+    if (isMultipart) {
+      const data = {
+        stageId: req.body.stageId,
+        appliedAt: req.body.appliedAt,
+        clientSignature: req.body.clientSignature,
+        nurseSignature: req.body.nurseSignature
+      };
+      
+      const result = await this.service.createWithFile(
+        data, 
+        req.file?.buffer, 
+        req.user.id
+      );
+      
+      res.status(201).json(result);
+    } else {
+      const additionalData = { nurseId: req.user.id, status: 'applied' };
+      const result = await this.service.create(req.body, additionalData);
+      res.status(201).json(result);
     }
+  });
 
-    const result = await Application.findAndCountAll({
-      where,
-      include,
-      order,
-      limit: queryLimit,
-      offset
-    });
+  getByStage = asyncHandler(async (req, res) => {
+    const { stageId } = req.params;
+    const applications = await this.service.findByStage(stageId);
+    res.json(applications);
+  });
 
-    const response = formatPaginatedResponse(result, page, limit, 'applications');
-    res.status(200).json(response);
-  } catch (err) {
-    console.error('❌ Error fetching applications:', err);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};
+  complete = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const application = await this.service.complete(id, req.user.id);
+    res.json({ message: 'Application completed', application });
+  });
+}
+
+const applicationController = new ApplicationController();
+
+exports.createApplication = applicationController.create;
+exports.getAllApplications = applicationController.getAll;
+exports.getApplicationById = applicationController.getById;
+exports.updateApplication = applicationController.update;
+exports.deleteApplication = applicationController.delete;
+exports.getApplicationsByStage = applicationController.getByStage;
+exports.completeApplication = applicationController.complete;
