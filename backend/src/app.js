@@ -3,8 +3,8 @@ const express = require('express');
 const { initDB } = require('./models');
 const cors = require('cors');
 
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./config/swagger');
+// const swaggerUi = require('swagger-ui-express');
+// const swaggerSpec = require('./config/swagger');
 
 const os = require('os');
 const productsRoutes = require('./routes/stock/products.route');
@@ -47,7 +47,7 @@ const startServer = async () => {
     app.get('/', (req, res) => {
       res.send('Treatment Protocol System API 🧪');
     });
-    app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    // app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     app.use('/api/auth', authRoutes);
     app.use('/api/users', usersRoutes);
     app.use('/api/clients', clientsRoutes);
