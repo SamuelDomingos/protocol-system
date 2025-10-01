@@ -20,7 +20,7 @@ class ProtocolService extends BaseService {
     const config = {
       attributes: {
         include: [
-          [Sequelize.literal(`(SELECT SUM("value") FROM "stages" WHERE "stages"."protocolId" = "protocols"."id")`), 'totalValue']
+          [Sequelize.literal(`(SELECT SUM(value) FROM Stages WHERE Stages.protocolId = Protocol.id)`), 'totalValue']
         ]
       },
       include: [
