@@ -8,6 +8,40 @@ class ClientService extends BaseService {
     super(Client, clientSchema, []);
   }
 
+  async create(data, additionalData = {}) {
+    const { value } = this.validate(data);
+
+    const cpfValue = typeof value.cpf === 'string' ? value.cpf.trim() : value.cpf;
+    if (cpfValue) {
+      const existing = await this.model.findOne({ where: { cpf: cpfValue } });
+      if (existing) {
+        throw { status: 409, message: 'CPF já cadastrado' };
+      }
+    }
+
+    return this.model.create({ ...value, ...additionalData });
+  }
+
+  async update(id, data) {
+    const { value } = this.validate(data);
+    const record = await this.checkExists(id, 'Cliente não encontrado');
+
+    const cpfValue = typeof value.cpf === 'string' ? value.cpf.trim() : value.cpf;
+    if (cpfValue) {
+      const existing = await this.model.findOne({
+        where: {
+          cpf: cpfValue,
+          id: { [Op.ne]: id }
+        }
+      });
+      if (existing) {
+        throw { status: 409, message: 'CPF já cadastrado' };
+      }
+    }
+
+    return record.update(value);
+  }
+
   async findAllPaginated(query) {
     const { page = 1, limit = 10, search } = query;
     

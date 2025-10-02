@@ -12,6 +12,8 @@ const StockLocation = require("./stock/StockLocation");
 const { StockMovement } = require("./stock/StockMovement");
 const Product = require("./stock/Product");
 const Supplier = require("./stock/Supplier");
+const Kit = require("./Kit");
+const KitProduct = require("./KitProduct");
 
 const models = {
   User,
@@ -25,6 +27,8 @@ const models = {
   StockMovement,
   Product,
   Supplier,
+  Kit,
+  KitProduct,
 };
 
 const SYNC_ORDER = [
@@ -32,6 +36,8 @@ const SYNC_ORDER = [
   ["Product"],
   ["Supplier"],
   ["Protocol"],
+  ["Kit"],
+  ["KitProduct"],
   ["Stage", "Permission", "Message"],
   ["StockLocation"],
   ["Application", "StockMovement"],
@@ -83,6 +89,17 @@ const setupAssociations = () => {
   Product.hasMany(StockMovement, {
     foreignKey: "productId",
     as: "stockMovements",
+  });
+
+  Kit.belongsToMany(Product, {
+    through: KitProduct,
+    foreignKey: "kitId",
+    as: "products",
+  });
+  Product.belongsToMany(Kit, {
+    through: KitProduct,
+    foreignKey: "productId",
+    as: "kits",
   });
 };
 

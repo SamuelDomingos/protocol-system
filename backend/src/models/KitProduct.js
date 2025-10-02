@@ -1,7 +1,5 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../../config/database');
-const Product = require('./Product');
-const Kit = require('./Kit');
+const sequelize = require('../config/database');
 
 const KitProduct = sequelize.define('KitProduct', {
   id: {
@@ -42,9 +40,5 @@ const KitProduct = sequelize.define('KitProduct', {
     { fields: ['productId'] }
   ]
 });
-
-// Associações (a serem registradas no index de models)
-Kit.belongsToMany(Product, { through: KitProduct, foreignKey: 'kitId', as: 'products' });
-Product.belongsToMany(Kit, { through: KitProduct, foreignKey: 'productId', as: 'kits' });
 
 module.exports = KitProduct;

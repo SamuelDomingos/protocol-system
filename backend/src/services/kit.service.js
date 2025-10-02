@@ -1,7 +1,7 @@
 const BaseService = require('./base.service');
 const Kit = require('../models/Kit');
 const KitProduct = require('../models/KitProduct');
-const Product = require('../models/Product');
+const Product = require('../models/stock/Product');
 const kitSchema = require('../validation/kit.schema');
 
 class KitService extends BaseService {

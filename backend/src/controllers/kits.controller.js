@@ -1,5 +1,5 @@
 const BaseController = require('./base.controller');
-const kitService = require('../services/kits.service');
+const kitService = require('../services/kit.service');
 const asyncHandler = require('../utils/asyncHandler');
 const { formatPaginatedResponse } = require('../utils/queryBuilder');
 

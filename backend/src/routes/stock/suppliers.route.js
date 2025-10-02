@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../../middlewares/authMiddleware');
-const { validateBody } = require('../../middlewares/clientsMiddlewares');
-const supplierSchema = require('../../validation/supplierSchema');
 const {
   createSupplier,
   getAllSuppliers,
@@ -28,13 +26,11 @@ router.get('/:id', authenticate, getSupplierById);
 
 router.post('/', 
   authenticate, 
-  validateBody(supplierSchema), 
   createSupplier
 );
 
 router.put('/:id', 
   authenticate, 
-  validateBody(supplierSchema), 
   updateSupplier
 );
 

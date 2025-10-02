@@ -1,11 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/auth.controller');
-const { checkUserExists, validateSignupFields, validateLoginFields, validateUpdateFields } = require('../middlewares/userValidationMiddleware');
 
-router.post('/signup', validateSignupFields, checkUserExists, authController.signup);
-router.post('/login', validateLoginFields, authController.login);
-router.put('/update', validateUpdateFields, authController.update);
+router.post('/signup', authController.signup);
+router.post('/login', authController.login);
+router.put('/update', authController.update);
 router.post('/logout', authController.logout);
 
 
