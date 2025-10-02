@@ -1,11 +1,19 @@
+<<<<<<< HEAD
 require("dotenv").config();
 const express = require("express");
 const { initDB } = require("./Module/Index");
 const cors = require("cors");
+=======
+require('dotenv').config();
+const express = require('express');
+const { initDB } = require('./Module/Index');
+const cors = require('cors');
+>>>>>>> 662c9195f1552aabe09dd68a6ae35cbb357ea64d
 
 // const swaggerUi = require('swagger-ui-express');
 // const swaggerSpec = require('./config/swagger');
 
+<<<<<<< HEAD
 const os = require("os");
 const productsRoutes = require("./Module/Product/products.route");
 const stockLocationsRoutes = require("./Module/Stock/routes/stockLocations.route");
@@ -22,6 +30,24 @@ const stagesRoutes = require("./Module/Stage/stages.routes");
 const suppliersRoutes = require("./Module/Supplier/suppliers.route");
 const usersRoutes = require("./Module/User/users.route");
 const kitsRoutes = require("./Module/Kit/kit.route");
+=======
+const os = require('os');
+const productsRoutes = require('./Module/Product/products.route');
+const stockLocationsRoutes = require('./Module/Stock/stockLocations.route');
+const stockMovementsRoutes = require('./Module/Stock/stockMovements.route');
+
+const authRoutes = require('./Module/Auth/authRoutes.route');
+const clientsRoutes = require('./Module/Client/clients.route');
+const protocolsRoutes = require('./Module/Protocol/protocols.route');
+const applicationsRoutes = require('./Module/Application/applications.route');
+const permissionsRoutes = require('./Module/Permission/permission.route');
+const messagesRoutes = require('./Module/Message/messages.route');
+const templatesRoutes = require('./Module/Template/templates.route');
+const stagesRoutes = require('./Module/Stage/stages.routes');
+const suppliersRoutes = require('./Module/Supplier/suppliers.route');
+const usersRoutes = require('./Module/User/users.route');
+const kitsRoutes = require('./Module/Kit/kit.route');
+>>>>>>> 662c9195f1552aabe09dd68a6ae35cbb357ea64d
 
 const { errorHandler, notFoundHandler } = require("./utils/asyncHandler");
 

@@ -1,6 +1,11 @@
 const BaseService = require('../Base/base.service');
+<<<<<<< HEAD
 const Kit = require('./models/Kit');
 const KitProduct = require('./models/KitProduct');
+=======
+const Kit = require('./Kit');
+const KitProduct = require('./KitProduct');
+>>>>>>> 662c9195f1552aabe09dd68a6ae35cbb357ea64d
 const Product = require('../Product/Product');
 const kitSchema = require('./kit.schema');
 
