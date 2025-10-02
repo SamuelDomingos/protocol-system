@@ -2,7 +2,7 @@ const BaseService = require('./base.service');
 const Kit = require('../models/Kit');
 const KitProduct = require('../models/KitProduct');
 const Product = require('../models/Product');
-const kitSchema = require('../validation/kitSchema');
+const kitSchema = require('../validation/kit.schema');
 const { Op } = require('sequelize');
 
 class KitService extends BaseService {
