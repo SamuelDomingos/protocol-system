@@ -1,6 +1,6 @@
 export interface Protocol {
   id: string;
-  name: string;
+  title: string;
   description?: string;
   clientId: string;
   clientName: string;

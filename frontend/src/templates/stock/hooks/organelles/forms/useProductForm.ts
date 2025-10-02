@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { useProducts } from '../../molecules/useProducts';
+import { useProducts } from '../../atoms/useProducts';
 import { ProductCreateInput, ProductUpdateInput, Product } from '../../../types';
 import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
 

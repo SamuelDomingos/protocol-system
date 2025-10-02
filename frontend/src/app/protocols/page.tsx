@@ -53,6 +53,7 @@ export default function ProtocolsPage() {
     isLoading: isProtocolsLoading,
     error: protocolsError,
     deleteProtocol,
+    loadProtocols,
   } = useProtocols();
 
   const {
@@ -61,6 +62,7 @@ export default function ProtocolsPage() {
     setSearchTerm: setTemplateSearchTerm,
     pagination: templatePagination,
     deleteTemplate,
+    loadTemplates,
   } = useTemplates();
 
   const openProtocolDialog = (protocol?: Protocol) => {
@@ -133,7 +135,10 @@ export default function ProtocolsPage() {
                     <div className="p-6">
                       <ProtocolForm
                         protocol={editingProtocol}
-                        onSave={resetProtocolDialog}
+                        onSave={() => {
+                          loadProtocols();
+                          resetProtocolDialog();
+                        }}
                         onCancel={resetProtocolDialog}
                       />
                     </div>
@@ -191,7 +196,10 @@ export default function ProtocolsPage() {
                     <div className="p-6">
                       <TemplateForm
                         templateId={editingTemplate?.id}
-                        onSave={resetTemplateDialog}
+                        onSave={() => {
+                          loadTemplates();
+                          resetTemplateDialog();
+                        }}
                         onCancel={resetTemplateDialog}
                       />
                     </div>

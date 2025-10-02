@@ -57,14 +57,10 @@ const ApplicationsTemplate: React.FC<ApplicationsTemplateProps> = ({
             Gerencie aplicações de protocolos e acompanhe o progresso dos pacientes
           </p>
         </div>
-        <Button onClick={handleOpenCreateDialog} size="lg">
-          <Plus className="mr-2 h-4 w-4" />
-          Nova Aplicação
-        </Button>
       </div>
 
       {/* Estatísticas rápidas */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
         <div className="bg-card text-card-foreground rounded-lg border p-4">
           <div className="flex items-center gap-2">
             <FileText className="w-5 h-5 text-blue-500" />
@@ -89,17 +85,6 @@ const ApplicationsTemplate: React.FC<ApplicationsTemplateProps> = ({
             <div>
               <p className="text-sm font-medium text-muted-foreground">Concluídas</p>
               <p className="text-2xl font-bold">{completedApplications.length}</p>
-            </div>
-          </div>
-        </div>
-        <div className="bg-card text-card-foreground rounded-lg border p-4">
-          <div className="flex items-center gap-2">
-            <Users className="w-5 h-5 text-purple-500" />
-            <div>
-              <p className="text-sm font-medium text-muted-foreground">Pacientes</p>
-              <p className="text-2xl font-bold">
-                {new Set(applications.map(app => `patient-${app.id.slice(0, 8)}`)).size}
-              </p>
             </div>
           </div>
         </div>

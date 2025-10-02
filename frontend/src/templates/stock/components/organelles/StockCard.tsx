@@ -10,7 +10,7 @@ import {
   DialogDescription 
 } from "@/src/components/ui/dialog";
 import { Badge } from "@/src/components/ui/badge";
-import { useCardStyles } from '../../hooks/atoms/useCardStyles';
+import { useCardStyles } from '../../hooks/molecules/useCardStyles';
 import { StockCardProps } from '../../types/components';
 import { Calendar, Package, AlertTriangle, Clock } from 'lucide-react';
 

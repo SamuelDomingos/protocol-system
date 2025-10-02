@@ -19,16 +19,7 @@ import {
 import { MoreHorizontal, Edit, Trash2} from "lucide-react";
 import { DataTableWrapper } from "@/src/components/ui/data-table-wrapper";
 import { formatPhoneNumber, formatCPF } from "@/src/lib/utils";
-import type { Client } from "../types";
-
-interface ClientsTableProps {
-  data: Client[];
-  isLoading: boolean;
-  error: string | null;
-  onEditClient?: (client: Client) => void;
-  onViewClient?: (client: Client) => void;
-  onDeleteClient?: (client: Client) => void;
-}
+import { ClientsTableProps } from "../types/components";
 
 export function ClientsTable({
   data,
@@ -38,8 +29,6 @@ export function ClientsTable({
   onDeleteClient,
 }: ClientsTableProps) {
 
-  console.log(data);
-  
   return (
     <DataTableWrapper
       isLoading={isLoading}

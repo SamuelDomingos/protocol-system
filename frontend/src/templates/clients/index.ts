@@ -1,7 +1,6 @@
 // Exportações principais do módulo de clientes
 export { ClientForm } from "./components/client-form";
 export { ClientsTable } from "./components/clients-table";
-export { ClientsPage } from "./clients-page";
 export { useClients } from "./hooks/useClients";
 export { useClientForm } from "./hooks/useClientForm";
 export { ClientsService } from "./services/clientsService";

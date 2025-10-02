@@ -1,4 +1,4 @@
-const Permission = require('../models/Permission');
+const Permission = require('../Module/Permission/Permission');
 
 // Função para verificar se o usuário tem permissão para uma ação específica
 const checkPermission = (module, action) => {

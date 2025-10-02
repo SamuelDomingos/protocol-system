@@ -1,7 +1,7 @@
 import React from 'react';
-import { EntryForm } from '../organelles/movement/EntryForm';
-import { ExitForm } from '../organelles/movement/ExitForm';
-import { TransferForm } from '../organelles/movement/TransferForm';
+import { EntryForm } from '../organelles/movement/forms/EntryForm';
+import { ExitForm } from '../organelles/movement/forms/ExitForm';
+import { TransferForm } from '../organelles/movement/forms/TransferForm';
 
 interface MovementFormProps {
   onSuccess?: () => void;

@@ -1,6 +1,7 @@
 import { useDataCollection } from '@/src/templates/protocols/hooks/atoms/use-data-collection';
-import { ProtocolsService } from '@/src/templates/protocols/services/molecules/protocols.service';
+
 import type { Protocol } from '@/src/templates/protocols/types';
+import { getProtocols, deleteProtocol } from '@/src/lib/api/protocols';
 
 export function useProtocols() {
   const {
@@ -15,8 +16,8 @@ export function useProtocols() {
     isSearchMode
   } = useDataCollection<Protocol>(
     {
-      getAll: ProtocolsService.getAll,
-      delete: ProtocolsService.delete
+      getAll: getProtocols,
+      delete: deleteProtocol
     },
   );
 

@@ -15,7 +15,8 @@ import { PaginationControls } from "@/src/global/pagination/components/paginatio
 import { SearchInput } from "@/src/global/search/components/search-input";
 
 import { MovementForm } from '../molecules/MovementForm';
-import { MovementsTableProps, StockMovement } from "@/src/templates/stock/types";
+import { MovementsDetailsDialog } from '../molecules/MovementsDetailsDialog';
+import { MovementsTableProps, StockMovement, StockMovementWithRelations } from "@/src/templates/stock/types";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/src/components/ui/dropdown-menu";
 import { Button } from "@/src/components/ui/button";
 import { useState } from "react";
@@ -39,6 +40,16 @@ export function MovementsTable({
   const handleMovementFormSuccess = () => {
     fetchData();
     setIsMovementFormOpen(false);
+  };
+
+  // Novo estado para detalhes
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [selectedMovementId, setSelectedMovementId] = useState<string | null>(null);
+
+  const handleRowClickInternal = (movement: StockMovementWithRelations) => {
+    setSelectedMovementId(movement.id);
+    setIsDetailsOpen(true);
+    onRowClick && onRowClick(movement);
   };
 
   return (
@@ -92,8 +103,8 @@ export function MovementsTable({
               movements.map((movement) => (
                 <TableRow
                   key={movement.id}
-                  onClick={() => onRowClick && onRowClick(movement)}
-                  className={onRowClick ? "cursor-pointer" : ""}
+                  onClick={() => handleRowClickInternal(movement)}
+                  className="cursor-pointer"
                 >
                   <TableCell>{formatDate(movement.createdAt || "")}</TableCell>
                   <TableCell>{movement.reason || "-"}</TableCell>
@@ -146,6 +157,13 @@ export function MovementsTable({
         </Table>
       </div>
       <PaginationControls pagination={pagination} />
+
+      {/* Diálogo de detalhes da movimentação */}
+      <MovementsDetailsDialog
+        movementId={selectedMovementId}
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+      />
 
       <MovementForm
         open={isMovementFormOpen}

@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { TransferProductEntry } from '../../../types/hooks';
 import { 
   getProductsByLocation, 
-  getBatchesByProductAndLocation 
-} from '@/src/templates/stock/services/stockService';
+  findBatchesByProductAndLocation 
+} from '@/src/lib/api/stock';
 import { ProductWithStock } from '@/src/lib/api/types';
 import { BatchInfo } from '../../../types/components';
 
@@ -51,7 +51,7 @@ export function useTransferProductList({
     if (!productId || !locationId) return;
 
     try {
-      const batches = await getBatchesByProductAndLocation(productId, locationId);
+      const batches = await findBatchesByProductAndLocation(productId, locationId);
 
       const mappedBatches: BatchInfo[] = batches.map(batch => ({
         id: batch.id,

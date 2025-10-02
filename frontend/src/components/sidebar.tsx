@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { cn } from "@/src/lib/utils"
-import { Users, ClipboardList, FileText, Package, Home, Users2, ChevronLeft, ChevronRight, Settings } from "lucide-react"
+import { Users, ClipboardList, FileText, Package, Home, Users2, ChevronLeft, ChevronRight, Settings, Syringe } from "lucide-react"
 import { Button } from "@/src/components/ui/button"
 
 interface SidebarProps {
@@ -29,8 +29,8 @@ export function Sidebar({ isOpen, onToggle, isMobile }: SidebarProps) {
     //   icon: Home,
     // },
     {
-      href: "/pascients",
-      label: "Pascientes",
+      href: "/pacients",
+      label: "Pacientes",
       icon: Users,
     },
     {
@@ -38,11 +38,11 @@ export function Sidebar({ isOpen, onToggle, isMobile }: SidebarProps) {
       label: "Protocolos",
       icon: ClipboardList,
     },
-    // {
-    //   href: "/my-protocols",
-    //   label: "Meus Protocolos",
-    //   icon: FileText,
-    // },
+    {
+      href: "/applications",
+      label: "Aplicações",
+      icon: Syringe,
+    },
     {
       href: "/stock",
       label: "Estoque",

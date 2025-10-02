@@ -16,7 +16,7 @@ import {
   Info
 } from "lucide-react"
 import { Product } from '@/src/lib/api/types/stock'
-import { useProductDetailsData } from '../../hooks/atoms/useProductDetailsData'
+import { useProductDetailsData } from '../../hooks/molecules/useProductDetailsData'
 import { formatCurrency, formatDate } from '@/src/lib/utils'
 import { ProductLocationTab } from '../organelles/ProductDetailsDialog/ProductLocationTab'
 import { ProductMovementTab } from '../organelles/ProductDetailsDialog/ProductMovementTab'

@@ -1,3 +1,5 @@
+import { Client } from './client';
+
 // Tipos para componentes de tabela de clientes
 export interface ClientsTableProps {
   onEditClient?: (client: import('./client').Client) => void;
@@ -15,3 +17,13 @@ export interface ClientActionHandlers {
   onViewClient?: (client: import('./client').Client) => void;
   onDeleteClient?: (client: import('./client').Client) => void;
 }
+
+
+export interface ClientsTableProps {
+  data: Client[];
+  isLoading: boolean;
+  error: string | null;
+  onEditClient?: (client: Client) => void;
+  onDeleteClient?: (client: Client) => void;
+}
+

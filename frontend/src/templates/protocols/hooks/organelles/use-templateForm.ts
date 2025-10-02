@@ -1,18 +1,26 @@
 import { useState, useEffect, useCallback } from "react";
-import { TemplateFormService } from "@/src/templates/protocols/services/organelles/templateForm.service";
-import { stageService } from "@/src/templates/protocols/services/molecules/stages.service";
+import {
+  getTemplateById,
+  createTemplate,
+  updateTemplate,
+  getStagesByTemplateId,
+} from "@/src/lib/api/protocols";
 import { useStage } from "@/src/templates/protocols/hooks/molecules/use-stage";
-import { toast } from "@/src/hooks/use-toast";
+import type { ProtocolFormData } from "@/src/templates/protocols/types";
+import { useFeedbackHandler } from "@/src/hooks/useFeedbackHandler";
 
 interface UseTemplateFormOptions {
   onSuccess?: () => void;
 }
 
-export function useTemplateForm(templateId?: string, options?: UseTemplateFormOptions) {
+export function useTemplateForm(
+  templateId?: string,
+  options?: UseTemplateFormOptions
+) {
   const [isLoading, setIsLoading] = useState(false);
   const [title, setTitle] = useState("");
-  
-  const stagesApi = stageService();
+  const { handleError, handleSuccess } = useFeedbackHandler();
+
   const stageOperations = useStage();
 
   useEffect(() => {
@@ -24,24 +32,20 @@ export function useTemplateForm(templateId?: string, options?: UseTemplateFormOp
   const loadTemplate = async (id: string) => {
     try {
       setIsLoading(true);
-      
+
       const [template, stages] = await Promise.all([
-        TemplateFormService.loadTemplate(id),
-        stagesApi.loadStagesByTemplate(id)
+        getTemplateById(id),
+        getStagesByTemplateId(id),
       ]);
-      
+
       if (template) {
-        setTitle(template.title || '');
+        setTitle(template.title || "");
       }
-      
+
       stageOperations.setStagesData(stages);
     } catch (error) {
-      console.error('Erro ao carregar template:', error);
-      toast({
-        title: "Erro",
-        description: "Não foi possível carregar o template",
-        variant: "destructive"
-      });
+      console.error("Erro ao carregar template:", error);
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
@@ -52,37 +56,37 @@ export function useTemplateForm(templateId?: string, options?: UseTemplateFormOp
       setIsLoading(true);
 
       if (!title.trim()) {
-        toast({
-          title: "Erro",
-          description: "O título do template é obrigatório",
-          variant: "destructive"
-        });
+        handleError({ message: "O título do template é obrigatório" });
         return;
       }
 
-      const template = await TemplateFormService.saveTemplate(
-        { title }, 
-        stageOperations.stages, 
-        templateId
-      );
-      
-      if (template) {
-        toast({
-          title: "Sucesso",
-          description: templateId 
-            ? "Template atualizado com sucesso" 
-            : "Template criado com sucesso"
-        });
-        
-        options?.onSuccess?.();
+      const requestData: ProtocolFormData = {
+        title: title,
+        stages: stageOperations.stages,
+      };
+
+      let result;
+      if (templateId) {
+        result = await updateTemplate(templateId, requestData);
+      } else {
+        result = await createTemplate(requestData);
       }
 
+      if (result) {
+        handleSuccess(
+          templateId
+            ? "Template atualizado com sucesso"
+            : "Template criado com sucesso"
+        );
+        options?.onSuccess?.();
+      }
     } catch (error) {
-      console.error('Erro ao salvar template:', error);
+      console.error("Erro ao salvar template:", error);
+      handleError(error);
     } finally {
       setIsLoading(false);
     }
-  }, [title, stageOperations.stages, templateId, stagesApi, options]);
+  }, [title, stageOperations.stages, templateId, options]);
 
   const updateTitle = useCallback((newTitle: string) => {
     setTitle(newTitle);
@@ -95,7 +99,7 @@ export function useTemplateForm(templateId?: string, options?: UseTemplateFormOp
   return {
     formData: {
       title,
-      stages: stageOperations.stages
+      stages: stageOperations.stages,
     },
     isLoading,
     updateTitle,
@@ -104,6 +108,6 @@ export function useTemplateForm(templateId?: string, options?: UseTemplateFormOp
     removeStage: stageOperations.removeStage,
     reorderStages: stageOperations.reorderStages,
     saveTemplate,
-    calculateTotal
+    calculateTotal,
   };
 }

@@ -1,5 +1,5 @@
 import { useState, useCallback } from 'react';
-import { useMovements } from '../../molecules/useMovements';
+import { useMovements } from '../../atoms/useMovements';
 import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
 import { StockMovementCreateInput } from '../../../types';
 import { useProductEntryList } from '../lists/useProductEntryList';

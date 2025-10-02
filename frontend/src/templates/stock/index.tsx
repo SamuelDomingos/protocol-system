@@ -12,7 +12,7 @@ import { Loader2, Package, AlertTriangle, Repeat } from "lucide-react";
 import ProductsTable from "./components/atoms/ProductsTable";
 import MovementsTable from "./components/atoms/MovementsTable";
 import ProductDetailsDialog from "./components/molecules/ProductDetailsDialog";
-import { useStockTemplate } from "./hooks/atoms/useStockTemplate";
+import { useStockTemplate } from "./hooks/molecules/useStockTemplate";
 
 export const StockTemplate: React.FC = () => {
   const {

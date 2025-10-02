@@ -1,5 +1,5 @@
 import { useState, useCallback, useMemo } from 'react';
-import { useMovements } from '../../molecules/useMovements';
+import { useMovements } from '../../atoms/useMovements';
 import { useFeedbackHandler } from '@/src/hooks/useFeedbackHandler';
 import { StockMovementCreateInput } from '@/src/lib/api/types/stock';
 import { useSuppliers } from '@/src/templates/config/hooks/useSuppliers';

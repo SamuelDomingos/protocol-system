@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { ProductEntry } from '../../../types';
 import { 
   getProductsByLocation, 
-  getBatchesByProductAndLocation 
-} from '@/src/templates/stock/services/stockService';
+  findBatchesByProductAndLocation 
+} from '@/src/lib/api/stock';
 import { ProductWithStock } from '@/src/lib/api/types';
 
 interface UseExitProductListProps {
@@ -67,7 +67,7 @@ export function useExitProductList({
   const fetchBatchesForProduct = useCallback(async (productId: string) => {
 
     try {
-      const batches = await getBatchesByProductAndLocation(productId, locationId);
+      const batches = await findBatchesByProductAndLocation(productId, locationId);
       setBatchesData(prev => ({
         ...prev,
         [productId]: batches
