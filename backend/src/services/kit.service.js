@@ -3,7 +3,6 @@ const Kit = require('../models/Kit');
 const KitProduct = require('../models/KitProduct');
 const Product = require('../models/Product');
 const kitSchema = require('../validation/kit.schema');
-const { Op } = require('sequelize');
 
 class KitService extends BaseService {
   constructor() {
@@ -39,13 +38,12 @@ class KitService extends BaseService {
     return this.transaction(async (t) => {
       const kit = await this.model.create(kitData, { transaction: t });
 
-      if (products && products.length > 0) {
+      if (products.length > 0) {
         const kitProducts = products.map(p => ({
           kitId: kit.id,
           productId: p.productId,
           quantity: p.quantity
         }));
-
         await KitProduct.bulkCreate(kitProducts, { transaction: t });
       }
 
@@ -63,13 +61,12 @@ class KitService extends BaseService {
 
       await KitProduct.destroy({ where: { kitId: id }, transaction: t });
 
-      if (products && products.length > 0) {
+      if (products.length > 0) {
         const kitProducts = products.map(p => ({
           kitId: id,
           productId: p.productId,
           quantity: p.quantity
         }));
-
         await KitProduct.bulkCreate(kitProducts, { transaction: t });
       }
 
