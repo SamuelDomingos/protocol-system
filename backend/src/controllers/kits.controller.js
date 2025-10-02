@@ -21,19 +21,7 @@ class KitController extends BaseController {
 
   getAll = asyncHandler(async (req, res) => {
     const { page = 1, limit = 10 } = req.query;
-    const searchQuery = req.query.search;
-
-    let result;
-
-    if (searchQuery && searchQuery.trim()) {
-      const searchResults = await this.service.search(searchQuery);
-      result = {
-        rows: searchResults,
-        count: searchResults.length
-      };
-    } else {
-      result = await this.service.findAllPaginated(req.query);
-    }
+    const result = await this.service.findAllPaginated(req.query);
 
     const response = formatPaginatedResponse(result, page, limit, this.entityName);
     res.json(response);
