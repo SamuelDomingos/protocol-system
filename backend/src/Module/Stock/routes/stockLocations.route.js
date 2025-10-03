@@ -1,12 +1,7 @@
 const express = require('express');
 const router = express.Router();
-<<<<<<<< HEAD:backend/src/Module/Stock/routes/stockLocations.route.js
 const { authenticate } = require('../../Auth/authMiddleware');
 const stockLocationsController = require('../controllers/stockLocations.controller');
-========
-const { authenticate } = require('../Auth/authMiddleware');
-const stockLocationsController = require('./stockLocations.controller');
->>>>>>>> 662c9195f1552aabe09dd68a6ae35cbb357ea64d:backend/src/Module/Stock/stockLocations.route.js
 
 router.post('/', authenticate, stockLocationsController.createStockLocation);
 

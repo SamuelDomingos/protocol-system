@@ -1,12 +1,7 @@
-<<<<<<<< HEAD:backend/src/Module/Stock/controllers/stockMovements.controller.js
+
 const BaseController = require('../../Base/base.controller');
 const stockMovementsService = require('../services/stockMovements.service');
 const asyncHandler = require('../../../utils/asyncHandler');
-========
-const BaseController = require('../Base/base.controller');
-const stockMovementsService = require('./stockMovements.service');
-const asyncHandler = require('../../utils/asyncHandler');
->>>>>>>> 662c9195f1552aabe09dd68a6ae35cbb357ea64d:backend/src/Module/Stock/stockMovements.controller.js
 
 class StockMovementsController extends BaseController {
   constructor() {

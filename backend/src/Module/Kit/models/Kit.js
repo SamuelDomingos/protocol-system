@@ -1,9 +1,5 @@
 const { DataTypes } = require('sequelize');
-<<<<<<<< HEAD:backend/src/Module/Kit/models/Kit.js
 const sequelize = require('../../../config/database');
-========
-const sequelize = require('../../config/database');
->>>>>>>> 662c9195f1552aabe09dd68a6ae35cbb357ea64d:backend/src/Module/Kit/Kit.js
 
 const Kit = sequelize.define('Kit', {
   id: {

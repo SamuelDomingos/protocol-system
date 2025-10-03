@@ -1,16 +1,9 @@
-<<<<<<<< HEAD:backend/src/Module/Stock/services/stockLocations.service.js
+
 const BaseService = require('../../Base/base.service');
 const StockLocation = require('../models/StockLocation');
 const Product = require('../../Product/Product');
 const stockLocationSchema = require('../validation/stockLocationSchema');
 const Supplier = require('../../Supplier/Supplier');
-========
-const BaseService = require('../Base/base.service');
-const StockLocation = require('./StockLocation');
-const Product = require('../Product/Product');
-const stockLocationSchema = require('./stockLocationSchema');
-const Supplier = require('../Supplier/Supplier');
->>>>>>>> 662c9195f1552aabe09dd68a6ae35cbb357ea64d:backend/src/Module/Stock/stockLocations.service.js
 
 class StockLocationsService extends BaseService {
   constructor() {

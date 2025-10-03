@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:backend/src/Module/Stock/controllers/stockLocations.controller.js
 const stockLocationsService = require('../services/stockLocations.service');
-========
-const stockLocationsService = require('./stockLocations.service');
->>>>>>>> 662c9195f1552aabe09dd68a6ae35cbb357ea64d:backend/src/Module/Stock/stockLocations.controller.js
 
 exports.createStockLocation = async (req, res) => {
   try {
