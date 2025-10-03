@@ -8,21 +8,12 @@ const Stage = require("../Stage/Stage");
 const Application = require("../Application/Application");
 const Permission = require("../Permission/Permission");
 const Message = require("../Message/Message");
-<<<<<<< HEAD
 const StockLocation = require("../Stock/models/StockLocation");
 const { StockMovement } = require("../Stock/models/StockMovement");
 const Product = require("../Product/Product");
 const Supplier = require("../Supplier/Supplier");
 const Kit = require("../Kit/models/Kit");
 const KitProduct = require("../Kit/models/KitProduct");
-=======
-const StockLocation = require("../Stock/StockLocation");
-const { StockMovement } = require("../Stock/StockMovement");
-const Product = require("../Product/Product");
-const Supplier = require("../Supplier/Supplier");
-const Kit = require("../Kit/Kit");
-const KitProduct = require("../Kit/KitProduct");
->>>>>>> 662c9195f1552aabe09dd68a6ae35cbb357ea64d
 
 const models = {
   User,

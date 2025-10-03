@@ -1,14 +1,14 @@
-const StockLocation = require('../models/StockLocation');
+const StockLocation = require('../../models/StockLocation');
 
 class StockProcessor {
   async process(movementData, transaction) {
     switch (movementData.type) {
       case 'entrada':
-        return this.entrada(movementData, transaction);
+        return this.processEntrada(movementData, transaction);
       case 'saida':
-        return this.saida(movementData, transaction);
+        return this.processSaida(movementData, transaction);
       case 'transferencia':
-        return this.transferencia(movementData, transaction);
+        return this.processTransferencia(movementData, transaction);
     }
   }
 

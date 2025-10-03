@@ -52,6 +52,8 @@ export function MovementsTable({
     onRowClick && onRowClick(movement);
   };
 
+  console.log(movements);
+
   return (
     <div>
       <div className="flex items-center gap-4 py-4">

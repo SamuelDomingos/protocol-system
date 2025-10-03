@@ -1,23 +1,21 @@
-
-const BaseService = require('../../Base/base.service');
-const { StockMovement } = require('../models/StockMovement');
-const { Product, Supplier, User, Client } = require('../../Index');
-const { stockMovementSchema } = require('../validation/stockMovementSchema');
-const { StockMovementDTO } = require('../dto/stockMovement.dto');
-const LocationValidator = require('../validators/LocationValidator');
-const StockProcessor = require('../atoms/StockProcessor');
-const searchService = require('../atoms/MovementSearch');
-const paginatedService = require('../atoms/MovementPaginated');
-
+const BaseService = require("../../../Base/base.service");
+const { StockMovement } = require("../../models/StockMovement");
+const { stockMovementSchema } = require("../../validation/stockMovementSchema");
+const StockMovementDTO = require("../../dto/stockMovement.dto");
+const LocationValidator = require("../../validation/location.validator");
+const StockProcessor = require("../atoms/StockProcessor");
+const MovementSearch = require("../atoms/MovementSearch");
+const MovementPaginated = require("../atoms/MovementPaginated");
+const { User } = require("../../../Index");
 class StockMovementsService extends BaseService {
   constructor() {
-    super(StockMovement, stockMovementSchema, [...]);
+    super(StockMovement, stockMovementSchema, []);
 
     this.locationValidator = new LocationValidator();
     this.stockProcessor = new StockProcessor();
     this.dto = new StockMovementDTO();
-    this.searchService = new MovementSearchService();
-    this.paginatedService = new MovementPaginatedService();
+    this.searchService = new MovementSearch();
+    this.paginatedService = new MovementPaginated(StockMovement, this.dto);
   }
 
   async createMovement(movementData) {
@@ -28,6 +26,20 @@ class StockMovementsService extends BaseService {
       await this.stockProcessor.process(value, transaction);
       return movement;
     });
+  }
+
+  async findById(id) {
+    const movement = await super.findById(id, [
+      {
+        model: User,
+        as: "user",
+        attributes: ["id", "name"],
+      },
+    ]);
+
+    if (!movement) return null;
+
+    return this.dto.toListItem(movement);
   }
 
   async findAllPaginated(query) {

@@ -11,6 +11,8 @@ interface MovementDetailsListProps {
 }
 
 export function MovementDetailsList({ entries, title = "Produtos Movimentados" }: MovementDetailsListProps) {
+  console.log(entries);
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">

@@ -1,9 +1,9 @@
 
-const BaseService = require('../../Base/base.service');
-const StockLocation = require('../models/StockLocation');
-const Product = require('../../Product/Product');
-const stockLocationSchema = require('../validation/stockLocationSchema');
-const Supplier = require('../../Supplier/Supplier');
+const BaseService = require('../../../Base/base.service');
+const StockLocation = require('../../models/StockLocation');
+const Product = require('../../../Product/Product');
+const stockLocationSchema = require('../../validation/stockLocationSchema');
+const Supplier = require('../../../Supplier/Supplier');
 
 class StockLocationsService extends BaseService {
   constructor() {

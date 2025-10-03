@@ -1,4 +1,4 @@
-const stockLocationsService = require('../services/stockLocations.service');
+const stockLocationsService = require('../services/molecules/stockLocations.service');
 
 exports.createStockLocation = async (req, res) => {
   try {

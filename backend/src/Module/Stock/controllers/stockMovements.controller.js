@@ -1,6 +1,6 @@
 
 const BaseController = require('../../Base/base.controller');
-const stockMovementsService = require('../services/stockMovements.service');
+const stockMovementsService = require('../services/molecules/stockMovements.service');
 const asyncHandler = require('../../../utils/asyncHandler');
 
 class StockMovementsController extends BaseController {

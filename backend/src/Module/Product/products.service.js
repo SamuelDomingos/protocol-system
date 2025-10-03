@@ -2,14 +2,8 @@ const BaseService = require("../Base/base.service");
 const Product = require("./Product");
 const { Op } = require("sequelize");
 const productSchema = require("./products.schema");
-<<<<<<< HEAD
-const stockLocationsService = require("../Stock/services/stockLocations.service");
+const stockLocationsService = require("../Stock/services/molecules/stockLocations.service");
 const StockLocation = require("../Stock/models/StockLocation");
-=======
-const stockLocationsService = require("../Stock/stockLocations.service");
-const StockLocation = require("../Stock/StockLocation");
->>>>>>> 662c9195f1552aabe09dd68a6ae35cbb357ea64d
-
 class ProductsService extends BaseService {
   constructor() {
     super(Product, productSchema);

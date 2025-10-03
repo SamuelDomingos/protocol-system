@@ -1,12 +1,32 @@
+const { User } = require('../../../Index');
+
 class MovementPaginated {
-  async findAllPaginated(query) {
+  constructor(model, dto) {
+    this.model = model;
+    this.dto = dto;
+  }
+
+  async paginate(query) {
     if (query.search) {
       return await this.searchMovements(query);
     }
 
-    const result = await super.findAllPaginated(query, { ... });
-    const rows = await Promise.all(result.rows.map(this.dto.toListItem));
-    return { count: result.count, rows };
+    const { page = 1, limit = 10 } = query;
+    const offset = (page - 1) * limit;
+
+    const { count, rows } = await this.model.findAndCountAll({
+      limit: parseInt(limit),
+      offset: parseInt(offset),
+      order: [['createdAt', 'DESC']],
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name']
+      }]
+    });
+
+    const processedRows = await Promise.all(rows.map(this.dto.toListItem.bind(this.dto)));
+    return { count, rows: processedRows };
   }
 
     async findByProduct(productId, options = {}) {
@@ -15,10 +35,14 @@ class MovementPaginated {
 
     const { count, rows } = await this.model.findAndCountAll({
       where: { productId },
-      include: this.defaultIncludes,
       order: [['createdAt', 'DESC']],
       limit: parseInt(limit),
-      offset: parseInt(offset)
+      offset: parseInt(offset),
+      include: [{
+        model: User,
+        as: 'user',
+        attributes: ['id', 'name']
+      }]
     });
 
     const processedMovements = await Promise.all(
@@ -27,14 +51,12 @@ class MovementPaginated {
 
         let fromLocation = null;
         if (data.fromLocationId && data.fromLocationType) {
-          const location = await this.getLocationByTypeAndId(data.fromLocationId, data.fromLocationType);
-          fromLocation = location ? { id: location.id, name: location.name } : null;
+          fromLocation = await this.dto.getLocation(data.fromLocationId, data.fromLocationType);
         }
 
         let toLocation = null;
         if (data.toLocationId && data.toLocationType) {
-          const location = await this.getLocationByTypeAndId(data.toLocationId, data.toLocationType);
-          toLocation = location ? { id: location.id, name: location.name } : null;
+          toLocation = await this.dto.getLocation(data.toLocationId, data.toLocationType);
         }
 
         return {

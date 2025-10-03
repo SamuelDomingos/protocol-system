@@ -1,4 +1,4 @@
-const { Supplier, Client, User } = require('../../Index');
+const { Supplier, Client, User } = require('../../../Index/index');
 
 class MovementSearch {
 
